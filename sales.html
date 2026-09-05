@@ -9,13 +9,12 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="theme-color" content="#A97C6C">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Alex+Brush&family=Caveat:wght@600;700&family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Alex+Brush&family=Caveat:wght@600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
 :root{
-  --font-sans: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, serif;
   --font-cursive: 'Alex Brush', cursive;
   --font-hand: 'Caveat', cursive;
-  --paper:#FAF6F2;
+  --paper:#FFFFFF;
   --paper-deep:#F2E8DF;
   --ink:#4A4038;
   --ink-soft:#96897F;
@@ -37,9 +36,9 @@ html,body{margin:0;padding:0;}
 body{
   background:var(--paper);
   color:var(--ink);
-  font-family:var(--font-sans);
-  font-size:16px;
-  line-height:1.7;
+  font-family:var(--font-serif);
+  font-size:17px;
+  line-height:1.75;
 }
 h1,h2,h3{margin:0;color:var(--ink);}
 p{margin:0;}
@@ -48,9 +47,9 @@ img{max-width:100%;}
 .section{padding:72px 0;}
 .section-label{
   position:relative;
-  font-family:'Montserrat', var(--font-sans);
-  font-size:11.5px;letter-spacing:3.5px;text-transform:uppercase;color:var(--mocha-deep);
-  margin-bottom:18px;padding-bottom:14px;font-weight:700;
+  font-family:var(--font-serif);
+  font-size:13px;letter-spacing:3.5px;text-transform:uppercase;color:var(--mocha-deep);
+  margin-bottom:18px;padding-bottom:14px;font-weight:600;
 }
 .section-label::after{content:'';position:absolute;left:0;bottom:0;width:36px;height:2px;background:var(--mocha);}
 .section-title{
@@ -82,8 +81,8 @@ img{max-width:100%;}
 /* ---------- Hero: plain, text-only, no competing background ---------- */
 .hero-section{padding:132px 0 8px;text-align:center;}
 .hero-section .eyebrow{
-  font-family:'Montserrat', var(--font-sans);font-size:12px;letter-spacing:3.5px;text-transform:uppercase;
-  color:var(--mocha-deep);font-weight:700;margin-bottom:22px;
+  font-family:var(--font-serif);font-size:13px;letter-spacing:3.5px;text-transform:uppercase;
+  color:var(--mocha-deep);font-weight:600;margin-bottom:22px;
 }
 .hero-section h1{
   font-family:var(--font-serif);font-weight:600;font-size:clamp(28px,4.6vw,46px);
@@ -155,18 +154,24 @@ img{max-width:100%;}
 /* ---------- Pricing ---------- */
 .pricing-card{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
-  padding:40px 36px;margin-top:28px;text-align:center;max-width:520px;
+  padding:44px 40px;margin-top:28px;text-align:center;max-width:520px;
+  box-shadow:0 24px 60px -30px rgba(74,64,56,.28);
 }
+.pricing-card .plan-name{font-family:var(--font-serif);font-weight:600;font-size:21px;letter-spacing:0.3px;margin-bottom:8px;}
+.pricing-card .price-note{font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:22px;}
 .pricing-card .price-tag{
-  font-family:var(--font-serif);font-weight:700;font-size:46px;letter-spacing:0.5px;color:var(--mocha-deep);margin:12px 0 6px;
+  display:flex;align-items:baseline;justify-content:center;gap:6px;
+  font-family:var(--font-serif);font-weight:700;font-size:50px;letter-spacing:0.3px;color:var(--mocha-deep);
 }
-.pricing-card .price-note{font-size:12px;letter-spacing:0.5px;color:var(--ink-faint);margin-bottom:24px;}
-.pricing-includes{text-align:left;list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:11px;}
-.pricing-includes li{font-size:14.5px;color:var(--ink-soft);line-height:1.6;display:flex;gap:8px;}
-.pricing-includes li::before{content:'✓';color:var(--mocha-deep);font-weight:700;}
-.contact-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
-.pricing-fineprint{font-size:12px;color:var(--ink-faint);}
-.placeholder{background:var(--warn-bg);color:var(--warn);padding:1px 6px;border-radius:5px;font-size:0.92em;}
+.pricing-card .price-tag .currency{font-size:22px;font-weight:600;color:var(--ink-soft);}
+.price-disclaimer{font-size:11.5px;color:var(--ink-faint);margin-top:8px;}
+.pricing-divider{border:none;border-top:1px solid var(--blush-line);margin:26px 0;}
+.pricing-includes{text-align:left;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+.pricing-includes li{font-size:14.5px;color:var(--ink-soft);line-height:1.65;display:flex;gap:9px;}
+.pricing-includes li::before{content:'✓';color:var(--mocha-deep);font-weight:700;flex-shrink:0;}
+.contact-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px 0 16px;}
+.pricing-fineprint{font-size:12px;color:var(--ink-faint);line-height:1.7;}
+.placeholder{background:var(--warn-bg);color:var(--warn);padding:1px 7px;border-radius:5px;font-size:0.9em;}
 
 /* ---------- FAQ ---------- */
 .faq-list{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
@@ -295,15 +300,18 @@ img{max-width:100%;}
   <h2 class="section-title">一次買斷，終身使用</h2>
   <p class="section-sub">目前開放 LINE／IG 私訊詢問購買，金流審核通過後會換成正式線上收款連結，購買方式更新時會另行通知既有客戶。</p>
   <div class="pricing-card">
-    <div class="price-note">一次性費用．無訂閱</div>
-    <div class="price-tag"><span class="placeholder">NT$ 990</span></div>
-    <div class="price-note">＊ 價格為範例，請依實際定價調整</div>
+    <div class="plan-name">EYELASH 客戶紀錄本．完整版</div>
+    <div class="price-note">一次性費用 · 終身使用</div>
+    <div class="price-tag"><span class="currency">NT$</span><span class="placeholder">990</span></div>
+    <div class="price-disclaimer">＊ 價格為示範用佔位數字，請換成你的實際定價</div>
+    <hr class="pricing-divider">
     <ul class="pricing-includes">
       <li>完整版 EYELASH 客戶紀錄本網頁工具</li>
       <li>禁忌事項標示、眼睛示意圖標記、服務歷史回溯</li>
       <li>匯出／匯入備份功能</li>
-      <li>後續更新免費升級</li>
+      <li><span class="placeholder">後續更新免費升級（請確認是否符合你的實際政策）</span></li>
     </ul>
+    <hr class="pricing-divider">
     <div class="contact-row">
       <a class="btn" href="https://line.me/R/ti/p/%40799vhtvj" target="_blank" rel="noopener">LINE 私訊詢問</a>
       <a class="btn btn-ghost" href="https://www.instagram.com/en_______i/" target="_blank" rel="noopener">IG 私訊詢問</a>
