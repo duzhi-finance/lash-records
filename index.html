@@ -289,7 +289,8 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .tri-toggle button:last-child{border-right:none;}
 .tri-toggle button.active-yes,
 .tri-toggle button.active-no,
-.tri-toggle button.active-unknown{background:var(--ink);color:#fff;}
+.tri-toggle button.active-unknown,
+.tri-toggle button.active{background:var(--ink);color:#fff;}
 .status-field input[type="text"], .status-field input[type="date"]{
   width:100%;padding:8px 10px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   background:#fff;font-size:13.5px;
@@ -371,6 +372,82 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
 
 .footer-links{margin-top:34px;padding-top:16px;border-top:1px solid var(--blush-line);text-align:right;}
+
+/* ---------- Revenue stat (home) ---------- */
+.revenue-card{
+  background:var(--paper-deep);border-radius:var(--radius-card);
+  padding:18px 22px;margin-bottom:18px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.revenue-card .revenue-label{font-size:13px;color:var(--ink-soft);font-weight:500;}
+.revenue-card .revenue-amount{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--mocha-deep);}
+
+/* ---------- Calendar / appointments ---------- */
+.calendar-header h1{font-family:var(--font-serif);font-size:26px;font-weight:700;margin-bottom:16px;}
+.status-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:12px;color:var(--ink-soft);}
+.legend-item{display:flex;align-items:center;gap:6px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.legend-dot.status-confirmed{background:var(--mocha-deep);}
+.legend-dot.status-completed{background:var(--ink);}
+.legend-dot.status-cancelled{background:var(--ink-faint);}
+.legend-dot.status-noshow{background:var(--warn);}
+
+.week-grid-scroll{overflow-x:auto;margin-bottom:20px;border-radius:var(--radius-card);}
+.week-grid{
+  display:grid;grid-template-columns:52px repeat(7,minmax(112px,1fr));
+  min-width:860px;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  overflow:hidden;background:#fff;
+}
+.grid-corner{height:45px;border-bottom:1px solid var(--blush-line);}
+.hour-label{
+  border-bottom:1px solid var(--blush-line);box-sizing:border-box;
+  font-size:10px;color:var(--ink-faint);text-align:right;padding:2px 6px 0 0;
+}
+.day-col-header{
+  height:45px;box-sizing:border-box;cursor:pointer;
+  padding:6px 6px 0;text-align:center;border-bottom:1px solid var(--blush-line);border-left:1px solid var(--blush-line);
+  color:var(--ink-soft);
+}
+.day-col-header .dow{display:block;font-size:10.5px;}
+.day-col-header .daynum{display:block;font-size:16px;font-weight:700;color:var(--ink);line-height:1.3;}
+.day-col-header.is-today{background:var(--blush);}
+.day-col-header.is-selected{background:var(--mocha-deep);}
+.day-col-header.is-selected .dow, .day-col-header.is-selected .daynum{color:#fff;}
+.day-col-body{position:relative;border-left:1px solid var(--blush-line);}
+.hour-row-line{position:absolute;left:0;right:0;border-top:1px solid var(--blush-line);}
+.appt-block{
+  position:absolute;left:3px;right:3px;border-radius:6px;padding:3px 6px;overflow:hidden;
+  font-size:10.5px;line-height:1.35;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);
+}
+.appt-block .appt-time{font-weight:700;display:block;}
+.appt-block .appt-name{display:block;font-weight:600;}
+.appt-block .appt-service{display:block;opacity:.85;}
+.appt-block.status-confirmed{background:var(--blush);color:var(--mocha-deep);}
+.appt-block.status-completed{background:var(--ink);color:#fff;}
+.appt-block.status-cancelled{background:var(--paper-deep);color:var(--ink-faint);}
+.appt-block.status-noshow{background:var(--warn-bg);color:var(--warn);}
+.week-nav{display:flex;justify-content:center;gap:8px;margin-bottom:22px;}
+.agenda-panel{background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);padding:20px 20px 22px;}
+.agenda-panel .panel-title h2{font-family:var(--font-serif);font-size:20px;font-weight:700;}
+.agenda-list{display:flex;flex-direction:column;gap:10px;}
+.agenda-row{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:12px 14px;
+}
+.agenda-time{font-size:13.5px;font-weight:700;color:var(--ink);min-width:48px;}
+.agenda-main{flex:1;min-width:120px;}
+.agenda-client{font-weight:600;font-size:14.5px;cursor:pointer;}
+.agenda-client:hover{color:var(--mocha-deep);}
+.agenda-service{font-size:12.5px;color:var(--ink-soft);}
+.agenda-amount{font-size:13px;color:var(--ink-soft);min-width:70px;text-align:right;}
+.agenda-actions{display:flex;gap:6px;}
+.status-pill{
+  border:none;border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;
+}
+.status-pill.status-confirmed{background:var(--blush);color:var(--mocha-deep);}
+.status-pill.status-completed{background:var(--ink);color:#fff;}
+.status-pill.status-cancelled{background:var(--paper-deep);color:var(--ink-faint);}
+.status-pill.status-noshow{background:var(--warn-bg);color:var(--warn);}
 </style>
 </head>
 <body>
@@ -490,6 +567,10 @@ let statusDraft = null;     // working copy of client.status while on detail pag
 let newRecordDraft = null;  // working copy for a new service record
 let expandedRecordId = null;
 let detailTab = 'status';   // 'status' | 'records'
+let calendarSelectedDate = null; // 'YYYY-MM-DD', set on entering calendar view
+
+const APPT_STATUSES = ['confirmed','completed','cancelled','noshow'];
+const APPT_STATUS_LABELS = {confirmed:'已確認', completed:'已完成', cancelled:'已取消', noshow:'未到'};
 
 const STATUS_FIELDS = [
   {key:'isFirstTime', label:'是否第一次接睫毛', tri:true},
@@ -536,6 +617,8 @@ function render(){
   const app = document.getElementById('app');
   if(view==='list'){
     app.innerHTML = renderListView();
+  }else if(view==='calendar'){
+    app.innerHTML = renderCalendarView();
   }else{
     const client = clients.find(c=>c.id===activeClientId);
     if(!client){ view='list'; app.innerHTML = renderListView(); return; }
@@ -598,6 +681,7 @@ function renderListView(){
         <div class="brand-en">FOR INDEPENDENT LASH ARTISTS</div>
       </div>
       <div class="topbar-actions">
+        <button class="btn-ghost btn btn-sm" onclick="openCalendar()" title="查看預約行事曆">📅 行事曆</button>
         <button class="btn-ghost btn btn-sm" onclick="exportBackup()" title="將所有客戶紀錄匯出成備份檔案">⭳ 匯出備份</button>
         <button class="btn-ghost btn btn-sm" onclick="triggerImport()" title="從備份檔案還原客戶紀錄">⭱ 匯入備份</button>
         <button class="btn" onclick="openAddClientModal()">＋ 新增客戶</button>
@@ -607,6 +691,10 @@ function renderListView(){
     <div class="storage-notice">
       <span class="icon">⚠️</span>
       <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用上方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
+    </div>
+    <div class="revenue-card">
+      <span class="revenue-label">本月營收</span>
+      <span class="revenue-amount">NT$ ${computeMonthlyRevenue().toLocaleString()}</span>
     </div>
     <div class="search-row">
       <input class="search-input" placeholder="搜尋姓名或電話…" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
@@ -645,6 +733,210 @@ function switchDetailTab(tab){
 function backToList(){
   view='list'; activeClientId=null; render();
 }
+function openClientFromCalendar(id){
+  activeClientId = id;
+  view='detail';
+  const client = clients.find(c=>c.id===id);
+  statusDraft = JSON.parse(JSON.stringify(client.status));
+  newRecordDraft = null;
+  expandedRecordId = null;
+  detailTab = 'records';
+  render();
+}
+
+/* ---- Calendar / appointments view ---- */
+function openCalendar(){
+  view='calendar';
+  calendarSelectedDate = calendarSelectedDate || todayStr();
+  newRecordDraft = null;
+  render();
+}
+function selectCalendarDate(dateStr){
+  calendarSelectedDate = dateStr;
+  newRecordDraft = null;
+  render();
+}
+function shiftCalendarWeek(days){
+  const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  calendarSelectedDate = d.toISOString().slice(0,10);
+  newRecordDraft = null;
+  render();
+}
+function jumpToToday(){
+  calendarSelectedDate = todayStr();
+  newRecordDraft = null;
+  render();
+}
+function getWeekDates(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate()-d.getDay());
+  const arr = [];
+  for(let i=0;i<7;i++){
+    const x = new Date(sunday);
+    x.setDate(sunday.getDate()+i);
+    arr.push(x.toISOString().slice(0,10));
+  }
+  return arr;
+}
+function fmtDateLabel(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  const weekdayLabels = ['日','一','二','三','四','五','六'];
+  return `${dateStr}（週${weekdayLabels[d.getDay()]}）`;
+}
+function collectAppointmentsForDate(dateStr){
+  const results = [];
+  clients.forEach(c=>{
+    (c.serviceRecords||[]).forEach(r=>{
+      if(r.date===dateStr){
+        results.push(Object.assign({}, r, {clientName:c.name, clientId:c.id}));
+      }
+    });
+  });
+  results.sort((a,b)=> (a.time||'99:99').localeCompare(b.time||'99:99'));
+  return results;
+}
+async function cycleAppointmentStatus(clientId, recordId){
+  const client = clients.find(c=>c.id===clientId);
+  const r = client && client.serviceRecords.find(x=>x.id===recordId);
+  if(!r) return;
+  const cur = r.status || 'confirmed';
+  const idx = APPT_STATUSES.indexOf(cur);
+  r.status = APPT_STATUSES[(idx+1) % APPT_STATUSES.length];
+  await saveData();
+  render();
+}
+const CAL_START_HOUR = 9;
+const CAL_END_HOUR = 21;
+const CAL_HOUR_PX = 52;
+function timeToMinutes(t){
+  if(!t) return null;
+  const parts = String(t).split(':');
+  const h = parseInt(parts[0],10), m = parseInt(parts[1]||'0',10);
+  if(isNaN(h)) return null;
+  return h*60+(isNaN(m)?0:m);
+}
+function renderWeekGrid(weekDates, selectedDate){
+  const gridHeight = (CAL_END_HOUR-CAL_START_HOUR)*CAL_HOUR_PX;
+  const weekdayLabels = ['日','一','二','三','四','五','六'];
+  const hourLabels = [];
+  for(let h=CAL_START_HOUR; h<=CAL_END_HOUR; h++){
+    hourLabels.push(`<div class="hour-label" style="height:${CAL_HOUR_PX}px;">${String(h).padStart(2,'0')}:00</div>`);
+  }
+  const dayCols = weekDates.map(dateStr=>{
+    const d = new Date(dateStr+'T00:00:00');
+    const isToday = dateStr===todayStr();
+    const isSelected = dateStr===selectedDate;
+    const appts = collectAppointmentsForDate(dateStr).filter(r=>timeToMinutes(r.time)!==null);
+    const blocks = appts.map(r=>{
+      const startMin = Math.max(timeToMinutes(r.time), CAL_START_HOUR*60);
+      const durMin = Number(r.duration)||60;
+      const top = (startMin - CAL_START_HOUR*60)/60*CAL_HOUR_PX;
+      const height = Math.max(durMin/60*CAL_HOUR_PX, 22);
+      const status = r.status||'confirmed';
+      const serviceLabel = r.service||r.style||'';
+      return `<div class="appt-block status-${status}" style="top:${top}px;height:${height}px;" onclick="startEditRecord('${r.clientId}','${r.id}')" title="${escapeHtml(r.clientName)} ${escapeHtml(r.time)}">
+        <span class="appt-time">${escapeHtml(r.time)}</span>
+        <span class="appt-name">${escapeHtml(r.clientName)}</span>
+        ${serviceLabel?`<span class="appt-service">${escapeHtml(serviceLabel)}</span>`:''}
+      </div>`;
+    }).join('');
+    const hourLines = [];
+    for(let h=CAL_START_HOUR; h<CAL_END_HOUR; h++){
+      hourLines.push(`<div class="hour-row-line" style="top:${(h-CAL_START_HOUR)*CAL_HOUR_PX}px;"></div>`);
+    }
+    return `<div>
+      <div class="day-col-header ${isToday?'is-today':''} ${isSelected?'is-selected':''}" onclick="selectCalendarDate('${dateStr}')">
+        <span class="dow">週${weekdayLabels[d.getDay()]}</span>
+        <span class="daynum">${d.getDate()}</span>
+      </div>
+      <div class="day-col-body" style="height:${gridHeight}px;">
+        ${hourLines.join('')}
+        ${blocks}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="week-grid-scroll"><div class="week-grid">
+    <div>
+      <div class="grid-corner"></div>
+      ${hourLabels.join('')}
+    </div>
+    ${dayCols}
+  </div></div>`;
+}
+function renderCalendarView(){
+  const selected = calendarSelectedDate || todayStr();
+  const weekDates = getWeekDates(selected);
+  const dayAppts = collectAppointmentsForDate(selected);
+  const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
+  const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment('${selected}')">＋ 新增預約</button>`;
+  const agendaHtml = dayAppts.length
+    ? `<div class="agenda-list">${dayAppts.map(r=>renderAgendaRow(r)).join('')}</div>`
+    : `<div class="empty-state" style="padding:30px 10px;"><p>這天還沒有預約。</p></div>`;
+
+  return `
+    <div class="back-row">
+      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+    </div>
+    <div class="calendar-header"><h1>行事曆</h1></div>
+    <div class="status-legend">
+      <span class="legend-item"><span class="legend-dot status-confirmed"></span>已確認</span>
+      <span class="legend-item"><span class="legend-dot status-completed"></span>已完成</span>
+      <span class="legend-item"><span class="legend-dot status-cancelled"></span>已取消</span>
+      <span class="legend-item"><span class="legend-dot status-noshow"></span>未到</span>
+    </div>
+    ${renderWeekGrid(weekDates, selected)}
+    <div class="week-nav">
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
+    </div>
+    <div class="agenda-panel">
+      <div class="panel-title"><h2>${fmtDateLabel(selected)}</h2>${addBtn}</div>
+      ${newPanel}
+      ${agendaHtml}
+    </div>
+  `;
+}
+function renderAgendaRow(r){
+  const status = r.status||'confirmed';
+  const statusLabel = APPT_STATUS_LABELS[status] || status;
+  const serviceLabel = r.service || r.style || '';
+  return `<div class="agenda-row">
+    <div class="agenda-time">${escapeHtml(r.time||'--:--')}</div>
+    <div class="agenda-main">
+      <div class="agenda-client" onclick="openClientFromCalendar('${r.clientId}')">${escapeHtml(r.clientName||'')}</div>
+      ${serviceLabel?`<div class="agenda-service">${escapeHtml(serviceLabel)}</div>`:''}
+    </div>
+    <div class="agenda-amount">${r.amount?('NT$ '+escapeHtml(String(r.amount))):''}</div>
+    <button class="status-pill status-${status}" onclick="cycleAppointmentStatus('${r.clientId}','${r.id}')">${statusLabel}</button>
+    <div class="agenda-actions">
+      <button class="btn-ghost btn btn-sm" onclick="startEditRecord('${r.clientId}','${r.id}')">編輯</button>
+      <button class="btn-danger-text" onclick="deleteRecord('${r.clientId}','${r.id}')">刪除</button>
+    </div>
+  </div>`;
+}
+function startNewAppointment(dateStr){
+  newRecordDraft = {
+    clientId: null, id: null,
+    clientPickerName: '',
+    date: dateStr || todayStr(),
+    time:'', duration:90, service:'', status:'confirmed', amount:'', deposit:'',
+    eyeMode:'single', shapeSingle:'round', shapeLeft:'round', shapeRight:'round',
+    marksL:[], marksR:[],
+    style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
+    technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
+  };
+  render();
+  const panel = document.getElementById('new-record-panel');
+  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function setApptStatus(val){
+  newRecordDraft.status = val;
+  render();
+}
 function latestServiceDate(client){
   const recs = client.serviceRecords||[];
   if(recs.length===0) return null;
@@ -667,6 +959,21 @@ function computeRevisitStats(client){
     sinceLastWeeks: sinceLastDays/7,
     isOverdue: sinceLastDays > avgDays*1.2,
   };
+}
+function computeMonthlyRevenue(){
+  const monthPrefix = todayStr().slice(0,7);
+  let total = 0;
+  clients.forEach(c=>{
+    (c.serviceRecords||[]).forEach(r=>{
+      if(!r.date || !r.date.startsWith(monthPrefix)) return;
+      if(r.status==='completed'){
+        total += Number(r.amount)||0;
+      }else if(r.status==='noshow'){
+        total += Number(r.deposit)||0;
+      }
+    });
+  });
+  return total;
 }
 
 /* ---- Add/edit client modal ---- */
@@ -1008,6 +1315,7 @@ function copyLastRecord(clientId){
   newRecordDraft = {
     clientId, id: null,
     date: todayStr(),
+    time:'', duration: last.duration||90, service: last.service||'', status:'completed', amount:'', deposit:'',
     eyeMode: last.eyeMode,
     shapeSingle: last.shapeSingle||'round',
     shapeLeft: last.shapeLeft||last.shapeSingle||'round',
@@ -1054,6 +1362,10 @@ function renderRecordCard(r){
         </div>
       </div>
       <div class="record-detail-grid">
+        ${r.service?`<div class="record-detail-item"><label>服務項目</label><span>${escapeHtml(r.service)}</span></div>`:''}
+        ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
+        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}</span></div>`:''}
+        ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
         <div class="record-detail-item"><label>眼型</label><span>${shapeLabel}</span></div>
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
@@ -1074,10 +1386,13 @@ function renderRecordCard(r){
   return `<div class="record-card">
     <div class="record-top" onclick="toggleRecord('${r.id}')">
       <div>
-        <div class="record-date">${r.date}</div>
-        <div class="record-summary">${escapeHtml(r.style?r.style+' · ':'')}${shapeLabel} · ${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}</div>
+        <div class="record-date">${r.date}${r.time?' · '+escapeHtml(r.time):''}</div>
+        <div class="record-summary">${escapeHtml(r.service?r.service+' · ':(r.style?r.style+' · ':''))}${shapeLabel} · ${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}</div>
       </div>
-      <span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(APPT_STATUS_LABELS[r.status]||r.status)}</button>`:''}
+        <span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>
+      </div>
     </div>
     ${body}
   </div>`;
@@ -1115,6 +1430,7 @@ function startNewRecord(clientId){
   newRecordDraft = {
     clientId, id: null,
     date: todayStr(),
+    time:'', duration:90, service:'', status:'completed', amount:'', deposit:'',
     eyeMode:'single',
     shapeSingle:'round', shapeLeft:'round', shapeRight:'round',
     marksL:[], marksR:[],
@@ -1132,6 +1448,8 @@ function startEditRecord(clientId, recordId){
   newRecordDraft = {
     clientId, id: r.id,
     date: r.date,
+    time: r.time||'', duration: r.duration||90, service: r.service||'', status: r.status||'completed',
+    amount: r.amount||'', deposit: r.deposit||'',
     eyeMode: r.eyeMode,
     shapeSingle: r.shapeSingle || 'round',
     shapeLeft: r.shapeLeft || r.shapeSingle || 'round',
@@ -1171,25 +1489,60 @@ function renderNewRecordPanel(){
 
   const shapeL = isSplit ? d.shapeLeft : d.shapeSingle;
   const shapeR = isSplit ? d.shapeRight : d.shapeSingle;
-  const prevRecord = findLatestRecord(d.clientId, d.id);
+  const prevRecord = d.clientId ? findLatestRecord(d.clientId, d.id) : null;
   const prevRefHtml = prevRecord ? `<div class="prev-record-ref">
       <div class="prev-record-ref-title">上一筆紀錄參考（${prevRecord.date}）</div>
       <div>${escapeHtml(summarizeRecord(prevRecord))}</div>
       ${prevRecord.adjustmentNotes?`<div>上次調整：${escapeHtml(prevRecord.adjustmentNotes)}</div>`:''}
     </div>` : '';
+  const clientPickerHtml = !d.clientId ? `
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>客人姓名（輸入現有客人姓名可自動連結，或輸入新姓名建立新客人）</label>
+      <input type="text" list="client-name-list" value="${escapeHtml(d.clientPickerName||'')}" placeholder="輸入客人姓名" oninput="newRecordDraft.clientPickerName=this.value">
+      <datalist id="client-name-list">${clients.map(c=>`<option value="${escapeHtml(c.name)}">`).join('')}</datalist>
+    </div>` : '';
+  const apptStatus = d.status || 'confirmed';
 
   return `<div class="new-record-panel" id="new-record-panel">
-    <div style="font-weight:600;font-size:15px;margin-bottom:14px;">${d.id?'編輯服務紀錄':'新增服務紀錄'}</div>
+    <div style="font-weight:600;font-size:15px;margin-bottom:14px;">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
     <div class="form-row">
       <div class="form-field"><label>日期</label>
         <input type="date" value="${d.date}" oninput="newRecordDraft.date=this.value">
       </div>
-      <div class="form-field"><label>眼型模式</label>
-        <select onchange="setEyeMode(this.value)">
-          <option value="single" ${!isSplit?'selected':''}>單一眼型（圓眼／長眼／上挑／下垂）</option>
-          <option value="split" ${isSplit?'selected':''}>左右大小眼（分開設定）</option>
-        </select>
+      <div class="form-field"><label>時間（選填）</label>
+        <input type="time" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value">
       </div>
+    </div>
+    ${clientPickerHtml}
+    <div class="form-row">
+      <div class="form-field"><label>服務項目</label>
+        <input type="text" list="service-list" value="${escapeHtml(d.service||'')}" placeholder="例如：全新嫁接、補睫、卸睫" oninput="newRecordDraft.service=this.value">
+        <datalist id="service-list"><option value="全新嫁接"><option value="補睫"><option value="卸睫"><option value="其他"></datalist>
+      </div>
+      <div class="form-field"><label>預估時長（分鐘，選填）</label>
+        <input type="number" min="10" step="10" value="${escapeHtml(d.duration||'')}" placeholder="例如：90" oninput="newRecordDraft.duration=this.value">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>預約狀態</label>
+      <div class="tri-toggle" data-field="apptStatus">
+        ${APPT_STATUSES.map(s=>`<button type="button" class="${apptStatus===s?'active':''}" onclick="setApptStatus('${s}')">${APPT_STATUS_LABELS[s]}</button>`).join('')}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>金額</label>
+        <input type="number" min="0" value="${escapeHtml(d.amount||'')}" placeholder="服務金額" oninput="newRecordDraft.amount=this.value">
+      </div>
+      <div class="form-field"><label>訂金（選填）</label>
+        <input type="number" min="0" value="${escapeHtml(d.deposit||'')}" placeholder="若有先收訂金" oninput="newRecordDraft.deposit=this.value">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>眼型模式</label>
+      <select onchange="setEyeMode(this.value)">
+        <option value="single" ${!isSplit?'selected':''}>單一眼型（圓眼／長眼／上挑／下垂）</option>
+        <option value="split" ${isSplit?'selected':''}>左右大小眼（分開設定）</option>
+      </select>
     </div>
     ${shapeSelectors}
     <div class="form-field" style="margin-bottom:12px;">
@@ -1313,12 +1666,34 @@ async function saveNewRecord(){
     if(el) el.textContent = '請選擇日期';
     return;
   }
-  const client = clients.find(c=>c.id===d.clientId);
+  let clientId = d.clientId;
+  if(!clientId){
+    const name = (d.clientPickerName||'').trim();
+    if(!name){
+      const el = document.getElementById('new-record-error');
+      if(el) el.textContent = '請輸入客人姓名';
+      return;
+    }
+    const existing = clients.find(c=>c.name===name);
+    if(existing){
+      clientId = existing.id;
+    }else{
+      clientId = uid('client');
+      clients.push({
+        id: clientId, name, phone:'', igLine:'', birthday:'', firstVisitDate: d.date, source:'', sourceOther:'',
+        createdAt: todayStr(), status: blankStatus(), statusUpdatedAt: null,
+        contraindications: [], tags: [], serviceRecords: [],
+      });
+    }
+  }
+  const client = clients.find(c=>c.id===clientId);
   client.serviceRecords = client.serviceRecords||[];
   const payload = {
     id: d.id || uid('rec'),
-    clientId: d.clientId,
+    clientId,
     date: d.date,
+    time: d.time||'', duration: d.duration||'', service: d.service||'',
+    status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
     eyeMode: d.eyeMode,
     shapeSingle: d.shapeSingle, shapeLeft: d.shapeLeft, shapeRight: d.shapeRight,
     marksL: d.marksL, marksR: d.marksR,
@@ -1335,7 +1710,7 @@ async function saveNewRecord(){
   }
   newRecordDraft = null;
   await saveData();
-  showToast(d.id ? '已更新服務紀錄' : '已新增服務紀錄');
+  showToast(d.id ? '已更新紀錄' : '已新增紀錄');
   render();
 }
 
