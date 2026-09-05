@@ -120,7 +120,14 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .btn-sm{padding:6px 14px;font-size:13px;}
 
 /* ---------- Top bar action group ---------- */
-.topbar-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.topbar-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.icon-btn-group{display:flex;gap:6px;padding-right:12px;border-right:1px solid var(--blush-line);}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.icon-btn:hover{background:var(--sage-bg);color:var(--ink);border-color:var(--mocha);}
 
 /* ---------- Storage notice ---------- */
 .storage-notice{
@@ -321,7 +328,8 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .record-detail-item span{font-size:13.5px;}
 .record-notes{font-size:13px;color:var(--ink-soft);margin-top:8px;white-space:pre-wrap;}
 
-/* Eye diagrams */
+/* Eye segment diagram: a lash-line arc with 3 marker lines (left/mid/right, mid longest)
+   for recording extension length per segment */
 .eye-diagrams{display:flex;gap:16px;margin-bottom:6px;flex-wrap:wrap;}
 .eye-diagram-block{flex:1;min-width:150px;}
 .eye-diagram-block .eye-label{font-size:11.5px;color:var(--ink-soft);margin-bottom:5px;text-align:center;}
@@ -329,14 +337,16 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   padding:6px;
 }
-.eye-svg-wrap svg{width:100%;height:auto;display:block;cursor:crosshair;}
-.eye-outline{fill:var(--blush);stroke:var(--mocha);stroke-width:2;}
-.eye-mark-dot{fill:var(--mocha-deep);stroke:#fff;stroke-width:1.2;cursor:pointer;}
-.eye-shape-select{
-  width:100%;padding:6px 8px;margin-bottom:6px;border:1px solid var(--blush-line);
-  border-radius:var(--radius-ui);font-size:12.5px;background:#fff;
+.eye-svg-wrap svg{width:100%;height:auto;display:block;}
+.eye-arc{stroke:var(--mocha);stroke-width:2.5;stroke-linecap:round;}
+.eye-seg-line{stroke:var(--mocha-deep);stroke-width:2.5;stroke-linecap:round;}
+.seg-inputs{display:flex;gap:6px;margin-top:6px;}
+.seg-inputs input{
+  width:100%;padding:6px 4px;text-align:center;border:1px solid var(--blush-line);
+  border-radius:var(--radius-ui);font-size:12.5px;background:#fff;color:var(--ink);
 }
-.eye-diagram-hint{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:5px;}
+.seg-display{display:flex;justify-content:space-around;margin-top:6px;font-size:12px;color:var(--ink-soft);}
+.field-hint{font-size:11.5px;color:var(--ink-faint);line-height:1.5;margin-top:5px;}
 
 /* New service form */
 .new-record-panel{
@@ -348,8 +358,18 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .form-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px;font-weight:500;}
 .form-field input, .form-field select, .form-field textarea{
   width:100%;padding:8px 10px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:13.5px;
+  background:#fff;font-size:13.5px;color:var(--ink);transition:border-color .15s ease;
 }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus{border-color:var(--mocha);}
+.form-field select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1,1 L6,6 L11,1' fill='none' stroke='%23A97C6C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:11px;
+  padding-right:28px;cursor:pointer;
+}
+.form-field input[type="date"], .form-field input[type="time"]{cursor:pointer;}
+.form-field input[type="date"]::-webkit-calendar-picker-indicator,
+.form-field input[type="time"]::-webkit-calendar-picker-indicator{opacity:0.65;cursor:pointer;}
 .form-field textarea{resize:vertical;min-height:50px;}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;}
 
@@ -365,10 +385,19 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .modal-box h3{font-size:18px;margin-bottom:18px;}
 .modal-field{margin-bottom:14px;}
 .modal-field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
-.modal-field input{
+.modal-field input, .modal-field select{
   width:100%;padding:9px 12px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;
+  background:#fff;font-size:14px;color:var(--ink);transition:border-color .15s ease;
 }
+.modal-field input:focus, .modal-field select:focus{border-color:var(--mocha);}
+.modal-field select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1,1 L6,6 L11,1' fill='none' stroke='%23A97C6C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center;background-size:11px;
+  padding-right:32px;cursor:pointer;
+}
+.modal-field input[type="date"]{cursor:pointer;}
+.modal-field input[type="date"]::-webkit-calendar-picker-indicator{opacity:0.65;cursor:pointer;}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
 
 .footer-links{margin-top:34px;padding-top:16px;border-top:1px solid var(--blush-line);text-align:right;}
@@ -596,18 +625,6 @@ function blankStatus(){
   return s;
 }
 
-const EYE_SHAPES = [
-  {id:'round', label:'圓眼'},
-  {id:'long', label:'長眼'},
-  {id:'up', label:'上挑'},
-  {id:'down', label:'下垂'},
-];
-const EYE_PATHS = {
-  round: 'M8,62 Q100,10 192,62 Q100,96 8,62 Z',
-  long:  'M5,56 Q100,28 195,56 Q100,76 5,56 Z',
-  up:    'M8,66 Q100,14 192,38 Q100,88 8,66 Z',
-  down:  'M8,40 Q100,14 192,62 Q100,90 8,40 Z',
-};
 
 const TECHNIQUES = ['單根','歐美','3D','4D','6D','Y Y','其他'];
 
@@ -681,9 +698,11 @@ function renderListView(){
         <div class="brand-en">FOR INDEPENDENT LASH ARTISTS</div>
       </div>
       <div class="topbar-actions">
-        <button class="btn-ghost btn btn-sm" onclick="openCalendar()" title="查看預約行事曆">📅 行事曆</button>
-        <button class="btn-ghost btn btn-sm" onclick="exportBackup()" title="將所有客戶紀錄匯出成備份檔案">⭳ 匯出備份</button>
-        <button class="btn-ghost btn btn-sm" onclick="triggerImport()" title="從備份檔案還原客戶紀錄">⭱ 匯入備份</button>
+        <div class="icon-btn-group">
+          <button class="icon-btn" onclick="openCalendar()" title="行事曆" aria-label="行事曆">📅</button>
+          <button class="icon-btn" onclick="exportBackup()" title="匯出備份" aria-label="匯出備份">⭳</button>
+          <button class="icon-btn" onclick="triggerImport()" title="匯入備份" aria-label="匯入備份">⭱</button>
+        </div>
         <button class="btn" onclick="openAddClientModal()">＋ 新增客戶</button>
         <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
       </div>
@@ -924,8 +943,7 @@ function startNewAppointment(dateStr){
     clientPickerName: '',
     date: dateStr || todayStr(),
     time:'', duration:90, service:'', status:'confirmed', amount:'', deposit:'',
-    eyeMode:'single', shapeSingle:'round', shapeLeft:'round', shapeRight:'round',
-    marksL:[], marksR:[],
+    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
   };
@@ -998,7 +1016,7 @@ function closeClientModal(){
 function onModalSourceChange(val){
   editClientDraft.source = val;
   const wrap = document.getElementById('modal-source-other-wrap');
-  if(wrap) wrap.style.visibility = val==='其他' ? 'visible' : 'hidden';
+  if(wrap) wrap.hidden = val!=='其他';
 }
 function renderClientModal(){
   const d = editClientDraft;
@@ -1016,28 +1034,28 @@ function renderClientModal(){
       </div>
       <div class="modal-field">
         <label>IG／LINE（選填）</label>
-        <input id="modal-igline" value="${escapeHtml(d.igLine)}" placeholder="@ig帳號 或 LINE ID">
+        <input id="modal-igline" value="${escapeHtml(d.igLine)}">
       </div>
       <div class="form-row" style="margin-bottom:14px;">
         <div class="modal-field" style="margin-bottom:0;">
-          <label>生日 🎂（選填）</label>
+          <label>生日（選填）</label>
           <input id="modal-birthday" type="date" value="${escapeHtml(d.birthday)}">
         </div>
         <div class="modal-field" style="margin-bottom:0;">
-          <label>第一次來店日期</label>
-          <input id="modal-first-visit" type="date" value="${escapeHtml(d.firstVisitDate)}">
+          <label>客戶來源（選填）</label>
+          <select id="modal-source" onchange="onModalSourceChange(this.value)">
+            <option value="">請選擇</option>
+            ${CLIENT_SOURCES.map(s=>`<option value="${s}" ${d.source===s?'selected':''}>${s}</option>`).join('')}
+          </select>
         </div>
       </div>
-      <div class="modal-field">
-        <label>客戶來源（選填）</label>
-        <select id="modal-source" onchange="onModalSourceChange(this.value)">
-          <option value="">請選擇</option>
-          ${CLIENT_SOURCES.map(s=>`<option value="${s}" ${d.source===s?'selected':''}>${s}</option>`).join('')}
-        </select>
-      </div>
-      <div class="modal-field" id="modal-source-other-wrap" style="${d.source==='其他'?'':'visibility:hidden'}">
+      <div class="modal-field" id="modal-source-other-wrap" ${d.source==='其他'?'':'hidden'}>
         <label>來源說明</label>
         <input id="modal-source-other" value="${escapeHtml(d.sourceOther)}" placeholder="請輸入來源">
+      </div>
+      <div class="modal-field">
+        <label>第一次來店日期</label>
+        <input id="modal-first-visit" type="date" value="${escapeHtml(d.firstVisitDate)}">
       </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
       <div class="modal-actions">
@@ -1151,7 +1169,7 @@ function renderClientCard(client){
   const rows = [];
   if(client.phone) rows.push(`<span class="card-info-item">📞 ${escapeHtml(client.phone)}</span>`);
   if(client.igLine) rows.push(`<span class="card-info-item">💬 ${escapeHtml(client.igLine)}</span>`);
-  if(client.birthday) rows.push(`<span class="card-info-item">🎂 ${escapeHtml(client.birthday)}</span>`);
+  if(client.birthday) rows.push(`<span class="card-info-item">生日：${escapeHtml(client.birthday)}</span>`);
   if(client.firstVisitDate) rows.push(`<span class="card-info-item">首次到店：${escapeHtml(client.firstVisitDate)}</span>`);
   if(sourceLabel(client)) rows.push(`<span class="card-info-item">來源：${escapeHtml(sourceLabel(client))}</span>`);
   rows.push(`<span class="card-info-item">已服務 ${visitCount} 次</span>`);
@@ -1295,7 +1313,7 @@ function renderServiceSection(client){
   const recs = (client.serviceRecords||[]).slice().sort((a,b)=> b.date.localeCompare(a.date));
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
   const addBtns = newRecordDraft ? '' : `<div style="display:flex;gap:8px;">
-      ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="copyLastRecord('${client.id}')" title="帶入上一筆紀錄的款式設定，只需調整有變動的地方">複製上次</button>`:''}
+      ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="copyLastRecord('${client.id}')" title="一鍵帶入上一筆紀錄的所有設定，開啟後只需要修改有變動的地方">沿用上次設定</button>`:''}
       <button class="btn btn-sm" onclick="startNewRecord('${client.id}')">＋ 新增服務紀錄</button>
     </div>`;
 
@@ -1316,12 +1334,8 @@ function copyLastRecord(clientId){
     clientId, id: null,
     date: todayStr(),
     time:'', duration: last.duration||90, service: last.service||'', status:'completed', amount:'', deposit:'',
-    eyeMode: last.eyeMode,
-    shapeSingle: last.shapeSingle||'round',
-    shapeLeft: last.shapeLeft||last.shapeSingle||'round',
-    shapeRight: last.shapeRight||last.shapeSingle||'round',
-    marksL: JSON.parse(JSON.stringify(last.marksL||[])),
-    marksR: JSON.parse(JSON.stringify(last.marksR||[])),
+    lenLL: last.lenLL||'', lenLM: last.lenLM||'', lenLR: last.lenLR||'',
+    lenRL: last.lenRL||'', lenRM: last.lenRM||'', lenRR: last.lenRR||'',
     style: last.style||'', length: last.length||'', curl: last.curl||'', thickness: last.thickness||'',
     countLeft: last.countLeft||'', countRight: last.countRight||'',
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
@@ -1334,31 +1348,34 @@ function copyLastRecord(clientId){
   if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
-function eyeSvgBlock(shapeId, side, marks, editable){
-  const d = EYE_PATHS[shapeId] || EYE_PATHS.round;
+function eyeArcSvg(side){
   const flipStyle = side==='R' ? ' style="transform:scaleX(-1);transform-origin:100px 60px;"' : '';
-  const dots = (marks||[]).map(m=>`<circle class="eye-mark-dot" cx="${m.x}" cy="${m.y}" r="4"${editable?` onclick="event.stopPropagation(); removeMark('${side}','${m.id}')"`:''}></circle>`).join('');
-  const clickAttr = editable ? ` onclick="handleEyeClick(event,'${side}')"` : '';
-  return `<svg viewBox="0 0 200 120"${clickAttr}><g${flipStyle}><path class="eye-outline" d="${d}"></path></g><g id="${editable?('marks-group-'+side):''}">${dots}</g></svg>`;
+  return `<svg viewBox="0 0 200 120"><g${flipStyle}>
+    <path class="eye-arc" d="M20,75 Q100,95 180,75" fill="none"></path>
+    <line class="eye-seg-line" x1="50" y1="85" x2="50" y2="45"></line>
+    <line class="eye-seg-line" x1="100" y1="95" x2="100" y2="20"></line>
+    <line class="eye-seg-line" x1="150" y1="85" x2="150" y2="45"></line>
+  </g></svg>`;
 }
 
 function renderRecordCard(r){
   const expanded = expandedRecordId===r.id;
-  const shapeLabel = r.eyeMode==='split' ? `左：${shapeName(r.shapeLeft)}／右：${shapeName(r.shapeRight)}` : shapeName(r.shapeSingle);
   const totalCount = (Number(r.countLeft)||0) + (Number(r.countRight)||0);
+  const hasSegL = r.lenLL||r.lenLM||r.lenLR;
+  const hasSegR = r.lenRL||r.lenRM||r.lenRR;
   let body = '';
   if(expanded){
-    const shapeL = r.eyeMode==='split' ? r.shapeLeft : r.shapeSingle;
-    const shapeR = r.eyeMode==='split' ? r.shapeRight : r.shapeSingle;
     body = `<div class="record-body">
       <div class="eye-diagrams">
         <div class="eye-diagram-block">
           <div class="eye-label">左眼</div>
-          <div class="eye-svg-wrap">${eyeSvgBlock(shapeL,'L',r.marksL,false)}</div>
+          <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
+          ${hasSegL?`<div class="seg-display"><span>${escapeHtml(r.lenLL||'—')}</span><span>${escapeHtml(r.lenLM||'—')}</span><span>${escapeHtml(r.lenLR||'—')}</span></div>`:''}
         </div>
         <div class="eye-diagram-block">
           <div class="eye-label">右眼</div>
-          <div class="eye-svg-wrap">${eyeSvgBlock(shapeR,'R',r.marksR,false)}</div>
+          <div class="eye-svg-wrap">${eyeArcSvg('R')}</div>
+          ${hasSegR?`<div class="seg-display"><span>${escapeHtml(r.lenRL||'—')}</span><span>${escapeHtml(r.lenRM||'—')}</span><span>${escapeHtml(r.lenRR||'—')}</span></div>`:''}
         </div>
       </div>
       <div class="record-detail-grid">
@@ -1366,7 +1383,6 @@ function renderRecordCard(r){
         ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
         ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
-        <div class="record-detail-item"><label>眼型</label><span>${shapeLabel}</span></div>
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
         <div class="record-detail-item"><label>翹度</label><span>${escapeHtml(r.curl||'—')}</span></div>
@@ -1387,7 +1403,7 @@ function renderRecordCard(r){
     <div class="record-top" onclick="toggleRecord('${r.id}')">
       <div>
         <div class="record-date">${r.date}${r.time?' · '+escapeHtml(r.time):''}</div>
-        <div class="record-summary">${escapeHtml(r.service?r.service+' · ':(r.style?r.style+' · ':''))}${shapeLabel} · ${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}</div>
+        <div class="record-summary">${escapeHtml(r.service?r.service+' · ':(r.style?r.style+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
         ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(APPT_STATUS_LABELS[r.status]||r.status)}</button>`:''}
@@ -1397,10 +1413,6 @@ function renderRecordCard(r){
     ${body}
   </div>`;
 }
-function shapeName(id){
-  const found = EYE_SHAPES.find(s=>s.id===id);
-  return found ? found.label : '未選擇';
-}
 function findLatestRecord(clientId, excludeId){
   const client = clients.find(c=>c.id===clientId);
   const recs = (client.serviceRecords||[]).filter(r=>r.id!==excludeId).slice().sort((a,b)=> b.date.localeCompare(a.date));
@@ -1408,9 +1420,8 @@ function findLatestRecord(clientId, excludeId){
 }
 function summarizeRecord(r){
   if(!r) return '';
-  const shapeLabel = r.eyeMode==='split' ? `左：${shapeName(r.shapeLeft)}／右：${shapeName(r.shapeRight)}` : shapeName(r.shapeSingle);
   const techLabel = r.technique==='其他' ? (r.techniqueOther||'其他') : r.technique;
-  return [r.style, shapeLabel, r.length, r.curl, r.thickness, techLabel].filter(Boolean).join(' · ');
+  return [r.style, r.length, r.curl, r.thickness, techLabel].filter(Boolean).join(' · ');
 }
 function toggleRecord(id){
   expandedRecordId = expandedRecordId===id ? null : id;
@@ -1431,9 +1442,7 @@ function startNewRecord(clientId){
     clientId, id: null,
     date: todayStr(),
     time:'', duration:90, service:'', status:'completed', amount:'', deposit:'',
-    eyeMode:'single',
-    shapeSingle:'round', shapeLeft:'round', shapeRight:'round',
-    marksL:[], marksR:[],
+    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
   };
@@ -1450,12 +1459,8 @@ function startEditRecord(clientId, recordId){
     date: r.date,
     time: r.time||'', duration: r.duration||90, service: r.service||'', status: r.status||'completed',
     amount: r.amount||'', deposit: r.deposit||'',
-    eyeMode: r.eyeMode,
-    shapeSingle: r.shapeSingle || 'round',
-    shapeLeft: r.shapeLeft || r.shapeSingle || 'round',
-    shapeRight: r.shapeRight || r.shapeSingle || 'round',
-    marksL: JSON.parse(JSON.stringify(r.marksL||[])),
-    marksR: JSON.parse(JSON.stringify(r.marksR||[])),
+    lenLL: r.lenLL||'', lenLM: r.lenLM||'', lenLR: r.lenLR||'',
+    lenRL: r.lenRL||'', lenRM: r.lenRM||'', lenRR: r.lenRR||'',
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
     countLeft: r.countLeft||'', countRight: r.countRight||'',
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
@@ -1471,24 +1476,6 @@ function cancelNewRecord(){
 }
 function renderNewRecordPanel(){
   const d = newRecordDraft;
-  const shapeOptions = (val)=>EYE_SHAPES.map(s=>`<option value="${s.id}" ${val===s.id?'selected':''}>${s.label}</option>`).join('');
-  const isSplit = d.eyeMode==='split';
-  const shapeSelectors = isSplit ? `
-    <div class="form-row">
-      <div class="form-field"><label>左眼型</label>
-        <select onchange="setRecordShapeSplit('left', this.value)">${shapeOptions(d.shapeLeft)}</select>
-      </div>
-      <div class="form-field"><label>右眼型</label>
-        <select onchange="setRecordShapeSplit('right', this.value)">${shapeOptions(d.shapeRight)}</select>
-      </div>
-    </div>` : `
-    <div class="form-field" style="margin-bottom:12px;">
-      <label>眼型</label>
-      <select onchange="setRecordShapeSingle(this.value)">${shapeOptions(d.shapeSingle)}</select>
-    </div>`;
-
-  const shapeL = isSplit ? d.shapeLeft : d.shapeSingle;
-  const shapeR = isSplit ? d.shapeRight : d.shapeSingle;
   const prevRecord = d.clientId ? findLatestRecord(d.clientId, d.id) : null;
   const prevRefHtml = prevRecord ? `<div class="prev-record-ref">
       <div class="prev-record-ref-title">上一筆紀錄參考（${prevRecord.date}）</div>
@@ -1505,23 +1492,23 @@ function renderNewRecordPanel(){
 
   return `<div class="new-record-panel" id="new-record-panel">
     <div style="font-weight:600;font-size:15px;margin-bottom:14px;">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>日期</label>
+      <input type="date" value="${d.date}" oninput="newRecordDraft.date=this.value">
+    </div>
     <div class="form-row">
-      <div class="form-field"><label>日期</label>
-        <input type="date" value="${d.date}" oninput="newRecordDraft.date=this.value">
-      </div>
       <div class="form-field"><label>時間（選填）</label>
         <input type="time" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value">
-      </div>
-    </div>
-    ${clientPickerHtml}
-    <div class="form-row">
-      <div class="form-field"><label>服務項目</label>
-        <input type="text" list="service-list" value="${escapeHtml(d.service||'')}" placeholder="例如：全新嫁接、補睫、卸睫" oninput="newRecordDraft.service=this.value">
-        <datalist id="service-list"><option value="全新嫁接"><option value="補睫"><option value="卸睫"><option value="其他"></datalist>
       </div>
       <div class="form-field"><label>預估時長（分鐘，選填）</label>
         <input type="number" min="10" step="10" value="${escapeHtml(d.duration||'')}" placeholder="例如：90" oninput="newRecordDraft.duration=this.value">
       </div>
+    </div>
+    ${clientPickerHtml}
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>服務項目</label>
+      <input type="text" list="service-list" value="${escapeHtml(d.service||'')}" placeholder="例如：全新嫁接、補睫、卸睫" oninput="newRecordDraft.service=this.value">
+      <datalist id="service-list"><option value="全新嫁接"><option value="補睫"><option value="卸睫"><option value="其他"></datalist>
     </div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>預約狀態</label>
@@ -1537,31 +1524,33 @@ function renderNewRecordPanel(){
         <input type="number" min="0" value="${escapeHtml(d.deposit||'')}" placeholder="若有先收訂金" oninput="newRecordDraft.deposit=this.value">
       </div>
     </div>
-    <div class="form-field" style="margin-bottom:12px;">
-      <label>眼型模式</label>
-      <select onchange="setEyeMode(this.value)">
-        <option value="single" ${!isSplit?'selected':''}>單一眼型（圓眼／長眼／上挑／下垂）</option>
-        <option value="split" ${isSplit?'selected':''}>左右大小眼（分開設定）</option>
-      </select>
-    </div>
-    ${shapeSelectors}
+    <div class="field-hint" style="margin:-8px 0 12px;">訂金只在客人「未到」時才會用到：客人爽約但有先收訂金，這筆訂金會算進本月營收；正常完成服務的話不用填，「金額」會直接算進營收。</div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>款式</label>
       <input type="text" value="${escapeHtml(d.style)}" placeholder="例如：自然款、精緻款" oninput="newRecordDraft.style=this.value">
     </div>
     <div class="form-field" style="margin-bottom:14px;">
-      <label>眼睛示意圖標記（點擊圖上位置標記設計細節，點已標記的點可移除）</label>
+      <label>眼睛示意圖（由左至右依序填入各段嫁接長度）</label>
       <div class="eye-diagrams">
         <div class="eye-diagram-block">
           <div class="eye-label">左眼</div>
-          <div class="eye-svg-wrap">${eyeSvgBlock(shapeL,'L',d.marksL,true)}</div>
+          <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
+          <div class="seg-inputs">
+            <input type="text" placeholder="左段" value="${escapeHtml(d.lenLL||'')}" oninput="newRecordDraft.lenLL=this.value">
+            <input type="text" placeholder="中段" value="${escapeHtml(d.lenLM||'')}" oninput="newRecordDraft.lenLM=this.value">
+            <input type="text" placeholder="右段" value="${escapeHtml(d.lenLR||'')}" oninput="newRecordDraft.lenLR=this.value">
+          </div>
         </div>
         <div class="eye-diagram-block">
           <div class="eye-label">右眼</div>
-          <div class="eye-svg-wrap">${eyeSvgBlock(shapeR,'R',d.marksR,true)}</div>
+          <div class="eye-svg-wrap">${eyeArcSvg('R')}</div>
+          <div class="seg-inputs">
+            <input type="text" placeholder="左段" value="${escapeHtml(d.lenRL||'')}" oninput="newRecordDraft.lenRL=this.value">
+            <input type="text" placeholder="中段" value="${escapeHtml(d.lenRM||'')}" oninput="newRecordDraft.lenRM=this.value">
+            <input type="text" placeholder="右段" value="${escapeHtml(d.lenRR||'')}" oninput="newRecordDraft.lenRR=this.value">
+          </div>
         </div>
       </div>
-      <div class="eye-diagram-hint">點擊眼型圖標記設計位置（例如：加長段、加粗段、特殊角度）</div>
     </div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>眼型設計說明（選填）</label>
@@ -1600,7 +1589,7 @@ function renderNewRecordPanel(){
           ${TECHNIQUES.map(t=>`<option value="${t}" ${d.technique===t?'selected':''}>${t}</option>`).join('')}
         </select>
       </div>
-      <div class="form-field" id="technique-other-wrap" style="${d.technique==='其他'?'':'visibility:hidden'}">
+      <div class="form-field" id="technique-other-wrap" ${d.technique==='其他'?'':'hidden'}>
         <label>技術說明</label>
         <input type="text" value="${escapeHtml(d.techniqueOther)}" placeholder="請輸入技術名稱" oninput="newRecordDraft.techniqueOther=this.value">
       </div>
@@ -1616,48 +1605,9 @@ function renderNewRecordPanel(){
     </div>
   </div>`;
 }
-function setEyeMode(mode){
-  newRecordDraft.eyeMode = mode;
-  render();
-}
-function setRecordShapeSingle(val){
-  newRecordDraft.shapeSingle = val;
-  render();
-}
-function setRecordShapeSplit(side, val){
-  if(side==='left') newRecordDraft.shapeLeft = val; else newRecordDraft.shapeRight = val;
-  render();
-}
 function onTechniqueChange(val){
   newRecordDraft.technique = val;
   render();
-}
-function handleEyeClick(evt, side){
-  const svg = evt.currentTarget;
-  const pt = svg.createSVGPoint();
-  pt.x = evt.clientX; pt.y = evt.clientY;
-  const ctm = svg.getScreenCTM().inverse();
-  const p = pt.matrixTransform(ctm);
-  const mark = {id: uid('mark'), x: Math.round(p.x*10)/10, y: Math.round(p.y*10)/10};
-  const arr = side==='L' ? newRecordDraft.marksL : newRecordDraft.marksR;
-  arr.push(mark);
-  const g = document.getElementById('marks-group-'+side);
-  const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('class','eye-mark-dot');
-  c.setAttribute('cx', mark.x);
-  c.setAttribute('cy', mark.y);
-  c.setAttribute('r', 4);
-  c.setAttribute('data-id', mark.id);
-  c.onclick = function(e){ e.stopPropagation(); removeMark(side, mark.id); };
-  g.appendChild(c);
-}
-function removeMark(side, id){
-  const arr = side==='L' ? newRecordDraft.marksL : newRecordDraft.marksR;
-  const idx = arr.findIndex(m=>m.id===id);
-  if(idx>-1) arr.splice(idx,1);
-  const g = document.getElementById('marks-group-'+side);
-  const el = g.querySelector(`[data-id="${id}"]`);
-  if(el) el.remove();
 }
 async function saveNewRecord(){
   const d = newRecordDraft;
@@ -1694,9 +1644,8 @@ async function saveNewRecord(){
     date: d.date,
     time: d.time||'', duration: d.duration||'', service: d.service||'',
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
-    eyeMode: d.eyeMode,
-    shapeSingle: d.shapeSingle, shapeLeft: d.shapeLeft, shapeRight: d.shapeRight,
-    marksL: d.marksL, marksR: d.marksR,
+    lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
+    lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
     style: d.style, length: d.length, curl: d.curl, thickness: d.thickness,
     countLeft: d.countLeft, countRight: d.countRight,
     technique: d.technique, techniqueOther: d.techniqueOther,
