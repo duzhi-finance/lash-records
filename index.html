@@ -122,6 +122,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 /* ---------- Top bar action group ---------- */
 .topbar-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
 .icon-btn-group{display:flex;gap:8px;flex-wrap:wrap;padding-right:12px;border-right:1px solid var(--blush-line);}
+.icon-btn-group--footer{justify-content:center;border-right:none;padding-right:0;margin-bottom:18px;}
 .icon-btn{
   height:38px;border-radius:var(--radius-pill);flex-shrink:0;
   background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
@@ -446,8 +447,8 @@ input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transpare
 
 .week-grid-scroll{overflow-x:auto;margin-bottom:20px;border-radius:var(--radius-card);}
 .week-grid{
-  display:grid;grid-template-columns:52px repeat(7,minmax(112px,1fr));
-  min-width:860px;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  display:grid;
+  border:1px solid var(--blush-line);border-radius:var(--radius-card);
   overflow:hidden;background:#fff;
 }
 .grid-corner{height:45px;border-bottom:1px solid var(--blush-line);}
@@ -749,27 +750,13 @@ function renderListView(){
         <div class="brand-en">FOR INDEPENDENT LASH ARTISTS</div>
       </div>
       <div class="topbar-actions">
-        <div class="icon-btn-group">
-          <button class="icon-btn" onclick="openCalendar()">
-            <span class="icon-btn-glyph">📅</span>
-            <span class="icon-btn-label"><span class="zh">行事曆</span><span class="en">CALENDAR</span></span>
-          </button>
-          <button class="icon-btn" onclick="exportBackup()">
-            <span class="icon-btn-glyph">⭳</span>
-            <span class="icon-btn-label"><span class="zh">匯出備份</span><span class="en">EXPORT</span></span>
-          </button>
-          <button class="icon-btn" onclick="triggerImport()">
-            <span class="icon-btn-glyph">⭱</span>
-            <span class="icon-btn-label"><span class="zh">匯入備份</span><span class="en">IMPORT</span></span>
-          </button>
-        </div>
         <button class="btn" onclick="openAddClientModal()">＋ 新增客戶</button>
         <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
       </div>
     </div>
     <div class="storage-notice">
       <span class="icon">⚠️</span>
-      <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用上方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
+      <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用下方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
     </div>
     <div class="revenue-card">
       <span class="revenue-label">本月營收</span>
@@ -781,6 +768,20 @@ function renderListView(){
     ${countLine}
     ${cardsHtml}
     <div class="list-footer">
+      <div class="icon-btn-group icon-btn-group--footer">
+        <button class="icon-btn" onclick="openCalendar()">
+          <span class="icon-btn-glyph">📅</span>
+          <span class="icon-btn-label"><span class="zh">行事曆</span><span class="en">CALENDAR</span></span>
+        </button>
+        <button class="icon-btn" onclick="exportBackup()">
+          <span class="icon-btn-glyph">⭳</span>
+          <span class="icon-btn-label"><span class="zh">匯出備份</span><span class="en">EXPORT</span></span>
+        </button>
+        <button class="icon-btn" onclick="triggerImport()">
+          <span class="icon-btn-glyph">⭱</span>
+          <span class="icon-btn-label"><span class="zh">匯入備份</span><span class="en">IMPORT</span></span>
+        </button>
+      </div>
       <div class="list-footer-en">EYELASH — CLIENT RECORD SYSTEM</div>
     </div>
   `;
@@ -842,6 +843,13 @@ function shiftCalendarWeek(days){
   newRecordDraft = null;
   render();
 }
+function shiftCalendarDay(days){
+  const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  calendarSelectedDate = d.toISOString().slice(0,10);
+  newRecordDraft = null;
+  render();
+}
 function jumpToToday(){
   calendarSelectedDate = todayStr();
   newRecordDraft = null;
@@ -896,9 +904,17 @@ function timeToMinutes(t){
   if(isNaN(h)) return null;
   return h*60+(isNaN(m)?0:m);
 }
+function isMobileViewport(){
+  return window.innerWidth <= 640;
+}
 function renderWeekGrid(weekDates, selectedDate){
   const gridHeight = (CAL_END_HOUR-CAL_START_HOUR)*CAL_HOUR_PX;
   const weekdayLabels = ['日','一','二','三','四','五','六'];
+  const mobile = weekDates.length <= 3;
+  const gutterWidth = mobile ? 44 : 52;
+  const gridStyle = mobile
+    ? `grid-template-columns:${gutterWidth}px repeat(${weekDates.length},1fr);`
+    : `grid-template-columns:${gutterWidth}px repeat(${weekDates.length},minmax(112px,1fr));min-width:860px;`;
   const hourLabels = [];
   for(let h=CAL_START_HOUR; h<=CAL_END_HOUR; h++){
     hourLabels.push(`<div class="hour-label" style="height:${CAL_HOUR_PX}px;">${String(h).padStart(2,'0')}:00</div>`);
@@ -937,7 +953,7 @@ function renderWeekGrid(weekDates, selectedDate){
     </div>`;
   }).join('');
 
-  return `<div class="week-grid-scroll"><div class="week-grid">
+  return `<div class="week-grid-scroll"><div class="week-grid" style="${gridStyle}">
     <div>
       <div class="grid-corner"></div>
       ${hourLabels.join('')}
@@ -945,15 +961,35 @@ function renderWeekGrid(weekDates, selectedDate){
     ${dayCols}
   </div></div>`;
 }
+function getMiniDateRange(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  const arr = [];
+  for(let i=-1;i<=1;i++){
+    const x = new Date(d);
+    x.setDate(d.getDate()+i);
+    arr.push(x.toISOString().slice(0,10));
+  }
+  return arr;
+}
 function renderCalendarView(){
   const selected = calendarSelectedDate || todayStr();
-  const weekDates = getWeekDates(selected);
+  const mobile = isMobileViewport();
+  const weekDates = mobile ? getMiniDateRange(selected) : getWeekDates(selected);
   const dayAppts = collectAppointmentsForDate(selected);
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
   const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment('${selected}')">＋ 新增預約</button>`;
   const agendaHtml = dayAppts.length
     ? `<div class="agenda-list">${dayAppts.map(r=>renderAgendaRow(r)).join('')}</div>`
     : `<div class="empty-state" style="padding:30px 10px;"><p>這天還沒有預約。</p></div>`;
+  const navHtml = mobile ? `
+    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(-1)">‹ 前一天</button>
+    <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(1)">後一天 ›</button>
+  ` : `
+    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
+    <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
+  `;
 
   return `
     <div class="back-row">
@@ -967,11 +1003,7 @@ function renderCalendarView(){
       <span class="legend-item"><span class="legend-dot status-noshow"></span>未到</span>
     </div>
     ${renderWeekGrid(weekDates, selected)}
-    <div class="week-nav">
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
-      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
-    </div>
+    <div class="week-nav">${navHtml}</div>
     <div class="agenda-panel">
       <div class="panel-title"><h2>${fmtDateLabel(selected)}</h2>${addBtn}</div>
       ${newPanel}
@@ -1000,12 +1032,9 @@ function renderAgendaRow(r){
 function startNewAppointment(dateStr){
   newRecordDraft = {
     clientId: null, id: null,
-    clientPickerName: '',
+    clientPickerName: '', clientBirthday: '',
     date: dateStr || todayStr(),
-    time:'', duration:90, service:'', serviceOther:'', status:'confirmed', amount:'', deposit:'',
-    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
-    style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
-    technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
+    time:'',
   };
   render();
   const panel = document.getElementById('new-record-panel');
@@ -1411,7 +1440,7 @@ function copyLastRecord(clientId){
   if(!last) return;
   newRecordDraft = {
     clientId, id: null,
-    date: todayStr(),
+    date: '',
     time:'', duration: last.duration||90, service: last.service||'', serviceOther: last.serviceOther||'', status:'completed', amount:'', deposit:'',
     lenLL: last.lenLL||'', lenLM: last.lenLM||'', lenLR: last.lenLR||'',
     lenRL: last.lenRL||'', lenRM: last.lenRM||'', lenRR: last.lenRR||'',
@@ -1486,7 +1515,7 @@ function renderRecordCard(r){
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
         ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(APPT_STATUS_LABELS[r.status]||r.status)}</button>`:''}
-        <span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>
+        ${r.technique?`<span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>`:''}
       </div>
     </div>
     ${body}
@@ -1519,7 +1548,7 @@ function deleteRecord(clientId, recordId){
 function startNewRecord(clientId){
   newRecordDraft = {
     clientId, id: null,
-    date: todayStr(),
+    date: '',
     time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
     lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
@@ -1553,8 +1582,38 @@ function startEditRecord(clientId, recordId){
 function cancelNewRecord(){
   newRecordDraft = null; render();
 }
+function renderMinimalAppointmentForm(d){
+  return `<div class="new-record-panel" id="new-record-panel">
+    <div style="font-weight:600;font-size:15px;margin-bottom:14px;">新增預約</div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>客人姓名（輸入現有客人姓名可自動連結，或輸入新姓名建立新客人）</label>
+      <input type="text" list="client-name-list" value="${escapeHtml(d.clientPickerName||'')}" placeholder="輸入客人姓名" oninput="newRecordDraft.clientPickerName=this.value">
+      <datalist id="client-name-list">${clients.map(c=>`<option value="${escapeHtml(c.name)}">`).join('')}</datalist>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>出生年月日（選填）</label>
+      <input type="date" class="${d.clientBirthday?'':'date-empty'}" value="${escapeHtml(d.clientBirthday||'')}" oninput="newRecordDraft.clientBirthday=this.value; this.classList.toggle('date-empty', !this.value)">
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>約的日期</label>
+        <input type="date" class="${d.date?'':'date-empty'}" value="${d.date||''}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+      </div>
+      <div class="form-field"><label>時間（選填）</label>
+        <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
+      </div>
+    </div>
+    <div id="new-record-error" style="color:var(--alert);font-size:12.5px;margin-bottom:6px;"></div>
+    <div class="form-actions">
+      <button class="btn-ghost btn" onclick="cancelNewRecord()">取消</button>
+      <button class="btn" onclick="saveNewRecord()">儲存預約</button>
+    </div>
+  </div>`;
+}
 function renderNewRecordPanel(){
   const d = newRecordDraft;
+  if(!d.clientId && !d.id){
+    return renderMinimalAppointmentForm(d);
+  }
   const prevRecord = d.clientId ? findLatestRecord(d.clientId, d.id) : null;
   const prevRefHtml = prevRecord ? `<div class="prev-record-ref">
       <div class="prev-record-ref-title">上一筆紀錄參考（${prevRecord.date}）</div>
@@ -1717,7 +1776,7 @@ async function saveNewRecord(){
     }else{
       clientId = uid('client');
       clients.push({
-        id: clientId, name, phone:'', igLine:'', birthday:'', firstVisitDate: d.date, source:'', sourceOther:'',
+        id: clientId, name, phone:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
         createdAt: todayStr(), status: blankStatus(), statusUpdatedAt: null,
         contraindications: [], tags: [], serviceRecords: [],
       });
@@ -1733,10 +1792,10 @@ async function saveNewRecord(){
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
     lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
     lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
-    style: d.style, length: d.length, curl: d.curl, thickness: d.thickness,
-    countLeft: d.countLeft, countRight: d.countRight,
-    technique: d.technique, techniqueOther: d.techniqueOther,
-    designNotes: d.designNotes, adjustmentNotes: d.adjustmentNotes, notes: d.notes,
+    style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
+    countLeft: d.countLeft||'', countRight: d.countRight||'',
+    technique: d.technique||'', techniqueOther: d.techniqueOther||'',
+    designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
   };
   if(d.id){
     const idx = client.serviceRecords.findIndex(r=>r.id===d.id);
@@ -1760,6 +1819,12 @@ function attachDetailBehaviors(client){
   await loadCustomStyles();
   render();
 })();
+
+let __resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(__resizeTimer);
+  __resizeTimer = setTimeout(()=>{ if(view==='calendar') render(); }, 200);
+});
 </script>
 </body>
 </html>
