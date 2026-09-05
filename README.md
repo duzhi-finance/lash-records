@@ -31,13 +31,19 @@
 
 部署完成後，可以在 **Settings → Pages** 頁面上方看到網站網址（通常是 `https://<你的帳號>.github.io/lash-records/`）。
 
+## 銷售頁
+
+`sales.html` 是給獨立美睫師看的產品介紹頁（痛點、功能亮點、價格與購買方式、常見問題），部署後可以在 `https://<你的帳號>.github.io/lash-records/sales.html` 看到。
+
+**上架前務必更新**：頁面裡的價格與 LINE／IG 聯絡連結目前是佔位文字（標示為淺卡其色底），記得換成你自己的實際定價與帳號連結，否則客人點了會連到錯誤的網址。
+
 ## 本機開發
 
-這是一個純前端的單一 HTML 檔案（`index.html`），不需要建置流程。本機測試可以直接用瀏覽器打開，或用簡單的靜態伺服器：
+這是純前端的靜態網頁，不需要建置流程。本機測試可以直接用瀏覽器打開，或用簡單的靜態伺服器：
 
 ```bash
 python3 -m http.server 8000
-# 然後打開 http://localhost:8000
+# 然後打開 http://localhost:8000（工具本體）或 http://localhost:8000/sales.html（銷售頁）
 ```
 
 ## 檔案結構
@@ -45,6 +51,7 @@ python3 -m http.server 8000
 ```
 .
 ├── index.html                       # 主要應用程式（含所有 HTML/CSS/JS）
+├── sales.html                       # 給美睫師看的產品銷售頁
 ├── .github/workflows/deploy-pages.yml  # 自動部署到 GitHub Pages 的工作流程
 └── README.md
 ```
