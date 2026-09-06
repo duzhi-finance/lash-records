@@ -35,11 +35,6 @@
   --warn-line:#D9D3C6;
   --sage:#4A4038;
   --sage-bg:#F1E7DD;
-  --mint:#7FD9B6;
-  --mint-deep:#3DAE84;
-  --mint-bg:#E6F8F0;
-  --mint-line:#BFEBDA;
-  --spark-gold:#F0C97A;
   --radius-card:14px;
   --radius-pill:999px;
   --radius-ui:9px;
@@ -65,15 +60,15 @@ button{font-family:inherit;cursor:pointer;}
 input,select,textarea{font-family:inherit;font-size:14px;}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
-/* ---------- Bling decorations: mint + dot accents (icons only here; the dot-pattern background rule
-   lives at the end of the stylesheet so it wins the cascade over components' own `background:` shorthand) ---------- */
+/* ---------- Faint decorative sparkle: a barely-there accent icon, not a color scheme ---------- */
 .spark-icon{
-  display:inline-block;width:16px;height:16px;flex-shrink:0;vertical-align:middle;
+  display:inline-block;width:15px;height:15px;flex-shrink:0;vertical-align:middle;
   background-repeat:no-repeat;background-size:contain;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z' fill='%233DAE84'/><circle cx='19.5' cy='4.5' r='2.1' fill='%23F0C97A'/></svg>");
+  opacity:.4;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z' fill='%23A97C6C'/></svg>");
 }
-.spark-icon--lg{width:22px;height:22px;}
-.spark-icon--sm{width:12px;height:12px;}
+.spark-icon--lg{width:20px;height:20px;opacity:.5;}
+.spark-icon--sm{width:11px;height:11px;}
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
 
@@ -113,7 +108,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   font-weight:500;
   transition:background .15s ease, transform .05s ease;
 }
-.btn:hover{background:var(--mocha-deep);border-color:var(--mocha-deep);box-shadow:0 0 0 3px var(--mint-bg);}
+.btn:hover{background:var(--mocha-deep);border-color:var(--mocha-deep);}
 .btn:active{transform:translateY(1px);}
 .btn-ghost{
   background:#fff;color:var(--ink);border:1px solid var(--blush-line);border-radius:var(--radius-pill);
@@ -148,7 +143,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .icon-btn .icon-btn-label{display:flex;flex-direction:column;line-height:1.2;text-align:left;}
 .icon-btn .icon-btn-label .zh{font-size:12.5px;color:var(--ink);}
 .icon-btn .icon-btn-label .en{font-size:8.5px;letter-spacing:0.5px;color:var(--ink-faint);}
-.icon-btn:hover{background:var(--mint-bg);border-color:var(--mint-deep);}
+.icon-btn:hover{background:var(--sage-bg);border-color:var(--mocha);}
 
 /* ---------- Storage notice ---------- */
 .storage-notice{
@@ -198,11 +193,11 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 }
 .quick-add-btn{
   width:30px;height:30px;border-radius:50%;
-  background:linear-gradient(135deg, var(--mint), var(--mint-deep));color:#fff;border:none;
+  background:var(--mocha);color:#fff;border:none;
   font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;box-shadow:0 0 0 3px var(--mint-bg);
+  flex-shrink:0;
 }
-.quick-add-btn:hover{box-shadow:0 0 0 4px var(--mint-bg), 0 0 10px rgba(61,174,132,.45);}
+.quick-add-btn:hover{background:var(--mocha-deep);}
 .empty-state{
   padding:60px 20px;text-align:center;color:var(--ink-soft);
 }
@@ -518,18 +513,6 @@ input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transpare
 .status-pill.status-completed{background:var(--ink);color:#fff;}
 .status-pill.status-cancelled{background:var(--paper-deep);color:var(--ink-faint);}
 .status-pill.status-noshow{background:var(--warn-bg);color:var(--warn);}
-
-/* Dot-pattern bling background: placed last so it wins over each component's own `background:` shorthand.
-   Sparse + low-opacity so it reads as a soft sparkle texture behind the whitespace, not a busy pattern under the text. */
-.dot-bling{
-  position:relative;
-  background-image:
-    radial-gradient(rgba(61,174,132,.45) 1.6px, transparent 1.8px),
-    radial-gradient(rgba(240,201,122,.5) 1.4px, transparent 1.6px);
-  background-repeat:repeat;
-  background-size:64px 64px, 84px 84px;
-  background-position:10px 12px, 46px 50px;
-}
 </style>
 </head>
 <body>
@@ -770,7 +753,7 @@ function renderListView(){
     : '';
 
   return `
-    <div class="topbar dot-bling">
+    <div class="topbar">
       <div class="brand">
         <div class="brand-row">
           <h1 class="wordmark">EYELASH</h1>
@@ -788,7 +771,7 @@ function renderListView(){
       <span class="icon">⚠️</span>
       <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用下方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
     </div>
-    <div class="revenue-card dot-bling">
+    <div class="revenue-card">
       <span class="revenue-label"><span class="spark-icon spark-icon--sm" aria-hidden="true"></span> 本月營收</span>
       <span class="revenue-amount">NT$ ${computeMonthlyRevenue().toLocaleString()}</span>
     </div>
@@ -1025,7 +1008,7 @@ function renderCalendarView(){
     <div class="back-row">
       <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
     </div>
-    <div class="calendar-header dot-bling"><h1><span class="spark-icon" aria-hidden="true"></span> 行事曆</h1></div>
+    <div class="calendar-header"><h1><span class="spark-icon" aria-hidden="true"></span> 行事曆</h1></div>
     <div class="status-legend">
       <span class="legend-item"><span class="legend-dot status-confirmed"></span>已確認</span>
       <span class="legend-item"><span class="legend-dot status-completed"></span>已完成</span>
@@ -1320,7 +1303,7 @@ function renderClientCard(client){
   const tags = client.tags||[];
   const tagsHtml = tags.map((t,i)=>`<span class="client-tag-pill">${escapeHtml(t)}<button onclick="removeClientTag('${client.id}',${i})" aria-label="移除">✕</button></span>`).join('');
 
-  return `<div class="client-card-hero dot-bling">
+  return `<div class="client-card-hero">
     <div class="client-card-top">
       <h1><span class="spark-icon" aria-hidden="true"></span> ${escapeHtml(client.name)}</h1>
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>編輯客戶資料</button>
