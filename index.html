@@ -360,7 +360,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
 @media (max-width:480px){.form-row, .form-row-3{grid-template-columns:1fr;}}
-.form-field--narrow input{max-width:150px;}
+.form-field--narrow input, .form-field--narrow .date-field-wrap{max-width:150px;}
 .form-field label{
   display:block;font-size:12.5px;color:var(--mocha-deep);margin-bottom:6px;font-weight:600;
   letter-spacing:0.1px;
@@ -383,21 +383,19 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 input[type="date"].date-empty:not(:focus)::-webkit-datetime-edit,
 input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transparent;}
 
-/* Custom calendar/clock icon drawn as a background image so it always shows, on every
-   browser — iOS Safari never renders a native picker-indicator icon the way desktop
-   Chrome does, so relying on ::-webkit-calendar-picker-indicator left the box looking
-   empty on phones. The native indicator (where it exists) is stretched invisibly over
-   the whole field so tapping anywhere still opens the picker. */
-input[type="date"], input[type="time"]{
-  cursor:pointer;
-  background-repeat:no-repeat !important;background-position:right 12px center !important;background-size:16px !important;
-  padding-right:36px !important;
+/* Calendar/clock icon: a wrapper + absolutely-positioned SVG (see dateFieldIcon() in the
+   script), not a background-image on the input. iOS Safari never renders a native
+   picker-indicator icon the way desktop Chrome does, so the box looked empty on phones;
+   and a background-image on the input itself rendered inconsistently near the input's
+   own rounded corners across browsers. The wrapper sidesteps both problems and keeps the
+   icon reliably inset with a fixed, generous margin from the edge. */
+.date-field-wrap{position:relative;display:block;}
+.date-field-wrap input[type="date"], .date-field-wrap input[type="time"]{
+  cursor:pointer;padding-right:38px !important;
 }
-input[type="date"]{
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A97C6C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='2.5' x2='8' y2='6'/><line x1='16' y1='2.5' x2='16' y2='6'/></svg>") !important;
-}
-input[type="time"]{
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A97C6C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><polyline points='12 7 12 12 16 14'/></svg>") !important;
+.date-field-icon{
+  position:absolute;top:50%;right:14px;transform:translateY(-50%);
+  width:16px;height:16px;pointer-events:none;
 }
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator{
@@ -568,6 +566,16 @@ function fmtDate(d){
 function escapeHtml(str){
   if(str===undefined||str===null) return '';
   return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+/* A small calendar/clock glyph drawn as our own absolutely-positioned SVG rather than a
+   background-image on the input itself — browsers clip/position a native input's own
+   background inconsistently near its rounded corners, which made the icon look like it
+   was cutting outside the box. Wrapping the input keeps the icon reliably inset. */
+function dateFieldIcon(kind){
+  const path = kind==='time'
+    ? `<circle cx='12' cy='12' r='9'/><polyline points='12 7 12 12 16 14'/>`
+    : `<rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='2.5' x2='8' y2='6'/><line x1='16' y1='2.5' x2='16' y2='6'/>`;
+  return `<svg class="date-field-icon" viewBox="0 0 24 24" fill="none" stroke="#A97C6C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
 }
 
 /* ============ Backup: export / import ============ */
@@ -1171,7 +1179,10 @@ function renderClientModal(){
       <div class="form-row" style="margin-bottom:14px;">
         <div class="modal-field" style="margin-bottom:0;">
           <label>生日（選填）</label>
-          <input id="modal-birthday" type="date" class="${d.birthday?'':'date-empty'}" value="${escapeHtml(d.birthday)}" oninput="this.classList.toggle('date-empty', !this.value)">
+          <div class="date-field-wrap">
+            <input id="modal-birthday" type="date" class="${d.birthday?'':'date-empty'}" value="${escapeHtml(d.birthday)}" oninput="this.classList.toggle('date-empty', !this.value)">
+            ${dateFieldIcon('date')}
+          </div>
         </div>
         <div class="modal-field" style="margin-bottom:0;">
           <label>來源（選填）</label>
@@ -1187,7 +1198,10 @@ function renderClientModal(){
       </div>
       <div class="modal-field">
         <label>第一次來店日期</label>
-        <input id="modal-first-visit" type="date" class="${d.firstVisitDate?'':'date-empty'}" value="${escapeHtml(d.firstVisitDate)}" oninput="this.classList.toggle('date-empty', !this.value)">
+        <div class="date-field-wrap">
+          <input id="modal-first-visit" type="date" class="${d.firstVisitDate?'':'date-empty'}" value="${escapeHtml(d.firstVisitDate)}" oninput="this.classList.toggle('date-empty', !this.value)">
+          ${dateFieldIcon('date')}
+        </div>
       </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
       <div class="modal-actions">
@@ -1397,7 +1411,10 @@ function renderStatusPanel(client){
         <button type="button" class="${val==='unknown'?'active-unknown':''}" onclick="setStatusTri('${f.key}','unknown')">未確認</button>
       </div>`;
     }else if(f.type==='date'){
-      control = `<input type="date" class="${statusDraft[f.key]?'':'date-empty'}" value="${escapeHtml(statusDraft[f.key]||'')}" oninput="setStatusVal('${f.key}', this.value); this.classList.toggle('date-empty', !this.value)">`;
+      control = `<div class="date-field-wrap">
+        <input type="date" class="${statusDraft[f.key]?'':'date-empty'}" value="${escapeHtml(statusDraft[f.key]||'')}" oninput="setStatusVal('${f.key}', this.value); this.classList.toggle('date-empty', !this.value)">
+        ${dateFieldIcon('date')}
+      </div>`;
     }else{
       control = `<input type="text" value="${escapeHtml(statusDraft[f.key]||'')}" placeholder="${f.placeholder||''}" oninput="setStatusVal('${f.key}', this.value)">`;
     }
@@ -1617,15 +1634,24 @@ function renderMinimalAppointmentForm(d){
     </div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>出生年月日（選填）</label>
-      <input type="date" class="${d.clientBirthday?'':'date-empty'}" value="${escapeHtml(d.clientBirthday||'')}" oninput="newRecordDraft.clientBirthday=this.value; this.classList.toggle('date-empty', !this.value)">
+      <div class="date-field-wrap">
+        <input type="date" class="${d.clientBirthday?'':'date-empty'}" value="${escapeHtml(d.clientBirthday||'')}" oninput="newRecordDraft.clientBirthday=this.value; this.classList.toggle('date-empty', !this.value)">
+        ${dateFieldIcon('date')}
+      </div>
     </div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>約的日期</label>
-      <input type="date" class="${d.date?'':'date-empty'}" value="${d.date||''}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+      <div class="date-field-wrap">
+        <input type="date" class="${d.date?'':'date-empty'}" value="${d.date||''}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+        ${dateFieldIcon('date')}
+      </div>
     </div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>時間（選填）</label>
-      <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
+      <div class="date-field-wrap">
+        <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
+        ${dateFieldIcon('time')}
+      </div>
     </div>
     <div id="new-record-error" style="color:var(--alert);font-size:12.5px;margin-bottom:6px;"></div>
     <div class="form-actions">
@@ -1657,10 +1683,16 @@ function renderNewRecordPanel(){
     <div class="new-record-title">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
     <div class="form-row-3">
       <div class="form-field form-field--narrow"><label>日期</label>
-        <input type="date" class="${d.date?'':'date-empty'}" value="${d.date}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+        <div class="date-field-wrap">
+          <input type="date" class="${d.date?'':'date-empty'}" value="${d.date}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+          ${dateFieldIcon('date')}
+        </div>
       </div>
       <div class="form-field form-field--narrow"><label>時間（選填）</label>
-        <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
+        <div class="date-field-wrap">
+          <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
+          ${dateFieldIcon('time')}
+        </div>
       </div>
       <div class="form-field form-field--narrow"><label>時長（選填）</label>
         <input type="number" min="10" step="10" value="${escapeHtml(d.duration||'')}" placeholder="例如：90分鐘" oninput="newRecordDraft.duration=this.value">
