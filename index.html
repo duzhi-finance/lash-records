@@ -97,6 +97,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   font-family:'Montserrat', var(--font-sans);
   font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-faint);
 }
+.list-footer-copyright{margin-top:8px;font-size:10.5px;line-height:1.6;color:var(--ink-faint);}
 
 .btn{
   border:1px solid var(--mocha);
@@ -201,7 +202,11 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .empty-state{
   padding:60px 20px;text-align:center;color:var(--ink-soft);
 }
-.empty-state h3{margin-bottom:8px;font-size:18px;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;}
+.empty-state h3{
+  margin-bottom:8px;font-size:21px;font-weight:700;color:var(--mocha-deep);
+  font-family:var(--font-serif);letter-spacing:0.3px;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+}
 
 /* ---------- Detail view ---------- */
 .back-row{margin-bottom:16px;}
@@ -228,15 +233,6 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   background:var(--mocha-deep);color:#fff;border:none;border-radius:50%;
   width:14px;height:14px;font-size:9.5px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
-.client-tag-add{display:inline-flex;gap:6px;align-items:center;}
-.client-tag-add input{
-  padding:5px 10px;border:1px solid var(--blush-line);border-radius:var(--radius-pill);
-  background:#fff;font-size:12.5px;width:150px;
-}
-.client-tag-add button{
-  background:var(--mocha);color:#fff;border:none;border-radius:50%;
-  width:22px;height:22px;font-size:13px;line-height:1;cursor:pointer;
-}
 
 /* Contraindication banner - always visible, neutral gray/khaki so it doesn't compete with brand accent colors */
 .banner-alert{
@@ -260,7 +256,6 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   background:var(--warn);color:#fff;border:none;border-radius:50%;
   width:16px;height:16px;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
-.tag-empty{color:#A69A8E;font-size:13.5px;}
 .tag-add-row{display:flex;gap:8px;}
 .tag-add-row input{
   flex:1;padding:8px 12px;border:1px solid var(--warn-line);border-radius:var(--radius-ui);
@@ -367,14 +362,24 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 /* New service form */
 .new-record-panel{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
-  padding:20px 20px 18px;margin-bottom:16px;
+  padding:22px 22px 20px;margin-bottom:16px;
+}
+.new-record-title{
+  font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--mocha-deep);
+  letter-spacing:0.2px;margin-bottom:18px;
 }
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-@media (max-width:480px){.form-row{grid-template-columns:1fr;}}
-.form-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px;font-weight:500;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+@media (max-width:480px){.form-row, .form-row-3{grid-template-columns:1fr;}}
+.form-field--narrow input{max-width:150px;}
+.form-field label{
+  display:block;font-size:12.5px;color:var(--mocha-deep);margin-bottom:6px;font-weight:600;
+  letter-spacing:0.1px;
+}
 .form-field input, .form-field select, .form-field textarea{
-  width:100%;padding:8px 10px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:13.5px;color:var(--ink);transition:border-color .15s ease;
+  width:100%;padding:9px 11px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:var(--ink);transition:border-color .15s ease;
+  font-family:var(--font-sans);
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{border-color:var(--mocha);}
 .form-field select{
@@ -664,6 +669,7 @@ function blankStatus(){
 
 const TECHNIQUES = ['單根','歐美','3D','4D','6D','Y Y','其他'];
 const SERVICE_ITEMS = ['全新嫁接','補睫','卸睫','其他'];
+const CONTRAINDICATION_PRESETS = ['眼睛敏感','過敏體質','隱形眼鏡配戴者','睫毛膠過敏','乾眼症','蟹足腫體質','懷孕／哺乳中'];
 
 /* ---- Custom style presets (persisted separately from client data) ---- */
 const DEFAULT_STYLE_OPTIONS = ['自然款','精緻款','混合款','仙女款'];
@@ -796,6 +802,7 @@ function renderListView(){
         </button>
       </div>
       <div class="list-footer-en">EYELASH — CLIENT RECORD SYSTEM</div>
+      <div class="list-footer-copyright">© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。</div>
     </div>
   `;
 }
@@ -1118,7 +1125,7 @@ function computeMonthlyRevenue(){
 /* ---- Add/edit client modal ---- */
 const CLIENT_SOURCES = ['IG','朋友介紹','Google','舊客介紹','其他'];
 function openAddClientModal(){
-  editClientDraft = {id:null, name:'', phone:'', igLine:'', birthday:'', firstVisitDate: todayStr(), source:'', sourceOther:''};
+  editClientDraft = {id:null, name:'', phone:'', igLine:'', birthday:'', firstVisitDate: '', source:'', sourceOther:''};
   showAddClientModal = true;
   render();
 }
@@ -1302,6 +1309,7 @@ function renderClientCard(client){
 
   const tags = client.tags||[];
   const tagsHtml = tags.map((t,i)=>`<span class="client-tag-pill">${escapeHtml(t)}<button onclick="removeClientTag('${client.id}',${i})" aria-label="移除">✕</button></span>`).join('');
+  const tagsRowHtml = tags.length ? `<div class="client-tags-row">${tagsHtml}</div>` : '';
 
   return `<div class="client-card-hero">
     <div class="client-card-top">
@@ -1309,24 +1317,8 @@ function renderClientCard(client){
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>編輯客戶資料</button>
     </div>
     <div class="card-info-row">${rows.join('')}</div>
-    <div class="client-tags-row">
-      ${tagsHtml}
-      <span class="client-tag-add">
-        <input id="new-client-tag-input" placeholder="加標籤，例如：VIP、熟客" onkeydown="if(event.key==='Enter') addClientTag('${client.id}')">
-        <button onclick="addClientTag('${client.id}')">＋</button>
-      </span>
-    </div>
+    ${tagsRowHtml}
   </div>`;
-}
-async function addClientTag(clientId){
-  const input = document.getElementById('new-client-tag-input');
-  const val = input.value.trim();
-  if(!val) return;
-  const client = clients.find(c=>c.id===clientId);
-  client.tags = client.tags||[];
-  client.tags.push(val);
-  await saveData();
-  render();
 }
 async function removeClientTag(clientId, idx){
   const client = clients.find(c=>c.id===clientId);
@@ -1336,17 +1328,33 @@ async function removeClientTag(clientId, idx){
 }
 function renderContraindicationBanner(client){
   const tags = client.contraindications||[];
-  const pills = tags.length ? `<div class="tag-pills">${tags.map((t,i)=>`
-      <span class="tag-pill">${escapeHtml(t)}<button onclick="removeContraindication('${client.id}',${i})" aria-label="移除">✕</button></span>
-    `).join('')}</div>` : `<div class="tag-empty">目前尚無特別注意事項</div>`;
+  const presetChips = CONTRAINDICATION_PRESETS.map(p=>{
+    const active = tags.includes(p);
+    return `<button type="button" class="chip ${active?'active':''}" onclick="toggleContraindicationPreset('${client.id}','${p}')">${active?'✓ ':''}${p}</button>`;
+  }).join('');
+  const customTags = tags.filter(t=>!CONTRAINDICATION_PRESETS.includes(t));
+  const customPillsHtml = customTags.length ? `<div class="tag-pills">${customTags.map(t=>{
+      const idx = tags.indexOf(t);
+      return `<span class="tag-pill">${escapeHtml(t)}<button onclick="removeContraindication('${client.id}',${idx})" aria-label="移除">✕</button></span>`;
+    }).join('')}</div>` : '';
   return `<div class="banner-alert">
     <div class="banner-title">特別注意事項</div>
-    ${pills}
+    <div class="chip-select" style="margin-bottom:10px;">${presetChips}</div>
+    ${customPillsHtml}
     <div class="tag-add-row">
-      <input id="new-tag-input" placeholder="例如：眼睛敏感、膠水過敏反應、左眼缺毛…" onkeydown="if(event.key==='Enter') addContraindication('${client.id}')">
+      <input id="new-tag-input" placeholder="其他注意事項，例如：左眼缺毛…" onkeydown="if(event.key==='Enter') addContraindication('${client.id}')">
       <button onclick="addContraindication('${client.id}')">加入</button>
     </div>
   </div>`;
+}
+async function toggleContraindicationPreset(clientId, label){
+  const client = clients.find(c=>c.id===clientId);
+  client.contraindications = client.contraindications||[];
+  const idx = client.contraindications.indexOf(label);
+  if(idx>=0) client.contraindications.splice(idx,1);
+  else client.contraindications.push(label);
+  await saveData();
+  render();
 }
 async function addContraindication(clientId){
   const input = document.getElementById('new-tag-input');
@@ -1597,7 +1605,7 @@ function cancelNewRecord(){
 }
 function renderMinimalAppointmentForm(d){
   return `<div class="new-record-panel" id="new-record-panel">
-    <div style="font-weight:600;font-size:15px;margin-bottom:14px;">新增預約</div>
+    <div class="new-record-title">新增預約</div>
     <div class="form-field" style="margin-bottom:12px;">
       <label>客人姓名（輸入現有客人姓名可自動連結，或輸入新姓名建立新客人）</label>
       <input type="text" list="client-name-list" value="${escapeHtml(d.clientPickerName||'')}" placeholder="輸入客人姓名" oninput="newRecordDraft.clientPickerName=this.value">
@@ -1607,13 +1615,13 @@ function renderMinimalAppointmentForm(d){
       <label>出生年月日（選填）</label>
       <input type="date" class="${d.clientBirthday?'':'date-empty'}" value="${escapeHtml(d.clientBirthday||'')}" oninput="newRecordDraft.clientBirthday=this.value; this.classList.toggle('date-empty', !this.value)">
     </div>
-    <div class="form-row">
-      <div class="form-field"><label>約的日期</label>
-        <input type="date" class="${d.date?'':'date-empty'}" value="${d.date||''}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
-      </div>
-      <div class="form-field"><label>時間（選填）</label>
-        <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
-      </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>約的日期</label>
+      <input type="date" class="${d.date?'':'date-empty'}" value="${d.date||''}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>時間（選填）</label>
+      <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
     </div>
     <div id="new-record-error" style="color:var(--alert);font-size:12.5px;margin-bottom:6px;"></div>
     <div class="form-actions">
@@ -1642,16 +1650,15 @@ function renderNewRecordPanel(){
   const apptStatus = d.status || 'confirmed';
 
   return `<div class="new-record-panel" id="new-record-panel">
-    <div style="font-weight:600;font-size:15px;margin-bottom:14px;">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
-    <div class="form-field" style="margin-bottom:12px;">
-      <label>日期</label>
-      <input type="date" class="${d.date?'':'date-empty'}" value="${d.date}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>時間（選填）</label>
+    <div class="new-record-title">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
+    <div class="form-row-3">
+      <div class="form-field form-field--narrow"><label>日期</label>
+        <input type="date" class="${d.date?'':'date-empty'}" value="${d.date}" oninput="newRecordDraft.date=this.value; this.classList.toggle('date-empty', !this.value)">
+      </div>
+      <div class="form-field form-field--narrow"><label>時間（選填）</label>
         <input type="time" class="${d.time?'':'date-empty'}" value="${escapeHtml(d.time||'')}" oninput="newRecordDraft.time=this.value; this.classList.toggle('date-empty', !this.value)">
       </div>
-      <div class="form-field"><label>時長（選填）</label>
+      <div class="form-field form-field--narrow"><label>時長（選填）</label>
         <input type="number" min="10" step="10" value="${escapeHtml(d.duration||'')}" placeholder="例如：90分鐘" oninput="newRecordDraft.duration=this.value">
       </div>
     </div>
