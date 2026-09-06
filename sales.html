@@ -54,8 +54,10 @@ body{
 h1,h2,h3{margin:0;color:var(--ink);}
 p{margin:0;}
 img{max-width:100%;}
-.wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 32px;}
 .section{padding:72px 0;}
+.section.tint{background:var(--blush);}
+.section.tint-deep{background:var(--paper-deep);}
 .section-label{
   position:relative;
   font-family:var(--font-serif);
@@ -83,14 +85,14 @@ img{max-width:100%;}
 /* ---------- Nav ---------- */
 .nav{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 24px;max-width:1040px;margin:0 auto;
+  padding:20px 32px;max-width:1040px;margin:0 auto;
 }
 .logo-mark{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
 .logo-icon{width:32px;height:32px;flex-shrink:0;}
 .logo-word{font-family:var(--font-serif);font-weight:700;font-size:20px;letter-spacing:2px;color:var(--ink);}
 
 /* ---------- Hero: plain, text-only, no competing background ---------- */
-.hero-section{padding:132px 0 8px;text-align:center;}
+.hero-section{padding:120px 0 56px;text-align:center;}
 .hero-section .eyebrow{
   font-family:var(--font-serif);font-size:13px;letter-spacing:3.5px;text-transform:uppercase;
   color:var(--mocha-deep);font-weight:600;margin-bottom:22px;
@@ -103,56 +105,47 @@ img{max-width:100%;}
 .hero-section .lede{
   font-size:16.5px;color:var(--ink-soft);margin:0 auto 34px;line-height:1.9;max-width:480px;
 }
-.hero-section .cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
-
-/* ---------- Showcase: real screenshots of the tool itself, not illustrations ---------- */
-.visual-section{padding:56px 0 80px;}
-.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-@media (max-width:700px){.showcase-grid{grid-template-columns:1fr;}}
-.showcase-item{
-  margin:0;background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-card);
-  padding:16px 16px 18px;
-}
-.showcase-item img{
-  display:block;width:100%;border-radius:12px;border:1px solid var(--blush-line);
-}
-.showcase-item figcaption{
-  margin-top:12px;font-size:13px;color:var(--ink-soft);text-align:center;
-}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
 
 /* ---------- Value / Features ---------- */
 .value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
 @media (max-width:760px){.value-grid{grid-template-columns:1fr;}}
 .value-card{
-  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:26px 22px;
 }
 .value-card .icon{font-size:26px;margin-bottom:14px;display:block;}
 .value-card h3{font-family:var(--font-serif);font-size:20px;font-weight:600;letter-spacing:0.2px;margin-bottom:9px;}
 .value-card p{font-size:14px;color:var(--ink-soft);line-height:1.8;}
 
-.feature-list{display:flex;flex-direction:column;gap:1px;margin-top:32px;border-radius:var(--radius-card);overflow:hidden;border:1px solid var(--blush-line);}
+.feature-list{display:flex;flex-direction:column;gap:2px;margin-top:32px;border-radius:var(--radius-card);overflow:hidden;background:var(--blush-line);}
 .feature-row{
   display:flex;gap:18px;align-items:flex-start;
-  background:#fff;padding:22px 24px;
+  background:#fff;padding:24px 26px;
 }
 .feature-row .icon{font-size:22px;flex-shrink:0;width:36px;height:36px;border-radius:50%;
   background:var(--blush);display:flex;align-items:center;justify-content:center;}
 .feature-row h3{font-family:var(--font-serif);font-size:18px;font-weight:600;letter-spacing:0.2px;margin-bottom:5px;}
-.feature-row p{font-size:14px;color:var(--ink-soft);line-height:1.75;}
+.feature-row p{font-size:14px;color:var(--ink-soft);line-height:1.75;max-width:58ch;}
 .feature-row.bonus .icon{background:var(--warn-bg);}
+.feature-row-text{flex:1;min-width:0;}
+.feature-row.with-media{flex-wrap:wrap;}
+.feature-row-shot{width:220px;flex-shrink:0;}
+.feature-row-shot img{display:block;width:100%;border-radius:10px;border:1px solid var(--blush-line);}
+@media (max-width:640px){.feature-row-shot{width:100%;margin-top:14px;}}
 
 /* ---------- Audience ---------- */
-.audience-card{
-  background:var(--paper-deep);border-radius:var(--radius-card);
-  padding:36px 32px;margin-top:28px;display:flex;gap:28px;flex-wrap:wrap;align-items:center;
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
+@media (max-width:640px){.audience-grid{grid-template-columns:1fr;}}
+.audience-item{
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  padding:20px 22px;
 }
-.audience-card .audience-text{flex:1;min-width:240px;}
-.audience-tags{display:flex;flex-wrap:wrap;gap:10px;}
-.audience-tag{
-  background:#fff;border:1px solid var(--blush-line);color:var(--mocha-deep);
-  padding:8px 16px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;letter-spacing:0.8px;
+.audience-item .role{
+  font-family:var(--font-serif);font-weight:700;font-size:16.5px;color:var(--mocha-deep);
+  margin-bottom:6px;
 }
+.audience-item p{font-size:14px;color:var(--ink-soft);line-height:1.75;}
 
 /* ---------- Pricing ---------- */
 .pricing-card{
@@ -174,6 +167,7 @@ img{max-width:100%;}
 .pricing-includes li::before{content:'✓';color:var(--mocha-deep);font-weight:700;flex-shrink:0;}
 .contact-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px 0 16px;}
 .pricing-fineprint{font-size:12px;color:var(--ink-faint);line-height:1.7;}
+.pricing-fineprint.policy{margin-top:6px;color:var(--ink-soft);}
 .placeholder{background:var(--warn-bg);color:var(--warn);padding:1px 7px;border-radius:5px;font-size:0.9em;}
 
 /* ---------- FAQ ---------- */
@@ -182,6 +176,18 @@ img{max-width:100%;}
 .faq-item h3{font-family:var(--font-serif);font-size:17px;font-weight:600;letter-spacing:0.2px;margin-bottom:9px;display:flex;gap:8px;}
 .faq-item h3::before{content:'Q.';color:var(--mocha-deep);font-style:italic;}
 .faq-item p{font-size:14px;color:var(--ink-soft);line-height:1.8;padding-left:22px;}
+
+/* ---------- Closing CTA ---------- */
+.closing-section{background:var(--mocha-deep);text-align:center;padding:64px 0;}
+.closing-section h2{
+  font-family:var(--font-serif);font-weight:600;color:#fff;
+  font-size:clamp(22px,3.4vw,30px);letter-spacing:0.3px;margin-bottom:14px;
+}
+.closing-section p{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:28px;}
+.closing-section .btn{background:#fff;border-color:#fff;color:var(--mocha-deep);}
+.closing-section .btn:hover{background:var(--blush);border-color:var(--blush);}
+.closing-section .btn-ghost{background:transparent;border-color:rgba(255,255,255,.5);color:#fff;}
+.closing-section .btn-ghost:hover{background:rgba(255,255,255,.12);}
 
 /* ---------- Footer ---------- */
 .footer{padding:40px 0 60px;text-align:center;border-top:1px solid var(--blush-line);margin-top:20px;}
@@ -217,19 +223,6 @@ img{max-width:100%;}
   </div>
 </section>
 
-<section class="visual-section wrap">
-  <div class="showcase-grid">
-    <figure class="showcase-item">
-      <img src="screenshots/client-profile.png" alt="客戶詳細頁：客戶基本資料與特別注意事項標示">
-      <figcaption>客戶詳細頁 — 過敏史、禁忌事項一目了然</figcaption>
-    </figure>
-    <figure class="showcase-item">
-      <img src="screenshots/eye-diagram.png" alt="服務紀錄的眼型示意圖，標示左右眼三段睫毛長度">
-      <figcaption>服務紀錄 — 眼型示意圖記錄左右眼各段長度</figcaption>
-    </figure>
-  </div>
-</section>
-
 <section class="section wrap" id="value">
   <div class="section-label">為什麼需要它</div>
   <h2 class="section-title">把散落的記憶，變成隨手可查的檔案</h2>
@@ -253,18 +246,30 @@ img{max-width:100%;}
   </div>
 </section>
 
-<section class="section wrap" id="features">
+<section class="section tint wrap" id="features">
   <div class="section-label">功能亮點</div>
   <h2 class="section-title">設計來自真實接案現場的細節</h2>
   <p class="section-sub">每一個功能都是為了解決美睫師實際會遇到的問題而設計。</p>
   <div class="feature-list">
-    <div class="feature-row">
-      <span class="icon">🚫</span>
-      <div><h3>禁忌事項醒目標示</h3><p>眼睛敏感、隱形眼鏡配戴者等常見狀況可直接勾選，也保留自訂欄位記錄少見情況，一律放在客人檔案最上方，打開就看到。</p></div>
+    <div class="feature-row with-media">
+      <div class="feature-row-text">
+        <span class="icon">🚫</span>
+        <h3 style="margin-top:14px;">禁忌事項醒目標示</h3>
+        <p>眼睛敏感、隱形眼鏡配戴者等常見狀況可直接勾選，也保留自訂欄位記錄少見情況，一律放在客人檔案最上方，打開就看到。</p>
+      </div>
+      <div class="feature-row-shot">
+        <img src="screenshots/client-profile.png" alt="客戶詳細頁：客戶基本資料與特別注意事項標示，含眼睛敏感、隱形眼鏡配戴者勾選">
+      </div>
     </div>
-    <div class="feature-row">
-      <span class="icon">👁️</span>
-      <div><h3>眼型示意圖記錄</h3><p>新增服務紀錄時，在左右眼示意圖旁分別填入左、中、右三段的睫毛長度，設計細節跟著紀錄一起保存，不必只靠文字描述。</p></div>
+    <div class="feature-row with-media">
+      <div class="feature-row-text">
+        <span class="icon">📏</span>
+        <h3 style="margin-top:14px;">眼型示意圖記錄</h3>
+        <p>新增服務紀錄時，在左右眼示意圖旁分別填入左、中、右三段的睫毛長度，設計細節跟著紀錄一起保存，不必只靠文字描述。</p>
+      </div>
+      <div class="feature-row-shot">
+        <img src="screenshots/eye-diagram.png" alt="服務紀錄的眼型示意圖，標示左右眼三段睫毛長度">
+      </div>
     </div>
     <div class="feature-row">
       <span class="icon">🕰️</span>
@@ -275,7 +280,7 @@ img{max-width:100%;}
       <div><h3>一鍵匯出備份</h3><p>資料存在本機瀏覽器，換裝置前先匯出成檔案備份，需要時再匯入還原，不怕資料不見。</p></div>
     </div>
     <div class="feature-row bonus">
-      <span class="icon">📋</span>
+      <span class="icon">🔁</span>
       <div><h3>複製上次紀錄</h3><p>熟客款式常常大同小異，點「複製上次」就帶入舊資料，只需微調日期跟這次的調整備註。</p></div>
     </div>
     <div class="feature-row bonus">
@@ -288,20 +293,28 @@ img{max-width:100%;}
 <section class="section wrap" id="audience">
   <div class="section-label">適合對象</div>
   <h2 class="section-title">為獨立接案美睫師設計</h2>
-  <div class="audience-card">
-    <div class="audience-text">
-      <p class="section-sub" style="margin-bottom:16px;">不管是在自家工作室、租位接案，還是到府服務，只要你需要快速查閱客人的過敏史、眼型與服務紀錄，這個工具就是為你設計的。</p>
-      <div class="audience-tags">
-        <span class="audience-tag">獨立接案美睫師</span>
-        <span class="audience-tag">工作室經營者</span>
-        <span class="audience-tag">到府服務</span>
-        <span class="audience-tag">客人量漸增、記事卡快管不過來</span>
-      </div>
+  <p class="section-sub">不管是在自家工作室、租位接案，還是到府服務，只要你需要快速查閱客人的過敏史、眼型與服務紀錄，這個工具就是為你設計的。</p>
+  <div class="audience-grid">
+    <div class="audience-item">
+      <div class="role">獨立接案美睫師</div>
+      <p>一人包辦所有客人，客人一多，過敏史和眼型細節很難全部記在腦裡。</p>
+    </div>
+    <div class="audience-item">
+      <div class="role">工作室經營者</div>
+      <p>想為每位客人建立完整服務檔案，卻只能東拼西湊在便利貼跟通訊軟體對話紀錄裡。</p>
+    </div>
+    <div class="audience-item">
+      <div class="role">到府服務</div>
+      <p>出班在外臨時要查資料，卻只能翻手機相簿裡的舊照片，或回頭問客人自己講過什麼。</p>
+    </div>
+    <div class="audience-item">
+      <div class="role">客人量漸增</div>
+      <p>記事卡愈疊愈厚，翻找一個人的資料要花好幾分鐘，快管不過來。</p>
     </div>
   </div>
 </section>
 
-<section class="section wrap" id="pricing">
+<section class="section tint wrap" id="pricing">
   <div class="section-label">價格與購買方式</div>
   <h2 class="section-title">一次買斷，終身使用</h2>
   <p class="section-sub">目前開放 LINE／IG 私訊詢問購買，金流審核通過後會換成正式線上收款連結，購買方式更新時會另行通知既有客戶。</p>
@@ -323,6 +336,7 @@ img{max-width:100%;}
       <a class="btn btn-ghost" href="https://www.instagram.com/en_______i/" target="_blank" rel="noopener">IG 私訊詢問</a>
     </div>
     <p class="pricing-fineprint">私訊後會提供付款方式與使用連結，付款完成即可開始使用。</p>
+    <p class="pricing-fineprint policy">本工具為一次性付費的數位商品，付款開通後即完成交付，恕不接受退換。購買前歡迎先私訊詢問功能細節，確認符合需求再下單。</p>
   </div>
 </section>
 
@@ -345,6 +359,21 @@ img{max-width:100%;}
     <div class="faq-item">
       <h3>可以多人共用，或多裝置同步嗎？</h3>
       <p>目前資料只存在單一裝置的本機瀏覽器，沒有雲端同步。如果你固定用手機跟電腦兩台裝置作業，建議挑一台當「主要裝置」，並養成定期匯出備份的習慣。</p>
+    </div>
+    <div class="faq-item">
+      <h3>用了之後不滿意，可以退款嗎？</h3>
+      <p>這是一次性付費的數位商品，付款開通後即視為交付完成，恕不接受退換。如果購買前還有任何功能上的疑問，歡迎先私訊詢問，確認符合你的需求再下單。</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing-section">
+  <div class="wrap">
+    <h2>還在猶豫嗎？</h2>
+    <p>直接私訊聊聊，看看這個工具適不適合你目前的接案方式。</p>
+    <div class="cta-row">
+      <a class="btn" href="https://line.me/R/ti/p/%40799vhtvj" target="_blank" rel="noopener">LINE 私訊詢問</a>
+      <a class="btn btn-ghost" href="https://www.instagram.com/en_______i/" target="_blank" rel="noopener">IG 私訊詢問</a>
     </div>
   </div>
 </section>
