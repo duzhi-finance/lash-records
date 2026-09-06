@@ -405,6 +405,9 @@ input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transpare
   -webkit-appearance:none !important;appearance:none !important;
   width:100% !important;max-width:100% !important;min-width:0 !important;box-sizing:border-box !important;
   display:block !important;
+  /* No visible box for date/time fields — just the icon (and the picked date/time once
+     set) sitting directly on the page, no border or fill. */
+  border:none !important;background:transparent !important;padding-left:0 !important;
 }
 .date-field-icon{
   position:absolute;top:50%;right:14px;transform:translateY(-50%);
