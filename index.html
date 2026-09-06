@@ -392,15 +392,19 @@ input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transpare
    and a background-image on the input itself rendered inconsistently near the input's
    own rounded corners across browsers. The wrapper sidesteps both problems and keeps the
    icon reliably inset with a fixed, generous margin from the edge. */
-.date-field-wrap{position:relative;display:block;min-width:0;}
+.date-field-wrap{position:relative;display:block;width:100% !important;min-width:0;}
 .date-field-wrap input[type="date"], .date-field-wrap input[type="time"]{
   cursor:pointer;padding-right:38px !important;
   /* iOS Safari keeps its own native control chrome on date/time inputs unless appearance
      is reset, and that native chrome can ignore our width:100% and force the box wider
      than its container — this is what was pushing the box (and the icon riding on its
-     edge) past the screen. Resetting appearance makes it obey our CSS box model instead. */
-  -webkit-appearance:none;appearance:none;
-  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+     edge) past the screen. Resetting appearance makes it obey our CSS box model instead.
+     Forced with !important since the fix must hold regardless of which platform default
+     it's fighting — the same rule must produce an identical width to every plain text
+     input on the page, no exceptions. */
+  -webkit-appearance:none !important;appearance:none !important;
+  width:100% !important;max-width:100% !important;min-width:0 !important;box-sizing:border-box !important;
+  display:block !important;
 }
 .date-field-icon{
   position:absolute;top:50%;right:14px;transform:translateY(-50%);
@@ -1018,7 +1022,7 @@ function renderCalendarView(){
   const weekDates = mobile ? getMiniDateRange(selected) : getWeekDates(selected);
   const dayAppts = collectAppointmentsForDate(selected);
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
-  const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment('${selected}')">＋ 新增預約</button>`;
+  const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment()">＋ 新增預約</button>`;
   const agendaHtml = dayAppts.length
     ? `<div class="agenda-list">${dayAppts.map(r=>renderAgendaRow(r)).join('')}</div>`
     : `<div class="empty-state" style="padding:30px 10px;"><p>這天還沒有預約。</p></div>`;
@@ -1070,11 +1074,11 @@ function renderAgendaRow(r){
     </div>
   </div>`;
 }
-function startNewAppointment(dateStr){
+function startNewAppointment(){
   newRecordDraft = {
     clientId: null, id: null,
     clientPickerName: '', clientBirthday: '',
-    date: dateStr || todayStr(),
+    date: '',
     time:'',
   };
   render();
