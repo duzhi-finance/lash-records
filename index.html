@@ -295,8 +295,17 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .panel-title h2{font-size:16px;display:flex;align-items:center;gap:7px;}
 .panel-title small{font-size:11.5px;color:var(--ink-faint);}
 
-.status-field{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--blush-line);}
-.status-field:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.status-group{margin-bottom:22px;}
+.status-group:last-child{margin-bottom:0;}
+.status-group-title{
+  font-family:var(--font-serif);font-size:14.5px;font-weight:700;color:var(--mocha-deep);
+  letter-spacing:0.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--blush-line);
+}
+.status-field{
+  margin-bottom:10px;padding:13px 14px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  background:#fff;
+}
+.status-field:last-child{margin-bottom:0;}
 .status-field label{
   display:block;font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:500;
 }
@@ -325,6 +334,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .status-updated{font-size:11.5px;color:var(--ink-faint);}
 
 /* Pre-service consent & questionnaire */
+.consent-view .panel-title h2{font-family:var(--font-serif);font-size:18px;font-weight:700;color:var(--mocha-deep);}
 .consent-list{display:flex;flex-direction:column;gap:2px;border-radius:var(--radius-ui);overflow:hidden;background:var(--blush-line);}
 .consent-item{
   display:flex;gap:12px;align-items:flex-start;background:#fff;padding:14px 16px;
@@ -332,11 +342,28 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 }
 .consent-item:has(input:checked){background:var(--sage-bg);}
 .consent-item input[type="checkbox"]{margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--mocha-deep);}
-.signature-wrap{
+.signature-preview{
   border:1px solid var(--blush-line);border-radius:var(--radius-ui);background:#fff;
-  overflow:hidden;
+  padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;
 }
-#signature-canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair;}
+.signature-preview-empty{
+  width:100%;height:100px;border:1.5px dashed var(--blush-line);border-radius:var(--radius-ui);
+  display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:13px;
+}
+.signature-preview img{display:block;max-width:100%;max-height:120px;}
+.signature-modal{
+  position:fixed;inset:0;z-index:1000;background:#fff;display:flex;flex-direction:column;
+}
+.signature-modal-header{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  border-bottom:1px solid var(--blush-line);font-size:14px;color:var(--ink);flex-shrink:0;
+}
+.signature-modal-canvas-wrap{flex:1;overflow:hidden;}
+#signature-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;}
+.signature-modal-actions{
+  display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--blush-line);flex-shrink:0;
+}
+.signature-modal-actions .btn{flex:1;}
 .consent-summary{
   background:var(--sage-bg);border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   padding:12px 14px;
@@ -700,6 +727,8 @@ let expandedRecordId = null;
 let detailTab = 'status';   // 'status' | 'records'
 let consentDraft = null;    // {clientId, checks:[bool x5], signatureDataUrl} while on consent view
 let consentError = '';
+let signatureModalOpen = false; // full-screen signature pad shown over the consent view
+let signatureBackup = null;     // signatureDataUrl snapshot to restore on cancel
 let calendarSelectedDate = null; // 'YYYY-MM-DD', set on entering calendar view
 
 const APPT_STATUSES = ['confirmed','completed','cancelled','noshow'];
@@ -724,11 +753,17 @@ const STATUS_FIELDS = [
   {key:'isPregnant', label:'目前是否懷孕', tri:true},
   {key:'oilyEyelids', label:'眼皮是否容易出油', tri:true},
   {key:'lashCareHabit', label:'是否有保養睫毛習慣、使用產品類型', tri:true, note:true},
-  {key:'makeupHabit', label:'上妝習慣、化妝程度', type:'text', placeholder:'例如：淡妝／濃妝／著重眼妝／無化妝'},
-  {key:'falseLashHabit', label:'日常配戴假睫毛類型', type:'text', placeholder:'例如：濃密型／自然型／無配戴習慣'},
-  {key:'eyeMakeupRemover', label:'日常眼部卸妝用品', type:'text', placeholder:'例如：卸妝油、眼唇卸妝液'},
-  {key:'faceMakeupRemover', label:'日常臉部卸妝用品', type:'text', placeholder:'例如：卸妝乳、卸妝水'},
-  {key:'faceWashHabit', label:'洗臉習慣', type:'text', placeholder:'例如：毛巾／潑水式／淋浴沖洗／洗臉海綿／洗臉刷機'},
+  {key:'makeupHabit', label:'上妝習慣、化妝程度', type:'chips', options:['淡妝','濃妝','著重眼妝','無化妝']},
+  {key:'falseLashHabit', label:'日常配戴假睫毛類型', type:'chips', options:['濃密型','自然型','無配戴習慣']},
+  {key:'eyeMakeupRemover', label:'日常眼部卸妝用品', type:'chips', options:['卸妝油','卸妝乳','卸妝水','眼唇卸妝液','未特別卸妝']},
+  {key:'faceMakeupRemover', label:'日常臉部卸妝用品', type:'chips', options:['卸妝油','卸妝乳','卸妝水','洗卸合一潔顏','未特別卸妝']},
+  {key:'faceWashHabit', label:'洗臉習慣', type:'chips', options:['毛巾','潑水式','淋浴沖洗','洗臉海綿','洗臉刷機']},
+];
+const STATUS_FIELD_GROUPS = [
+  {title:'睫毛使用紀錄', keys:['isFirstTime','lastLashDate','keratin3Months','keratinFrequency','frequency','hasOldLashesToRemove']},
+  {title:'眼部健康狀況', keys:['allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort','specialEyeCondition','eyeSurgeryHistory','isPregnant']},
+  {title:'生活習慣', keys:['wearsContacts','wearsGlasses','rubsEyesOften','sleepPosition','oilyEyelids']},
+  {title:'保養與化妝習慣', keys:['lashCareHabit','makeupHabit','falseLashHabit','eyeMakeupRemover','faceMakeupRemover','faceWashHabit']},
 ];
 /* Questionnaire keys shown on the pre-service consent & questionnaire screen: everything
    except lastLashDate/hasOldLashesToRemove/specialEyeCondition, which stay in 客人狀況 only
@@ -1422,9 +1457,12 @@ async function removeClientTag(clientId, idx){
 }
 function renderContraindicationBanner(client){
   const tags = client.contraindications||[];
-  const presetChips = CONTRAINDICATION_PRESETS.map(p=>{
+  const presetRows = CONTRAINDICATION_PRESETS.map(p=>{
     const active = tags.includes(p);
-    return `<button type="button" class="chip ${active?'active':''}" onclick="toggleContraindicationPreset('${client.id}','${p}')">${active?'✓ ':''}${p}</button>`;
+    return `<label class="consent-item">
+      <input type="checkbox" ${active?'checked':''} onchange="toggleContraindicationPreset('${client.id}','${p}')">
+      <span>${p}</span>
+    </label>`;
   }).join('');
   const customTags = tags.filter(t=>!CONTRAINDICATION_PRESETS.includes(t));
   const customPillsHtml = customTags.length ? `<div class="tag-pills">${customTags.map(t=>{
@@ -1433,7 +1471,7 @@ function renderContraindicationBanner(client){
     }).join('')}</div>` : '';
   return `<div class="banner-alert">
     <div class="banner-title">特別注意事項</div>
-    <div class="chip-select" style="margin-bottom:10px;">${presetChips}</div>
+    <div class="consent-list" style="margin-bottom:10px;">${presetRows}</div>
     ${customPillsHtml}
     <div class="tag-add-row">
       <input id="new-tag-input" placeholder="其他注意事項，例如：左眼缺毛…" onkeydown="if(event.key==='Enter') addContraindication('${client.id}')">
@@ -1490,6 +1528,12 @@ function renderStatusFieldHtml(f){
       <input type="date" class="${statusDraft[f.key]?'':'date-empty'}" value="${escapeHtml(statusDraft[f.key]||'')}" oninput="setStatusVal('${f.key}', this.value); this.classList.toggle('date-empty', !this.value)">
       ${dateFieldIcon('date')}
     </div>`;
+  }else if(f.type==='chips'){
+    const selected = statusChipValues(statusDraft[f.key]);
+    control = `<div class="chip-select" data-field="${f.key}">${f.options.map(opt=>{
+      const active = selected.includes(opt);
+      return `<button type="button" class="chip ${active?'active':''}" onclick="toggleStatusChip('${f.key}','${opt}')">${active?'✓ ':''}${opt}</button>`;
+    }).join('')}</div>`;
   }else{
     control = `<input type="text" value="${escapeHtml(statusDraft[f.key]||'')}" placeholder="${f.placeholder||''}" oninput="setStatusVal('${f.key}', this.value)">`;
   }
@@ -1500,8 +1544,40 @@ function renderStatusFieldHtml(f){
     ${note}
   </div>`;
 }
+function statusChipValues(val){
+  if(Array.isArray(val)) return val;
+  return val ? String(val).split(/[、,]/).map(s=>s.trim()).filter(Boolean) : [];
+}
+function toggleStatusChip(key, option){
+  const current = statusChipValues(statusDraft[key]).slice();
+  const idx = current.indexOf(option);
+  if(idx>=0) current.splice(idx,1); else current.push(option);
+  statusDraft[key] = current;
+  document.querySelectorAll(`.chip-select[data-field="${key}"]`).forEach(group=>{
+    group.querySelectorAll('button').forEach(btn=>{
+      const opt = btn.textContent.replace(/^✓\s*/,'');
+      const active = current.includes(opt);
+      btn.classList.toggle('active', active);
+      btn.textContent = (active?'✓ ':'') + opt;
+    });
+  });
+}
+function renderStatusFieldsGrouped(allowedKeys){
+  return STATUS_FIELD_GROUPS.map(g=>{
+    const keys = allowedKeys ? g.keys.filter(k=>allowedKeys.includes(k)) : g.keys;
+    if(!keys.length) return '';
+    const fieldsHtml = keys.map(k=>{
+      const f = STATUS_FIELDS.find(x=>x.key===k);
+      return f ? renderStatusFieldHtml(f) : '';
+    }).join('');
+    return `<div class="status-group">
+      <div class="status-group-title">${g.title}</div>
+      ${fieldsHtml}
+    </div>`;
+  }).join('');
+}
 function renderStatusPanel(client){
-  const fieldsHtml = STATUS_FIELDS.map(renderStatusFieldHtml).join('');
+  const fieldsHtml = renderStatusFieldsGrouped(null);
   const updatedLabel = client.statusUpdatedAt ? `最後更新：${client.statusUpdatedAt}` : '尚未更新過狀況';
 
   return `
@@ -1547,6 +1623,8 @@ function startConsentFlow(clientId, opts){
   statusDraft = JSON.parse(JSON.stringify(client.status));
   consentDraft = {clientId, copyFromLast: !!opts.copyFromLast, checks:[false,false,false,false,false], signatureDataUrl:null};
   consentError = '';
+  signatureModalOpen = false;
+  signatureBackup = null;
   expandedRecordId = null;
   detailTab = 'records';
   view = 'consent';
@@ -1556,12 +1634,26 @@ function cancelConsentFlow(){
   const clientId = consentDraft ? consentDraft.clientId : activeClientId;
   consentDraft = null;
   consentError = '';
+  signatureModalOpen = false;
+  signatureBackup = null;
   view = 'detail';
   activeClientId = clientId;
   render();
 }
 function toggleConsentCheck(idx){
   consentDraft.checks[idx] = !consentDraft.checks[idx];
+}
+function openSignatureModal(){
+  signatureBackup = consentDraft.signatureDataUrl;
+  signatureModalOpen = true;
+  render();
+}
+function closeSignatureModal(confirmed){
+  if(!confirmed){
+    consentDraft.signatureDataUrl = signatureBackup;
+  }
+  signatureModalOpen = false;
+  render();
 }
 function clearSignature(){
   consentDraft.signatureDataUrl = null;
@@ -1620,19 +1712,37 @@ function renderConsentView(){
       <span>${i+1}. ${escapeHtml(text)}</span>
     </label>`;
   }).join('');
-  const questionnaireHtml = QUESTIONNAIRE_FIELD_KEYS.map(key=>{
-    const f = STATUS_FIELDS.find(x=>x.key===key);
-    return f ? renderStatusFieldHtml(f) : '';
-  }).join('');
+  const questionnaireHtml = renderStatusFieldsGrouped(QUESTIONNAIRE_FIELD_KEYS);
+  const hasSignature = !!consentDraft.signatureDataUrl;
+  const signatureHtml = `<div class="signature-preview">
+    ${hasSignature
+      ? `<img src="${consentDraft.signatureDataUrl}" alt="客人簽名">`
+      : `<div class="signature-preview-empty">尚未簽名</div>`}
+    <button type="button" class="btn ${hasSignature?'btn-ghost':''} btn-sm" onclick="openSignatureModal()">${hasSignature?'重新簽名':'點此簽名'}</button>
+  </div>`;
+  const modalHtml = signatureModalOpen ? `<div class="signature-modal">
+    <div class="signature-modal-header">
+      <span>請客人在下方全螢幕畫面簽名</span>
+      <button class="btn-text" onclick="closeSignatureModal(false)">取消</button>
+    </div>
+    <div class="signature-modal-canvas-wrap">
+      <canvas id="signature-canvas"></canvas>
+    </div>
+    <div class="signature-modal-actions">
+      <button type="button" class="btn-ghost btn" onclick="clearSignature()">清除</button>
+      <button type="button" class="btn" onclick="closeSignatureModal(true)">完成簽名</button>
+    </div>
+  </div>` : '';
 
   return `
+    <div class="consent-view">
     <div class="back-row">
       <button class="btn-text" onclick="cancelConsentFlow()">← 返回客戶詳細頁</button>
     </div>
     <div class="client-card-hero">
       <div class="client-card-top"><h1>客人同意書與問卷</h1></div>
       <div class="card-info-row"><span class="card-info-item">${escapeHtml(client.name)}</span></div>
-      <p class="field-hint" style="margin-top:10px;">每次新增服務紀錄前，請先與客人一起完成以下確認與問卷。完成後會直接繼續填寫這次的服務紀錄，不需要再手動輸入一次。</p>
+      <p class="field-hint" style="margin-top:10px;">每次新增服務紀錄前，請先與客人一起完成以下確認與問卷，並重新簽名；即使先前已經簽過，這次仍需要重新填寫、重新簽名。完成後會直接繼續填寫這次的服務紀錄，不需要再手動輸入一次。</p>
     </div>
     <div class="panel">
       <div class="panel-title"><h2>A．諮詢紀錄同意書</h2></div>
@@ -1644,18 +1754,15 @@ function renderConsentView(){
     </div>
     <div class="panel" style="margin-top:16px;">
       <div class="panel-title"><h2>C．客人簽名</h2></div>
-      <div class="signature-wrap">
-        <canvas id="signature-canvas"></canvas>
-      </div>
-      <div class="form-actions" style="margin-top:10px;">
-        <button type="button" class="btn-ghost btn btn-sm" onclick="clearSignature()">清除簽名</button>
-      </div>
+      ${signatureHtml}
     </div>
     ${consentError ? `<div id="consent-error" style="color:var(--alert);font-size:13px;margin:14px 0 0;">${escapeHtml(consentError)}</div>` : ''}
     <div class="form-actions">
       <button class="btn-ghost btn" onclick="cancelConsentFlow()">取消</button>
       <button class="btn" onclick="submitConsentAndContinue()">完成，開始新增服務紀錄</button>
     </div>
+    </div>
+    ${modalHtml}
   `;
 }
 async function submitConsentAndContinue(){
@@ -1679,7 +1786,7 @@ async function submitConsentAndContinue(){
     return;
   }
   if(!consentDraft.signatureDataUrl){
-    consentError = '請客人在下方簽名欄簽名後再繼續。';
+    consentError = '請點選「點此簽名」，讓客人完成簽名後再繼續。';
     render();
     document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
