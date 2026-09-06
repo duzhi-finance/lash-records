@@ -324,6 +324,26 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 }
 .status-updated{font-size:11.5px;color:var(--ink-faint);}
 
+/* Pre-service consent & questionnaire */
+.consent-list{display:flex;flex-direction:column;gap:2px;border-radius:var(--radius-ui);overflow:hidden;background:var(--blush-line);}
+.consent-item{
+  display:flex;gap:12px;align-items:flex-start;background:#fff;padding:14px 16px;
+  font-size:13.5px;color:var(--ink);line-height:1.6;cursor:pointer;
+}
+.consent-item:has(input:checked){background:var(--sage-bg);}
+.consent-item input[type="checkbox"]{margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--mocha-deep);}
+.signature-wrap{
+  border:1px solid var(--blush-line);border-radius:var(--radius-ui);background:#fff;
+  overflow:hidden;
+}
+#signature-canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair;}
+.consent-summary{
+  background:var(--sage-bg);border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  padding:12px 14px;
+}
+.consent-summary-label{font-size:12.5px;color:var(--ink-soft);font-weight:600;}
+.consent-signature{display:block;margin-top:8px;max-height:80px;background:#fff;border:1px solid var(--blush-line);border-radius:6px;}
+
 /* Service records */
 .service-history{display:flex;flex-direction:column;gap:10px;}
 .record-card{
@@ -678,6 +698,8 @@ let statusDraft = null;     // working copy of client.status while on detail pag
 let newRecordDraft = null;  // working copy for a new service record
 let expandedRecordId = null;
 let detailTab = 'status';   // 'status' | 'records'
+let consentDraft = null;    // {clientId, checks:[bool x5], signatureDataUrl} while on consent view
+let consentError = '';
 let calendarSelectedDate = null; // 'YYYY-MM-DD', set on entering calendar view
 
 const APPT_STATUSES = ['confirmed','completed','cancelled','noshow'];
@@ -687,14 +709,40 @@ const STATUS_FIELDS = [
   {key:'isFirstTime', label:'是否第一次接睫毛', tri:true},
   {key:'lastLashDate', label:'上次接睫毛日期', type:'date'},
   {key:'keratin3Months', label:'近三個月是否操作角蛋白', tri:true},
+  {key:'keratinFrequency', label:'角蛋白／燙睫毛平均頻率', type:'text', placeholder:'例如：約2個月一次'},
   {key:'frequency', label:'平常接睫毛頻率', type:'text', placeholder:'例如：約3週一次'},
   {key:'hasOldLashesToRemove', label:'目前是否有舊睫毛需要卸除', tri:true},
-  {key:'allergyHistory', label:'是否有過敏／敏感史', tri:true, note:true},
+  {key:'allergyHistory', label:'是否有過敏／敏感史（含鼻子／眼睛過敏或發炎）', tri:true, note:true},
   {key:'eyeRednessItchyDry', label:'眼睛是否容易紅癢／乾', tri:true},
   {key:'recentEyeDiscomfort', label:'近期是否有眼睛不適', tri:true, note:true},
   {key:'wearsContacts', label:'平常是否配戴隱形眼鏡', tri:true},
+  {key:'wearsGlasses', label:'平常是否需要戴眼鏡', tri:true},
   {key:'rubsEyesOften', label:'平常是否容易揉眼睛', tri:true},
   {key:'specialEyeCondition', label:'是否有特殊眼部狀況', tri:true, note:true},
+  {key:'eyeSurgeryHistory', label:'是否有割雙眼皮、近視雷射、紋繡眉／眼線等手術', tri:true, note:true},
+  {key:'sleepPosition', label:'是否有趴睡或側睡習慣', tri:true},
+  {key:'isPregnant', label:'目前是否懷孕', tri:true},
+  {key:'oilyEyelids', label:'眼皮是否容易出油', tri:true},
+  {key:'lashCareHabit', label:'是否有保養睫毛習慣、使用產品類型', tri:true, note:true},
+  {key:'makeupHabit', label:'上妝習慣、化妝程度', type:'text', placeholder:'例如：淡妝／濃妝／著重眼妝／無化妝'},
+  {key:'falseLashHabit', label:'日常配戴假睫毛類型', type:'text', placeholder:'例如：濃密型／自然型／無配戴習慣'},
+  {key:'eyeMakeupRemover', label:'日常眼部卸妝用品', type:'text', placeholder:'例如：卸妝油、眼唇卸妝液'},
+  {key:'faceMakeupRemover', label:'日常臉部卸妝用品', type:'text', placeholder:'例如：卸妝乳、卸妝水'},
+  {key:'faceWashHabit', label:'洗臉習慣', type:'text', placeholder:'例如：毛巾／潑水式／淋浴沖洗／洗臉海綿／洗臉刷機'},
+];
+/* Questionnaire keys shown on the pre-service consent & questionnaire screen: everything
+   except lastLashDate/hasOldLashesToRemove/specialEyeCondition, which stay in 客人狀況 only
+   (per-visit specifics an artist checks, not something to ask the client to self-report). */
+const QUESTIONNAIRE_FIELD_KEYS = ['isFirstTime','keratin3Months','keratinFrequency','frequency',
+  'allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort','wearsContacts','wearsGlasses',
+  'rubsEyesOften','eyeSurgeryHistory','sleepPosition','isPregnant','oilyEyelids','lashCareHabit',
+  'makeupHabit','falseLashHabit','eyeMakeupRemover','faceMakeupRemover','faceWashHabit'];
+const CONSENT_ITEMS = [
+  '同意最終成果因個人睫毛生長、健康程度、濃密度和眼型而有所不同，服務完成後無法要求退費',
+  '若有眼疾、過敏、動過眼部手術或紋繡服務會主動告知，若因個人體質產生不適現象店家可免責',
+  '了解接睫過程可能帶來的不適感（流淚、紅眼、過敏現象）',
+  '接受睫毛脫落速度因個人體質、生活習慣、保養方式不同而不同【placeholder：是否提供保固期，請確認並替換這段文字】',
+  '了解卸除睫毛須由專業美睫師處理，自行卸除可能傷害真睫毛',
 ];
 
 function blankStatus(){
@@ -747,6 +795,9 @@ function render(){
     app.innerHTML = renderListView();
   }else if(view==='calendar'){
     app.innerHTML = renderCalendarView();
+  }else if(view==='consent'){
+    app.innerHTML = renderConsentView();
+    attachConsentBehaviors();
   }else{
     const client = clients.find(c=>c.id===activeClientId);
     if(!client){ view='list'; app.innerHTML = renderListView(); return; }
@@ -859,12 +910,9 @@ function openClient(id){
 }
 function quickAddRecord(id){
   activeClientId = id;
-  view='detail';
-  const client = clients.find(c=>c.id===id);
-  statusDraft = JSON.parse(JSON.stringify(client.status));
   expandedRecordId = null;
   detailTab = 'records';
-  startNewRecord(id);
+  startConsentFlow(id);
 }
 function switchDetailTab(tab){
   detailTab = tab;
@@ -1428,32 +1476,32 @@ function deleteClient(clientId){
 }
 
 /* ---- Status panel ---- */
-function renderStatusPanel(client){
-  const fieldsHtml = STATUS_FIELDS.map(f=>{
-    let control;
-    if(f.tri){
-      const val = statusDraft[f.key]||'unknown';
-      control = `<div class="tri-toggle" data-field="${f.key}">
-        <button type="button" class="${val==='yes'?'active-yes':''}" onclick="setStatusTri('${f.key}','yes')">是</button>
-        <button type="button" class="${val==='no'?'active-no':''}" onclick="setStatusTri('${f.key}','no')">否</button>
-        <button type="button" class="${val==='unknown'?'active-unknown':''}" onclick="setStatusTri('${f.key}','unknown')">未確認</button>
-      </div>`;
-    }else if(f.type==='date'){
-      control = `<div class="date-field-wrap">
-        <input type="date" class="${statusDraft[f.key]?'':'date-empty'}" value="${escapeHtml(statusDraft[f.key]||'')}" oninput="setStatusVal('${f.key}', this.value); this.classList.toggle('date-empty', !this.value)">
-        ${dateFieldIcon('date')}
-      </div>`;
-    }else{
-      control = `<input type="text" value="${escapeHtml(statusDraft[f.key]||'')}" placeholder="${f.placeholder||''}" oninput="setStatusVal('${f.key}', this.value)">`;
-    }
-    const note = f.note ? `<textarea class="status-note" placeholder="補充說明（選填）" oninput="setStatusVal('${f.key}_note', this.value)">${escapeHtml(statusDraft[f.key+'_note']||'')}</textarea>` : '';
-    return `<div class="status-field">
-      <label>${f.label}</label>
-      ${control}
-      ${note}
+function renderStatusFieldHtml(f){
+  let control;
+  if(f.tri){
+    const val = statusDraft[f.key]||'unknown';
+    control = `<div class="tri-toggle" data-field="${f.key}">
+      <button type="button" class="${val==='yes'?'active-yes':''}" onclick="setStatusTri('${f.key}','yes')">是</button>
+      <button type="button" class="${val==='no'?'active-no':''}" onclick="setStatusTri('${f.key}','no')">否</button>
+      <button type="button" class="${val==='unknown'?'active-unknown':''}" onclick="setStatusTri('${f.key}','unknown')">未確認</button>
     </div>`;
-  }).join('');
-
+  }else if(f.type==='date'){
+    control = `<div class="date-field-wrap">
+      <input type="date" class="${statusDraft[f.key]?'':'date-empty'}" value="${escapeHtml(statusDraft[f.key]||'')}" oninput="setStatusVal('${f.key}', this.value); this.classList.toggle('date-empty', !this.value)">
+      ${dateFieldIcon('date')}
+    </div>`;
+  }else{
+    control = `<input type="text" value="${escapeHtml(statusDraft[f.key]||'')}" placeholder="${f.placeholder||''}" oninput="setStatusVal('${f.key}', this.value)">`;
+  }
+  const note = f.note ? `<textarea class="status-note" placeholder="補充說明（選填）" oninput="setStatusVal('${f.key}_note', this.value)">${escapeHtml(statusDraft[f.key+'_note']||'')}</textarea>` : '';
+  return `<div class="status-field">
+    <label>${f.label}</label>
+    ${control}
+    ${note}
+  </div>`;
+}
+function renderStatusPanel(client){
+  const fieldsHtml = STATUS_FIELDS.map(renderStatusFieldHtml).join('');
   const updatedLabel = client.statusUpdatedAt ? `最後更新：${client.statusUpdatedAt}` : '尚未更新過狀況';
 
   return `
@@ -1486,13 +1534,191 @@ async function saveStatus(clientId){
   render();
 }
 
+/* ---- Pre-service consent & questionnaire ----
+ * Gate shown before every new service record (not edits, not calendar bookings for
+ * unlinked clients): consent checkboxes + a lifestyle questionnaire that reuses the
+ * client's existing 客人狀況 fields (so overlapping questions — allergy history, contacts,
+ * eye-rubbing — aren't asked twice) + a signature pad. On completion it hands off straight
+ * into the normal new-record form with the signature/consent timestamp already attached. */
+function startConsentFlow(clientId, opts){
+  opts = opts || {};
+  activeClientId = clientId;
+  const client = clients.find(c=>c.id===clientId);
+  statusDraft = JSON.parse(JSON.stringify(client.status));
+  consentDraft = {clientId, copyFromLast: !!opts.copyFromLast, checks:[false,false,false,false,false], signatureDataUrl:null};
+  consentError = '';
+  expandedRecordId = null;
+  detailTab = 'records';
+  view = 'consent';
+  render();
+}
+function cancelConsentFlow(){
+  const clientId = consentDraft ? consentDraft.clientId : activeClientId;
+  consentDraft = null;
+  consentError = '';
+  view = 'detail';
+  activeClientId = clientId;
+  render();
+}
+function toggleConsentCheck(idx){
+  consentDraft.checks[idx] = !consentDraft.checks[idx];
+}
+function clearSignature(){
+  consentDraft.signatureDataUrl = null;
+  const canvas = document.getElementById('signature-canvas');
+  if(canvas){
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+function attachConsentBehaviors(){
+  const canvas = document.getElementById('signature-canvas');
+  if(!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = '#4A4038';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  if(consentDraft.signatureDataUrl){
+    const img = new Image();
+    img.onload = function(){ ctx.drawImage(img, 0, 0, rect.width, rect.height); };
+    img.src = consentDraft.signatureDataUrl;
+  }
+  let drawing = false;
+  canvas.addEventListener('pointerdown', function(e){
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    const r = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+  });
+  canvas.addEventListener('pointermove', function(e){
+    if(!drawing) return;
+    const r = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+  });
+  function finishStroke(){
+    if(!drawing) return;
+    drawing = false;
+    consentDraft.signatureDataUrl = canvas.toDataURL('image/png');
+  }
+  canvas.addEventListener('pointerup', finishStroke);
+  canvas.addEventListener('pointercancel', finishStroke);
+}
+function renderConsentView(){
+  const client = clients.find(c=>c.id===consentDraft.clientId);
+  const consentHtml = CONSENT_ITEMS.map((text,i)=>{
+    const checked = consentDraft.checks[i];
+    return `<label class="consent-item">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleConsentCheck(${i})">
+      <span>${i+1}. ${escapeHtml(text)}</span>
+    </label>`;
+  }).join('');
+  const questionnaireHtml = QUESTIONNAIRE_FIELD_KEYS.map(key=>{
+    const f = STATUS_FIELDS.find(x=>x.key===key);
+    return f ? renderStatusFieldHtml(f) : '';
+  }).join('');
+
+  return `
+    <div class="back-row">
+      <button class="btn-text" onclick="cancelConsentFlow()">← 返回客戶詳細頁</button>
+    </div>
+    <div class="client-card-hero">
+      <div class="client-card-top"><h1>客人同意書與問卷</h1></div>
+      <div class="card-info-row"><span class="card-info-item">${escapeHtml(client.name)}</span></div>
+      <p class="field-hint" style="margin-top:10px;">每次新增服務紀錄前，請先與客人一起完成以下確認與問卷。完成後會直接繼續填寫這次的服務紀錄，不需要再手動輸入一次。</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h2>A．諮詢紀錄同意書</h2></div>
+      <div class="consent-list">${consentHtml}</div>
+    </div>
+    <div class="panel" id="status-panel" style="margin-top:16px;">
+      <div class="panel-title"><h2>B．生活紀錄調查表</h2></div>
+      ${questionnaireHtml}
+    </div>
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-title"><h2>C．客人簽名</h2></div>
+      <div class="signature-wrap">
+        <canvas id="signature-canvas"></canvas>
+      </div>
+      <div class="form-actions" style="margin-top:10px;">
+        <button type="button" class="btn-ghost btn btn-sm" onclick="clearSignature()">清除簽名</button>
+      </div>
+    </div>
+    ${consentError ? `<div id="consent-error" style="color:var(--alert);font-size:13px;margin:14px 0 0;">${escapeHtml(consentError)}</div>` : ''}
+    <div class="form-actions">
+      <button class="btn-ghost btn" onclick="cancelConsentFlow()">取消</button>
+      <button class="btn" onclick="submitConsentAndContinue()">完成，開始新增服務紀錄</button>
+    </div>
+  `;
+}
+async function submitConsentAndContinue(){
+  if(!consentDraft.checks.every(Boolean)){
+    consentError = '請先勾選以上全部同意事項，再繼續下一步。';
+    render();
+    document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const unansweredKey = QUESTIONNAIRE_FIELD_KEYS.find(key=>{
+    const f = STATUS_FIELDS.find(x=>x.key===key);
+    if(!f) return false;
+    const val = statusDraft[key];
+    return f.tri ? (!val || val==='unknown') : !String(val||'').trim();
+  });
+  if(unansweredKey){
+    const f = STATUS_FIELDS.find(x=>x.key===unansweredKey);
+    consentError = `問卷全部項目都需要填寫，尚未完成：「${f.label}」。`;
+    render();
+    document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  if(!consentDraft.signatureDataUrl){
+    consentError = '請客人在下方簽名欄簽名後再繼續。';
+    render();
+    document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  const clientId = consentDraft.clientId;
+  const copyFromLast = consentDraft.copyFromLast;
+  const signatureDataUrl = consentDraft.signatureDataUrl;
+  const consentAgreedAt = todayStr();
+
+  const client = clients.find(c=>c.id===clientId);
+  client.status = JSON.parse(JSON.stringify(statusDraft));
+  client.statusUpdatedAt = consentAgreedAt;
+  await saveData();
+
+  newRecordDraft = copyFromLast
+    ? recordDraftFromLast(clientId, findLatestRecord(clientId, null))
+    : blankRecordDraft(clientId);
+  newRecordDraft.consentAgreed = true;
+  newRecordDraft.consentAgreedAt = consentAgreedAt;
+  newRecordDraft.signatureDataUrl = signatureDataUrl;
+
+  view = 'detail';
+  detailTab = 'records';
+  expandedRecordId = null;
+  consentDraft = null;
+  consentError = '';
+  render();
+  const panel = document.getElementById('new-record-panel');
+  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
 /* ---- Service records ---- */
 function renderServiceSection(client){
   const recs = (client.serviceRecords||[]).slice().sort((a,b)=> b.date.localeCompare(a.date));
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
   const addBtns = newRecordDraft ? '' : `<div style="display:flex;gap:8px;">
-      ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="copyLastRecord('${client.id}')" title="一鍵帶入上一筆紀錄的所有設定，開啟後只需要修改有變動的地方">沿用上次設定</button>`:''}
-      <button class="btn btn-sm" onclick="startNewRecord('${client.id}')">＋ 新增服務紀錄</button>
+      ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="startConsentFlow('${client.id}', {copyFromLast:true})" title="一鍵帶入上一筆紀錄的所有設定，開啟後只需要修改有變動的地方">沿用上次設定</button>`:''}
+      <button class="btn btn-sm" onclick="startConsentFlow('${client.id}')">＋ 新增服務紀錄</button>
     </div>`;
 
   const historyHtml = recs.length ? `<div class="service-history">${recs.map(r=>renderRecordCard(r)).join('')}</div>`
@@ -1504,13 +1730,19 @@ function renderServiceSection(client){
     ${historyHtml}
   `;
 }
-function copyLastRecord(clientId){
-  const client = clients.find(c=>c.id===clientId);
-  const last = findLatestRecord(clientId, null);
-  if(!last) return;
-  newRecordDraft = {
-    clientId, id: null,
-    date: '',
+function blankRecordDraft(clientId){
+  return {
+    clientId, id: null, date: '',
+    time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
+    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
+    style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
+    technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
+  };
+}
+function recordDraftFromLast(clientId, last){
+  if(!last) return blankRecordDraft(clientId);
+  return {
+    clientId, id: null, date: '',
     time:'', duration: last.duration||90, service: last.service||'', serviceOther: last.serviceOther||'', status:'completed', amount:'', deposit:'',
     lenLL: last.lenLL||'', lenLM: last.lenLM||'', lenLR: last.lenLR||'',
     lenRL: last.lenRL||'', lenRM: last.lenRM||'', lenRR: last.lenRR||'',
@@ -1519,11 +1751,6 @@ function copyLastRecord(clientId){
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
   };
-  expandedRecordId = null;
-  render();
-  showToast('已複製上次紀錄，請確認日期與調整內容');
-  const panel = document.getElementById('new-record-panel');
-  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 function eyeArcSvg(side){
@@ -1571,6 +1798,10 @@ function renderRecordCard(r){
       ${r.designNotes?`<div class="record-notes"><strong>眼型設計：</strong>${escapeHtml(r.designNotes)}</div>`:''}
       ${r.adjustmentNotes?`<div class="record-notes"><strong>本次調整：</strong>${escapeHtml(r.adjustmentNotes)}</div>`:''}
       ${r.notes?`<div class="record-notes"><strong>備註：</strong>${escapeHtml(r.notes)}</div>`:''}
+      ${r.consentAgreed?`<div class="consent-summary">
+        <div class="consent-summary-label">✓ 同意書與問卷已完成（${escapeHtml(r.consentAgreedAt||'')}）</div>
+        ${r.signatureDataUrl?`<img class="consent-signature" src="${r.signatureDataUrl}" alt="客人簽名">`:''}
+      </div>`:''}
       <div class="form-actions">
         <button class="btn-ghost btn btn-sm" onclick="startEditRecord('${r.clientId}','${r.id}')">編輯</button>
         <button class="btn-danger-text" onclick="deleteRecord('${r.clientId}','${r.id}')">刪除此筆紀錄</button>
@@ -1615,19 +1846,6 @@ function deleteRecord(clientId, recordId){
 }
 
 /* ---- New / edit record form ---- */
-function startNewRecord(clientId){
-  newRecordDraft = {
-    clientId, id: null,
-    date: '',
-    time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
-    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
-    style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
-    technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
-  };
-  render();
-  const panel = document.getElementById('new-record-panel');
-  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
 function startEditRecord(clientId, recordId){
   const client = clients.find(c=>c.id===clientId);
   const r = client.serviceRecords.find(x=>x.id===recordId);
@@ -1709,6 +1927,10 @@ function renderNewRecordPanel(){
 
   return `<div class="new-record-panel" id="new-record-panel">
     <div class="new-record-title">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
+    ${d.consentAgreed?`<div class="consent-summary" style="margin-bottom:14px;">
+      <div class="consent-summary-label">✓ 同意書與問卷已完成（${escapeHtml(d.consentAgreedAt||'')}）</div>
+      ${d.signatureDataUrl?`<img class="consent-signature" src="${d.signatureDataUrl}" alt="客人簽名">`:''}
+    </div>`:''}
     <div class="form-row-3">
       <div class="form-field form-field--narrow"><label>日期</label>
         <div class="date-field-wrap">
@@ -1881,6 +2103,19 @@ async function saveNewRecord(){
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
   };
+  if(d.consentAgreed){
+    payload.consentAgreed = true;
+    payload.consentAgreedAt = d.consentAgreedAt;
+    payload.signatureDataUrl = d.signatureDataUrl;
+  }else if(d.id){
+    // Editing an existing record: keep whatever consent/signature it already had.
+    const existing = client.serviceRecords.find(r=>r.id===d.id);
+    if(existing && existing.consentAgreed){
+      payload.consentAgreed = true;
+      payload.consentAgreedAt = existing.consentAgreedAt;
+      payload.signatureDataUrl = existing.signatureDataUrl;
+    }
+  }
   if(d.id){
     const idx = client.serviceRecords.findIndex(r=>r.id===d.id);
     if(idx>-1) client.serviceRecords[idx] = payload; else client.serviceRecords.push(payload);
