@@ -9,11 +9,10 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="theme-color" content="#A97C6C">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Alex+Brush&family=Caveat:wght@600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, serif;
-  --font-cursive: 'Alex Brush', cursive;
-  --font-hand: 'Caveat', cursive;
+  --font-sans: ui-rounded, "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
   --paper:#FFFFFF;
   --paper-deep:#F2E8DF;
   --ink:#4A4038;
@@ -36,8 +35,8 @@ html,body{margin:0;padding:0;}
 body{
   background:var(--paper);
   color:var(--ink);
-  font-family:var(--font-serif);
-  font-size:17px;
+  font-family:var(--font-sans);
+  font-size:16px;
   line-height:1.75;
 }
 h1,h2,h3{margin:0;color:var(--ink);}
@@ -94,27 +93,19 @@ img{max-width:100%;}
 }
 .hero-section .cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
 
-/* ---------- Dedicated main-visual banner: its own section, image only, no overlapping text ---------- */
-.visual-section{padding:64px 0 88px;}
-.visual-banner{
-  position:relative;width:100%;height:clamp(300px,42vw,460px);
-  border-radius:28px;overflow:hidden;
-  background:linear-gradient(150deg,#E4D3E6 0%,#CFE1EE 30%,#F3E6CE 62%,#E9D8E8 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:0 30px 70px -32px rgba(74,64,56,0.4);
+/* ---------- Showcase: real screenshots of the tool itself, not illustrations ---------- */
+.visual-section{padding:56px 0 80px;}
+.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media (max-width:700px){.showcase-grid{grid-template-columns:1fr;}}
+.showcase-item{
+  margin:0;background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:16px 16px 18px;
 }
-.visual-banner .bokeh{position:absolute;border-radius:50%;filter:blur(16px);opacity:0.5;background:#fff;}
-.visual-word{
-  font-family:var(--font-serif);font-weight:700;white-space:nowrap;
-  font-size:clamp(46px,9vw,108px);letter-spacing:8px;
-  background:linear-gradient(180deg,#ffffff 0%, #d9a9cf 22%, #f7ecd2 46%, #a9c6da 70%, #ffffff 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 8px rgba(120,90,110,.3));
-  position:relative;z-index:2;
+.showcase-item img{
+  display:block;width:100%;border-radius:12px;border:1px solid var(--blush-line);
 }
-.visual-caption{
-  position:relative;z-index:2;margin-top:16px;font-size:12px;letter-spacing:4px;
-  text-transform:uppercase;color:#6b5a63;
+.showcase-item figcaption{
+  margin-top:12px;font-size:13px;color:var(--ink-soft);text-align:center;
 }
 
 /* ---------- Value / Features ---------- */
@@ -206,21 +197,24 @@ img{max-width:100%;}
 <div id="top"></div>
 <section class="hero-section wrap">
   <div class="eyebrow">FOR INDEPENDENT LASH ARTISTS</div>
-  <h1>紙本記事卡總是搞丟、翻找半天？<br><em>客人的臉，你都記得；細節，讓工具幫你記。</em></h1>
-  <p class="lede">EYELASH 客戶紀錄本把每位客人的過敏史、眼型、服務歷史整理成一目了然的檔案，手機、電腦都能開，不用再翻抽屜找記事卡，也不怕客人一問三不知。</p>
+  <h1>紙本記事卡容易遺失、翻找耗時。</h1>
+  <p class="lede">EYELASH 是給獨立接案美睫師的客戶紀錄工具，結構化記錄眼型、過敏史與服務歷程，取代紙本管理。</p>
   <div class="cta-row">
-    <a class="btn" href="#pricing">立即詢問購買</a>
+    <a class="btn" href="#pricing">查看購買方案</a>
     <a class="btn btn-ghost" href="#features">看看功能</a>
   </div>
 </section>
 
 <section class="visual-section wrap">
-  <div class="visual-banner">
-    <div class="bokeh" style="width:140px;height:140px;top:8%;left:6%;"></div>
-    <div class="bokeh" style="width:80px;height:80px;bottom:12%;right:8%;"></div>
-    <div class="bokeh" style="width:50px;height:50px;top:60%;left:16%;"></div>
-    <div class="visual-word">EYELASH</div>
-    <div class="visual-caption">Client Record Book</div>
+  <div class="showcase-grid">
+    <figure class="showcase-item">
+      <img src="screenshots/client-profile.png" alt="客戶詳細頁：客戶基本資料與特別注意事項標示">
+      <figcaption>客戶詳細頁 — 過敏史、禁忌事項一目了然</figcaption>
+    </figure>
+    <figure class="showcase-item">
+      <img src="screenshots/eye-diagram.png" alt="服務紀錄的眼型示意圖，標示左右眼三段睫毛長度">
+      <figcaption>服務紀錄 — 眼型示意圖記錄左右眼各段長度</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -254,11 +248,11 @@ img{max-width:100%;}
   <div class="feature-list">
     <div class="feature-row">
       <span class="icon">🚫</span>
-      <div><h3>禁忌事項醒目標示</h3><p>過敏反應、特殊眼況一律放在最顯眼的位置，開啟客人檔案第一眼就看到，不會漏看。</p></div>
+      <div><h3>禁忌事項醒目標示</h3><p>眼睛敏感、隱形眼鏡配戴者等常見狀況可直接勾選，也保留自訂欄位記錄少見情況，一律放在客人檔案最上方，打開就看到。</p></div>
     </div>
     <div class="feature-row">
       <span class="icon">👁️</span>
-      <div><h3>眼睛示意圖標記工具</h3><p>直接在眼型圖上點選標記設計細節（加長段、加粗段、特殊角度），比文字描述更直觀好懂。</p></div>
+      <div><h3>眼型示意圖記錄</h3><p>新增服務紀錄時，在左右眼示意圖旁分別填入左、中、右三段的睫毛長度，設計細節跟著紀錄一起保存，不必只靠文字描述。</p></div>
     </div>
     <div class="feature-row">
       <span class="icon">🕰️</span>
