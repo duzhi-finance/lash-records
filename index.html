@@ -60,16 +60,6 @@ button{font-family:inherit;cursor:pointer;}
 input,select,textarea{font-family:inherit;font-size:14px;}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
-/* ---------- Faint decorative sparkle: a barely-there accent icon, not a color scheme ---------- */
-.spark-icon{
-  display:inline-block;width:15px;height:15px;flex-shrink:0;vertical-align:middle;
-  background-repeat:no-repeat;background-size:contain;
-  opacity:.4;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z' fill='%23A97C6C'/></svg>");
-}
-.spark-icon--lg{width:20px;height:20px;opacity:.5;}
-.spark-icon--sm{width:11px;height:11px;}
-
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
 
 /* ---------- Top bar ---------- */
@@ -82,7 +72,6 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 }
 .brand{display:flex;flex-direction:column;gap:4px;}
 .brand-row{display:flex;align-items:baseline;gap:12px;}
-.brand-row .spark-icon{align-self:center;}
 .brand-en{
   font-family:'Montserrat', var(--font-sans);
   font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-faint);
@@ -388,14 +377,32 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   background-repeat:no-repeat;background-position:right 10px center;background-size:11px;
   padding-right:28px;cursor:pointer;
 }
-.form-field input[type="date"], .form-field input[type="time"]{cursor:pointer;}
-.form-field input[type="date"]::-webkit-calendar-picker-indicator,
-.form-field input[type="time"]::-webkit-calendar-picker-indicator{opacity:0.65;cursor:pointer;}
 .form-field textarea{resize:vertical;min-height:50px;}
 /* Blank date/time boxes until clicked: hide the browser's mm/dd/yyyy hint text
    while empty and unfocused; typing/picking removes the .date-empty class immediately */
 input[type="date"].date-empty:not(:focus)::-webkit-datetime-edit,
 input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transparent;}
+
+/* Custom calendar/clock icon drawn as a background image so it always shows, on every
+   browser — iOS Safari never renders a native picker-indicator icon the way desktop
+   Chrome does, so relying on ::-webkit-calendar-picker-indicator left the box looking
+   empty on phones. The native indicator (where it exists) is stretched invisibly over
+   the whole field so tapping anywhere still opens the picker. */
+input[type="date"], input[type="time"]{
+  cursor:pointer;
+  background-repeat:no-repeat !important;background-position:right 12px center !important;background-size:16px !important;
+  padding-right:36px !important;
+}
+input[type="date"]{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A97C6C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='2.5' x2='8' y2='6'/><line x1='16' y1='2.5' x2='16' y2='6'/></svg>") !important;
+}
+input[type="time"]{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A97C6C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><polyline points='12 7 12 12 16 14'/></svg>") !important;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator{
+  opacity:0;cursor:pointer;
+}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;}
 .chip-select{display:flex;flex-wrap:wrap;gap:8px;}
 .chip{
@@ -436,8 +443,6 @@ input[type="time"].date-empty:not(:focus)::-webkit-datetime-edit{color:transpare
   background-repeat:no-repeat;background-position:right 12px center;background-size:11px;
   padding-right:32px;cursor:pointer;
 }
-.modal-field input[type="date"]{cursor:pointer;}
-.modal-field input[type="date"]::-webkit-calendar-picker-indicator{opacity:0.65;cursor:pointer;}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
 
 .footer-links{margin-top:34px;padding-top:16px;border-top:1px solid var(--blush-line);text-align:right;}
@@ -732,7 +737,7 @@ function renderListView(){
   let cardsHtml = '';
   if(clients.length===0){
     cardsHtml = `<div class="empty-state">
-      <h3><span class="spark-icon spark-icon--lg" aria-hidden="true"></span> 還沒有客戶紀錄</h3>
+      <h3>還沒有客戶紀錄</h3>
       <p>新增第一位客戶，開始取代紙本記事卡。</p>
     </div>`;
   }else if(filtered.length===0){
@@ -763,7 +768,6 @@ function renderListView(){
       <div class="brand">
         <div class="brand-row">
           <h1 class="wordmark">EYELASH</h1>
-          <span class="spark-icon" aria-hidden="true"></span>
           <span class="sub">獨立美睫師的客戶紀錄本</span>
         </div>
         <div class="brand-en">FOR INDEPENDENT LASH ARTISTS</div>
@@ -778,7 +782,7 @@ function renderListView(){
       <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用下方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
     </div>
     <div class="revenue-card">
-      <span class="revenue-label"><span class="spark-icon spark-icon--sm" aria-hidden="true"></span> 本月營收</span>
+      <span class="revenue-label">本月營收</span>
       <span class="revenue-amount">NT$ ${computeMonthlyRevenue().toLocaleString()}</span>
     </div>
     <div class="search-row">
@@ -1015,7 +1019,7 @@ function renderCalendarView(){
     <div class="back-row">
       <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
     </div>
-    <div class="calendar-header"><h1><span class="spark-icon" aria-hidden="true"></span> 行事曆</h1></div>
+    <div class="calendar-header"><h1>行事曆</h1></div>
     <div class="status-legend">
       <span class="legend-item"><span class="legend-dot status-confirmed"></span>已確認</span>
       <span class="legend-item"><span class="legend-dot status-completed"></span>已完成</span>
@@ -1151,7 +1155,7 @@ function renderClientModal(){
   const isEdit = !!d.id;
   return `<div class="modal-overlay" onclick="if(event.target===this) closeClientModal()">
     <div class="modal-box">
-      <h3><span class="spark-icon" aria-hidden="true"></span> ${isEdit?'編輯客戶資料':'建立客戶檔案'}</h3>
+      <h3>${isEdit?'編輯客戶資料':'建立客戶檔案'}</h3>
       <div class="modal-field">
         <label>姓名／暱稱</label>
         <input id="modal-name" value="${escapeHtml(d.name)}" placeholder="客戶姓名或暱稱">
@@ -1313,7 +1317,7 @@ function renderClientCard(client){
 
   return `<div class="client-card-hero">
     <div class="client-card-top">
-      <h1><span class="spark-icon" aria-hidden="true"></span> ${escapeHtml(client.name)}</h1>
+      <h1>${escapeHtml(client.name)}</h1>
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>編輯客戶資料</button>
     </div>
     <div class="card-info-row">${rows.join('')}</div>
@@ -1408,7 +1412,7 @@ function renderStatusPanel(client){
   const updatedLabel = client.statusUpdatedAt ? `最後更新：${client.statusUpdatedAt}` : '尚未更新過狀況';
 
   return `
-    <div class="panel-title"><h2><span class="spark-icon spark-icon--sm" aria-hidden="true"></span> 客人狀況</h2></div>
+    <div class="panel-title"><h2>客人狀況</h2></div>
     ${fieldsHtml}
     <div class="status-footer">
       <span class="status-updated">${updatedLabel}</span>
@@ -1450,7 +1454,7 @@ function renderServiceSection(client){
     : `<div class="empty-state" style="padding:30px 10px;"><p>尚無服務紀錄。</p></div>`;
 
   return `
-    <div class="panel-title"><h2><span class="spark-icon spark-icon--sm" aria-hidden="true"></span> 服務紀錄</h2>${addBtns}</div>
+    <div class="panel-title"><h2>服務紀錄</h2>${addBtns}</div>
     ${newPanel}
     ${historyHtml}
   `;
