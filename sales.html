@@ -19,27 +19,28 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<meta name="theme-color" content="#A97C6C">
+<meta name="theme-color" content="#AD8843">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, serif;
   --font-sans: ui-rounded, "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
-  --paper:#FFFFFF;
-  --paper-deep:#F2E8DF;
-  --ink:#4A4038;
-  --ink-soft:#96897F;
-  --ink-faint:#C7BAAF;
-  --mocha:#C39A8C;
-  --mocha-deep:#A97C6C;
-  --blush:#EDDDD3;
-  --blush-line:#DFC9BC;
+  --paper:#FDFBF7;
+  --paper-deep:#F5EEDD;
+  --ink:#2C2A29;
+  --ink-soft:#6B6560;
+  --ink-faint:#A69F97;
+  --mocha:#C5A059;
+  --mocha-deep:#AD8843;
+  --blush:#F3EAD3;
+  --blush-line:#EAEAEA;
+  --glass-bg:rgba(255,255,255,0.6);
   --warn:#6B6459;
   --warn-bg:#EDEBE4;
   --warn-line:#D9D3C6;
-  --radius-card:20px;
+  --radius-card:12px;
   --radius-pill:999px;
-  --radius-ui:9px;
+  --radius-ui:8px;
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -52,7 +53,7 @@ body{
   line-height:1.65;
 }
 h1,h2,h3{margin:0;color:var(--ink);}
-p{margin:0;}
+p{margin:0;font-family:var(--font-serif);}
 img{max-width:100%;}
 .wrap{max-width:1040px;margin:0 auto;padding:0 32px;}
 .section{padding-top:72px;padding-bottom:72px;}
@@ -89,11 +90,15 @@ img{max-width:100%;}
 }
 .logo-mark{display:flex;align-items:center;text-decoration:none;color:inherit;}
 .logo-word{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:21px;letter-spacing:4px;color:var(--mocha-deep);line-height:1;}
+.nav-links{display:flex;align-items:center;gap:22px;}
+.nav-link{font-family:var(--font-serif);font-size:14.5px;color:var(--ink-soft);text-decoration:none;}
+.nav-link:hover{color:var(--mocha-deep);}
+@media (max-width:560px){.nav-link{display:none;}}
 
 /* ---------- Hero: plain, text-only, no competing background ---------- */
 .hero-section{padding-top:120px;padding-bottom:24px;text-align:center;}
 .hero-section .eyebrow{
-  font-family:var(--font-serif);font-size:13px;letter-spacing:3.5px;text-transform:uppercase;
+  font-family:var(--font-serif);font-size:13px;letter-spacing:0.08em;text-transform:uppercase;
   color:var(--mocha-deep);font-weight:600;margin-bottom:22px;
 }
 .hero-section h1{
@@ -110,7 +115,8 @@ img{max-width:100%;}
 .value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
 @media (max-width:760px){.value-grid{grid-template-columns:1fr;}}
 .value-card{
-  background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:26px 22px;transition:transform .18s ease, box-shadow .18s ease;
 }
 .value-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -22px rgba(74,64,56,.35);}
@@ -121,7 +127,8 @@ img{max-width:100%;}
 .feature-list{display:flex;flex-direction:column;gap:2px;margin-top:32px;border-radius:var(--radius-card);overflow:hidden;background:var(--blush-line);}
 .feature-row{
   display:flex;gap:18px;align-items:flex-start;
-  background:#fff;padding:24px 26px;
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:24px 26px;
 }
 .feature-row .icon{font-size:22px;flex-shrink:0;width:36px;height:36px;border-radius:50%;
   background:var(--blush);display:flex;align-items:center;justify-content:center;}
@@ -138,7 +145,8 @@ img{max-width:100%;}
 .audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
 @media (max-width:640px){.audience-grid{grid-template-columns:1fr;}}
 .audience-item{
-  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   padding:20px 22px;
 }
 .audience-item .role{
@@ -150,9 +158,10 @@ img{max-width:100%;}
 /* ---------- Pricing ---------- */
 .pricing-card{
   position:relative;overflow:hidden;
-  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:44px 40px;margin-top:28px;text-align:center;max-width:520px;
-  box-shadow:0 24px 60px -30px rgba(74,64,56,.28);
+  box-shadow:0 24px 60px -30px rgba(44,42,41,.22);
 }
 .pricing-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:4px;
@@ -162,9 +171,9 @@ img{max-width:100%;}
 .pricing-card .price-note{font-size:11.5px;letter-spacing:0.6px;color:var(--ink-faint);margin-bottom:22px;}
 .pricing-card .price-tag{
   display:flex;align-items:baseline;justify-content:center;gap:6px;
-  font-family:var(--font-serif);font-weight:700;font-size:50px;letter-spacing:0.3px;color:var(--mocha-deep);
+  font-family:var(--font-serif);font-weight:700;font-size:50px;letter-spacing:0.08em;color:var(--mocha-deep);
 }
-.pricing-card .price-tag .currency{font-size:22px;font-weight:600;color:var(--ink-soft);}
+.pricing-card .price-tag .currency{font-size:22px;font-weight:600;letter-spacing:0.08em;color:var(--ink-soft);}
 .price-disclaimer{font-size:11.5px;color:var(--ink-faint);margin-top:8px;}
 .pricing-divider{border:none;border-top:1px solid var(--blush-line);margin:26px 0;}
 .pricing-includes{text-align:left;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
@@ -175,9 +184,27 @@ img{max-width:100%;}
 .pricing-fineprint.policy{margin-top:6px;color:var(--ink-soft);}
 .placeholder{background:var(--warn-bg);color:var(--warn);padding:1px 7px;border-radius:5px;font-size:0.9em;}
 
+/* ---------- Aftercare ---------- */
+.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;}
+@media (max-width:760px){.care-grid{grid-template-columns:1fr;}}
+.care-card{
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:28px 26px;
+}
+.care-card h3{font-family:var(--font-serif);font-size:19px;font-weight:600;letter-spacing:0.2px;margin-bottom:18px;color:var(--mocha-deep);}
+.care-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;}
+.care-list li{display:flex;gap:12px;align-items:flex-start;}
+.care-list .num{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;margin-top:1px;
+  background:var(--blush);color:var(--mocha-deep);font-family:var(--font-serif);font-weight:700;font-size:12.5px;letter-spacing:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.care-list span:last-child{font-size:14px;color:var(--ink-soft);line-height:1.65;}
+
 /* ---------- FAQ ---------- */
 .faq-list{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
-.faq-item{background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:18px 20px;}
+.faq-item{background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:18px 20px;}
 .faq-item h3{font-family:var(--font-serif);font-size:17px;font-weight:600;letter-spacing:0.2px;margin-bottom:9px;display:flex;gap:8px;}
 .faq-item h3::before{content:'Q.';color:var(--mocha-deep);font-style:italic;}
 .faq-item p{font-size:14px;color:var(--ink-soft);line-height:1.65;padding-left:22px;}
@@ -206,7 +233,10 @@ img{max-width:100%;}
   <a class="logo-mark" href="#top">
     <span class="logo-word">EYELASH</span>
   </a>
-  <a class="btn btn-ghost" href="#pricing">查看價格</a>
+  <div class="nav-links">
+    <a class="nav-link" href="#aftercare">保養指南</a>
+    <a class="btn btn-ghost" href="#pricing">查看價格</a>
+  </div>
 </nav>
 
 <div id="top"></div>
@@ -371,6 +401,32 @@ img{max-width:100%;}
     <div class="faq-item">
       <h3>用了之後不滿意，可以退款嗎？</h3>
       <p>這是一次性付費的數位商品，付款開通後即視為交付完成，恕不接受退換。如果購買前還有任何功能上的疑問，歡迎先私訊詢問，確認符合你的需求再下單。</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tint wrap" id="aftercare">
+  <div class="section-label">售後專業</div>
+  <h2 class="section-title">服務前後保養指南</h2>
+  <p class="section-sub">每次服務前後提醒客人這些細節，讓接睫成果更持久，也讓客人感受到你的專業與細心，減少事後保養不當造成的糾紛。</p>
+  <div class="care-grid">
+    <div class="care-card">
+      <h3>美睫前 24 小時注意事項</h3>
+      <ul class="care-list">
+        <li><span class="num">1</span><span>避免飲用含咖啡因或酒精的飲品，以免眼周出汗、影響膠水附著</span></li>
+        <li><span class="num">2</span><span>服務前請勿上眼妝，尤其是睫毛膏與眼線，以利睫毛根部清潔</span></li>
+        <li><span class="num">3</span><span>建議勿配戴隱形眼鏡進行服務，若有配戴請提前告知美睫師</span></li>
+        <li><span class="num">4</span><span>若有眼部發炎、過敏或感冒不適，建議另約時間再進行</span></li>
+      </ul>
+    </div>
+    <div class="care-card">
+      <h3>美睫後保養 4 大原則</h3>
+      <ul class="care-list">
+        <li><span class="num">1</span><span>48 小時內避免碰水、蒸氣或三溫暖，待膠水完全固化</span></li>
+        <li><span class="num">2</span><span>避免用手直接搓揉、拉扯睫毛，卸妝時動作放輕</span></li>
+        <li><span class="num">3</span><span>避免使用油性卸妝產品清潔眼周，以免加速睫毛脫落</span></li>
+        <li><span class="num">4</span><span>盡量避免趴睡、側睡壓到睫毛，並定期用睫毛刷梳理維持型狀</span></li>
+      </ul>
     </div>
   </div>
 </section>
