@@ -32,8 +32,8 @@
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, 'Times New Roman', serif;
   --paper:#FFFFFF;
   --paper-deep:#FAFAFA;
-  --ink:#2C2A29;
-  --ink-soft:#6B6560;
+  --ink:#2B2B2B;
+  --ink-soft:#777777;
   --ink-faint:#A69F97;
   --mocha:#C5A059;
   --mocha-deep:#AD8843;
@@ -46,7 +46,7 @@
   --warn:#6B6459;
   --warn-bg:#EDEBE4;
   --warn-line:#D9D3C6;
-  --sage:#2C2A29;
+  --sage:#2B2B2B;
   --sage-bg:#FBF7EE;
   --radius-card:12px;
   --radius-pill:999px;
@@ -58,19 +58,21 @@ html,body{margin:0;padding:0;}
 body{
   background:var(--paper);
   color:var(--ink);
-  font-family:var(--font-sans);
+  font-family:var(--font-serif);
   font-size:15px;
-  line-height:1.6;
+  line-height:1.75;
+  letter-spacing:0.04em;
   min-height:100vh;
 }
 h1,h2,h3{
-  font-family:var(--font-sans);
-  font-weight:600;
-  color:var(--ink);
+  font-family:var(--font-serif);
+  font-weight:500;
+  letter-spacing:0.06em;
+  color:#1A1A1A;
   margin:0;
 }
-button{font-family:inherit;cursor:pointer;}
-input,select,textarea{font-family:inherit;font-size:14px;}
+button{font-family:var(--font-sans);cursor:pointer;}
+input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;letter-spacing:0.02em;}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
@@ -148,20 +150,12 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .icon-btn .icon-btn-label .en{font-size:8.5px;letter-spacing:0.5px;color:var(--ink-faint);}
 .icon-btn:hover{background:var(--sage-bg);border-color:var(--mocha);}
 
-/* ---------- Storage notice ---------- */
-.storage-notice{
-  display:flex;align-items:flex-start;gap:10px;
-  background:var(--warn-bg);
-  border:1px solid var(--warn-line);
-  color:var(--warn);
-  border-radius:var(--radius-card);
-  padding:14px 16px;
-  margin-bottom:20px;
-  font-size:13px;
-  line-height:1.6;
+/* ---------- List footer notice ---------- */
+.list-footer-notice{
+  margin-top:14px;font-size:12px;line-height:1.6;color:#888888;max-width:520px;
+  margin-left:auto;margin-right:auto;
 }
-.storage-notice .icon{flex-shrink:0;font-size:16px;line-height:1.4;}
-.storage-notice strong{font-weight:700;}
+.list-footer-notice strong{font-weight:600;color:#888888;}
 
 /* ---------- List view ---------- */
 .search-row{margin-bottom:20px;}
@@ -236,35 +230,35 @@ input,select,textarea{font-family:inherit;font-size:14px;}
   width:14px;height:14px;font-size:9.5px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
 
-/* Contraindication banner - always visible, neutral gray/khaki so it doesn't compete with brand accent colors */
+/* Contraindication banner - clean white card, doesn't compete with brand accent colors */
 .banner-alert{
-  background:var(--warn-bg);
-  border:1px solid var(--warn-line);
+  background:#FFFFFF;
+  border:1px solid #EDEDED;
   border-radius:var(--radius-card);
   padding:16px 18px;
   margin-bottom:22px;
 }
 .banner-alert .banner-title{
   display:flex;align-items:center;gap:8px;
-  font-weight:600;color:var(--warn);font-size:14.5px;margin-bottom:10px;
+  font-weight:600;color:#333333;font-size:14.5px;margin-bottom:10px;
 }
 .tag-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
 .tag-pill{
   display:inline-flex;align-items:center;gap:8px;
-  background:#fff;border:1px solid var(--warn-line);color:var(--warn);
+  background:#fff;border:1px solid #EDEDED;color:#333333;
   padding:6px 8px 6px 12px;border-radius:var(--radius-pill);font-size:13.5px;font-weight:500;
 }
 .tag-pill button{
-  background:var(--warn);color:#fff;border:none;border-radius:50%;
+  background:#333333;color:#fff;border:none;border-radius:50%;
   width:16px;height:16px;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
 .tag-add-row{display:flex;gap:8px;}
 .tag-add-row input{
-  flex:1;padding:8px 12px;border:1px solid var(--warn-line);border-radius:var(--radius-ui);
+  flex:1;padding:8px 12px;border:1px solid #EDEDED;border-radius:var(--radius-ui);
   background:#fff;font-size:13.5px;
 }
 .tag-add-row button{
-  background:var(--warn);color:#fff;border:1px solid var(--warn);
+  background:#333333;color:#fff;border:1px solid #333333;
   padding:8px 16px;border-radius:var(--radius-pill);font-size:13.5px;font-weight:500;
 }
 
@@ -827,8 +821,13 @@ function serviceLabelOf(r){
 function render(){
   document.querySelectorAll('.modal-overlay').forEach(el=>el.remove());
   const app = document.getElementById('app');
+  const searchInputEl = document.querySelector('.search-input');
+  const searchHadFocus = !!searchInputEl && document.activeElement === searchInputEl;
+  const searchSelStart = searchHadFocus ? searchInputEl.selectionStart : null;
+  const searchSelEnd = searchHadFocus ? searchInputEl.selectionEnd : null;
   if(view==='list'){
     app.innerHTML = renderListView();
+    attachSearchInputBehaviors();
   }else if(view==='calendar'){
     app.innerHTML = renderCalendarView();
   }else if(view==='consent'){
@@ -845,6 +844,13 @@ function render(){
   }
   if(pendingConfirm){
     document.body.insertAdjacentHTML('beforeend', renderConfirmModal());
+  }
+  if(searchHadFocus){
+    const newSearchInput = document.querySelector('.search-input');
+    if(newSearchInput){
+      newSearchInput.focus();
+      if(searchSelStart!=null) newSearchInput.setSelectionRange(searchSelStart, searchSelEnd);
+    }
   }
 }
 
@@ -900,10 +906,6 @@ function renderListView(){
         <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
       </div>
     </div>
-    <div class="storage-notice">
-      <span class="icon">⚠️</span>
-      <span><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用下方「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</span>
-    </div>
     <div class="revenue-card">
       <span class="revenue-label">本月營收</span>
       <span class="revenue-amount">NT$ ${computeMonthlyRevenue().toLocaleString()}</span>
@@ -929,11 +931,29 @@ function renderListView(){
         </button>
       </div>
       <div class="list-footer-en">EYELASH — CLIENT RECORD SYSTEM</div>
+      <p class="list-footer-notice"><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</p>
       <div class="list-footer-copyright">© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。</div>
     </div>
   `;
 }
-function onSearchInput(v){ searchTerm=v; render(); }
+let searchComposing = false;
+function onSearchInput(v){
+  searchTerm = v;
+  if(searchComposing) return;
+  render();
+}
+function onSearchCompositionStart(){ searchComposing = true; }
+function onSearchCompositionEnd(v){
+  searchComposing = false;
+  searchTerm = v;
+  render();
+}
+function attachSearchInputBehaviors(){
+  const input = document.querySelector('.search-input');
+  if(!input) return;
+  input.addEventListener('compositionstart', onSearchCompositionStart);
+  input.addEventListener('compositionend', function(){ onSearchCompositionEnd(input.value); });
+}
 function openClient(id){
   activeClientId = id;
   view='detail';
