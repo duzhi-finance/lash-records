@@ -26,15 +26,14 @@
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, serif;
   --font-sans: ui-rounded, "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
   --paper:#FFFFFF;
-  --paper-deep:#F7F5F0;
-  --ink:#2C2A29;
-  --ink-soft:#6B6560;
-  --ink-faint:#A69F97;
+  --paper-deep:#FAFAFA;
+  --ink:#222222;
+  --ink-soft:#666666;
+  --ink-faint:#999999;
   --mocha:#C5A059;
   --mocha-deep:#AD8843;
   --blush:#F3EAD3;
-  --blush-line:#EAEAEA;
-  --glass-bg:rgba(255,255,255,0.6);
+  --blush-line:#EDEDED;
   --warn:#6B6459;
   --warn-bg:#EDEBE4;
   --warn-line:#D9D3C6;
@@ -51,6 +50,7 @@ body{
   font-family:var(--font-sans);
   font-size:16px;
   line-height:1.65;
+  letter-spacing:0.06em;
 }
 h1,h2,h3{margin:0;color:var(--ink);}
 p{margin:0;font-family:var(--font-serif);}
@@ -62,13 +62,13 @@ img{max-width:100%;}
 .section-label{
   position:relative;
   font-family:var(--font-serif);
-  font-size:13px;letter-spacing:0.5px;text-transform:uppercase;color:var(--mocha-deep);
+  font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--mocha-deep);
   margin-bottom:18px;padding-bottom:14px;font-weight:600;
 }
 .section-label::after{content:'';position:absolute;left:0;bottom:0;width:36px;height:2px;background:var(--mocha);}
 .section-title{
   font-family:var(--font-serif);font-weight:600;
-  font-size:clamp(25px,4vw,36px);letter-spacing:0.2px;line-height:1.4;margin-bottom:16px;
+  font-size:clamp(25px,4vw,36px);letter-spacing:0.06em;line-height:1.4;margin-bottom:16px;
 }
 .section-sub{color:var(--ink-soft);font-size:15.5px;max-width:640px;line-height:1.7;}
 .btn{
@@ -103,7 +103,7 @@ img{max-width:100%;}
 }
 .hero-section h1{
   font-family:var(--font-serif);font-weight:600;font-size:clamp(28px,4.6vw,46px);
-  line-height:1.5;letter-spacing:0.3px;margin:0 auto 24px;max-width:720px;
+  line-height:1.5;letter-spacing:0.06em;margin:0 auto 24px;max-width:720px;
 }
 .hero-section h1 em{font-style:normal;color:var(--mocha-deep);}
 .hero-section .lede{
@@ -115,24 +115,24 @@ img{max-width:100%;}
 .value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
 @media (max-width:760px){.value-grid{grid-template-columns:1fr;}}
 .value-card{
-  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:var(--paper-deep);
   border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:26px 22px;transition:transform .18s ease, box-shadow .18s ease;
 }
-.value-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -22px rgba(74,64,56,.35);}
+.value-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -22px rgba(0,0,0,.08);}
 .value-card .icon{font-size:26px;margin-bottom:14px;display:block;}
-.value-card h3{font-family:var(--font-serif);font-size:20px;font-weight:600;letter-spacing:0.2px;margin-bottom:9px;}
+.value-card h3{font-family:var(--font-serif);font-size:20px;font-weight:600;letter-spacing:0.06em;margin-bottom:9px;}
 .value-card p{font-size:14px;color:var(--ink-soft);line-height:1.65;}
 
 .feature-list{display:flex;flex-direction:column;gap:2px;margin-top:32px;border-radius:var(--radius-card);overflow:hidden;background:var(--blush-line);}
 .feature-row{
   display:flex;gap:18px;align-items:flex-start;
-  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:var(--paper-deep);
   padding:24px 26px;
 }
 .feature-row .icon{font-size:22px;flex-shrink:0;width:36px;height:36px;border-radius:50%;
   background:var(--blush);display:flex;align-items:center;justify-content:center;}
-.feature-row h3{font-family:var(--font-serif);font-size:18px;font-weight:600;letter-spacing:0.2px;margin-bottom:5px;}
+.feature-row h3{font-family:var(--font-serif);font-size:18px;font-weight:600;letter-spacing:0.06em;margin-bottom:5px;}
 .feature-row p{font-size:14px;color:var(--ink-soft);line-height:1.65;max-width:58ch;}
 .feature-row.bonus .icon{background:var(--warn-bg);}
 .feature-row-text{flex:1;min-width:0;}
@@ -145,7 +145,7 @@ img{max-width:100%;}
 .audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
 @media (max-width:640px){.audience-grid{grid-template-columns:1fr;}}
 .audience-item{
-  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:var(--paper-deep);
   border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   padding:20px 22px;
 }
@@ -158,16 +158,16 @@ img{max-width:100%;}
 /* ---------- Pricing ---------- */
 .pricing-card{
   position:relative;overflow:hidden;
-  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:#FFFFFF;
   border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:44px 40px;margin-top:28px;text-align:center;max-width:520px;
-  box-shadow:0 24px 60px -30px rgba(44,42,41,.22);
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.12);
 }
 .pricing-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:4px;
   background:linear-gradient(90deg,var(--blush-line) 0%,var(--mocha-deep) 50%,var(--blush-line) 100%);
 }
-.pricing-card .plan-name{font-family:var(--font-serif);font-weight:600;font-size:21px;letter-spacing:0.3px;margin-bottom:8px;}
+.pricing-card .plan-name{font-family:var(--font-serif);font-weight:600;font-size:21px;letter-spacing:0.06em;margin-bottom:8px;}
 .pricing-card .price-note{font-size:11.5px;letter-spacing:0.6px;color:var(--ink-faint);margin-bottom:22px;}
 .pricing-card .price-tag{
   display:flex;align-items:baseline;justify-content:center;gap:6px;
@@ -185,27 +185,27 @@ img{max-width:100%;}
 .placeholder{background:var(--warn-bg);color:var(--warn);padding:1px 7px;border-radius:5px;font-size:0.9em;}
 
 /* ---------- Aftercare ---------- */
-.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;}
-@media (max-width:760px){.care-grid{grid-template-columns:1fr;}}
-.care-card{
-  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid var(--blush-line);border-radius:var(--radius-card);
-  padding:28px 26px;
+.care-panel{
+  background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:32px 30px;margin-top:32px;
 }
-.care-card h3{font-family:var(--font-serif);font-size:19px;font-weight:600;letter-spacing:0.2px;margin-bottom:18px;color:var(--mocha-deep);}
-.care-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;}
-.care-list li{display:flex;gap:12px;align-items:flex-start;}
-.care-list .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;margin-top:1px;
-  background:var(--blush);color:var(--mocha-deep);font-family:var(--font-serif);font-weight:700;font-size:12.5px;letter-spacing:0;
-  display:flex;align-items:center;justify-content:center;
+.care-items{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media (max-width:560px){.care-items{grid-template-columns:1fr;}}
+.care-item{display:flex;gap:14px;align-items:center;}
+.care-item .icon{
+  flex-shrink:0;width:40px;height:40px;border-radius:50%;
+  background:#fff;border:1px solid var(--blush-line);
+  font-size:18px;display:flex;align-items:center;justify-content:center;
 }
-.care-list span:last-child{font-size:14px;color:var(--ink-soft);line-height:1.65;}
+.care-item span:last-child{font-size:14.5px;color:var(--ink);line-height:1.6;}
+.care-share-row{margin-top:28px;padding-top:26px;border-top:1px solid var(--blush-line);text-align:center;}
+.care-share-btn{border:none;cursor:pointer;font-family:inherit;}
+.care-share-hint{font-size:12px;color:var(--ink-faint);margin-top:12px;line-height:1.6;}
 
 /* ---------- FAQ ---------- */
 .faq-list{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
-.faq-item{background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:18px 20px;}
-.faq-item h3{font-family:var(--font-serif);font-size:17px;font-weight:600;letter-spacing:0.2px;margin-bottom:9px;display:flex;gap:8px;}
+.faq-item{background:var(--paper-deep);border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:18px 20px;}
+.faq-item h3{font-family:var(--font-serif);font-size:17px;font-weight:600;letter-spacing:0.06em;margin-bottom:9px;display:flex;gap:8px;}
 .faq-item h3::before{content:'Q.';color:var(--mocha-deep);font-style:italic;}
 .faq-item p{font-size:14px;color:var(--ink-soft);line-height:1.65;padding-left:22px;}
 
@@ -213,7 +213,7 @@ img{max-width:100%;}
 .closing-section{background:var(--mocha-deep);text-align:center;padding:64px 0;}
 .closing-section h2{
   font-family:var(--font-serif);font-weight:600;color:#fff;
-  font-size:clamp(22px,3.4vw,30px);letter-spacing:0.3px;margin-bottom:14px;
+  font-size:clamp(22px,3.4vw,30px);letter-spacing:0.06em;margin-bottom:14px;
 }
 .closing-section p{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:28px;}
 .closing-section .btn{background:#fff;border-color:#fff;color:var(--mocha-deep);}
@@ -407,26 +407,18 @@ img{max-width:100%;}
 
 <section class="section tint wrap" id="aftercare">
   <div class="section-label">售後專業</div>
-  <h2 class="section-title">服務前後保養指南</h2>
-  <p class="section-sub">每次服務前後提醒客人這些細節，讓接睫成果更持久，也讓客人感受到你的專業與細心，減少事後保養不當造成的糾紛。</p>
-  <div class="care-grid">
-    <div class="care-card">
-      <h3>美睫前 24 小時注意事項</h3>
-      <ul class="care-list">
-        <li><span class="num">1</span><span>避免飲用含咖啡因或酒精的飲品，以免眼周出汗、影響膠水附著</span></li>
-        <li><span class="num">2</span><span>服務前請勿上眼妝，尤其是睫毛膏與眼線，以利睫毛根部清潔</span></li>
-        <li><span class="num">3</span><span>建議勿配戴隱形眼鏡進行服務，若有配戴請提前告知美睫師</span></li>
-        <li><span class="num">4</span><span>若有眼部發炎、過敏或感冒不適，建議另約時間再進行</span></li>
-      </ul>
+  <h2 class="section-title">客戶保養指南</h2>
+  <p class="section-sub">服務結束後提醒客人這些細節，讓接睫成果更持久，也讓客人感受到你的專業與細心。可以直接把這個畫面截圖，或用下方按鈕一鍵傳送提醒給客人。</p>
+  <div class="care-panel">
+    <div class="care-items">
+      <div class="care-item"><span class="icon">💧</span><span>嫁接後 6 小時內避免碰水</span></div>
+      <div class="care-item"><span class="icon">🚫</span><span>請勿使用卸妝油／含油產品</span></div>
+      <div class="care-item"><span class="icon">🪮</span><span>每日早晚輕梳睫毛</span></div>
+      <div class="care-item"><span class="icon">✋</span><span>切勿用力拉扯睫毛</span></div>
     </div>
-    <div class="care-card">
-      <h3>美睫後保養 4 大原則</h3>
-      <ul class="care-list">
-        <li><span class="num">1</span><span>48 小時內避免碰水、蒸氣或三溫暖，待膠水完全固化</span></li>
-        <li><span class="num">2</span><span>避免用手直接搓揉、拉扯睫毛，卸妝時動作放輕</span></li>
-        <li><span class="num">3</span><span>避免使用油性卸妝產品清潔眼周，以免加速睫毛脫落</span></li>
-        <li><span class="num">4</span><span>盡量避免趴睡、側睡壓到睫毛，並定期用睫毛刷梳理維持型狀</span></li>
-      </ul>
+    <div class="care-share-row">
+      <button type="button" class="btn care-share-btn" onclick="shareAftercareToLine()">📱 美睫師一鍵複製保養提醒傳給客戶</button>
+      <p class="care-share-hint" id="care-share-hint">點擊後會複製保養提醒文字到剪貼簿，並開啟 LINE 讓你選擇要傳送的客人。</p>
     </div>
   </div>
 </section>
@@ -449,5 +441,24 @@ img{max-width:100%;}
   <p>EYELASH — CLIENT RECORD SYSTEM · 給獨立美睫師的客戶紀錄工具</p>
 </footer>
 
+<script>
+function shareAftercareToLine(){
+  var msg = '親愛的～今天美睫辛苦囉！✨ 為了讓美麗的睫毛維持得更持久，貼心附上『嫁接後保養小指南』：1. 6小時內請勿碰水 2. 避免使用含油卸妝產品 3. 每日早晚用小刷子順梳。有任何問題隨時聯繫我喔！❤️';
+  var hint = document.getElementById('care-share-hint');
+  function openLine(copied){
+    if(hint){
+      hint.textContent = copied
+        ? '已複製保養提醒文字，正在為你開啟 LINE…'
+        : '瀏覽器不支援自動複製，請手動複製這段文字：' + msg;
+    }
+    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank', 'noopener');
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(function(){ openLine(true); }, function(){ openLine(false); });
+  }else{
+    openLine(false);
+  }
+}
+</script>
 </body>
 </html>
