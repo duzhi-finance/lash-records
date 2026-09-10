@@ -31,7 +31,7 @@
   --font-sans: ui-rounded, "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, 'Times New Roman', serif;
   --paper:#FFFFFF;
-  --paper-deep:#F7F5F0;
+  --paper-deep:#FAFAFA;
   --ink:#2C2A29;
   --ink-soft:#6B6560;
   --ink-faint:#A69F97;
@@ -47,7 +47,7 @@
   --warn-bg:#EDEBE4;
   --warn-line:#D9D3C6;
   --sage:#2C2A29;
-  --sage-bg:#F3EAD3;
+  --sage-bg:#FBF7EE;
   --radius-card:12px;
   --radius-pill:999px;
   --radius-ui:8px;
@@ -1820,6 +1820,21 @@ async function submitConsentAndContinue(){
   if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
+function shareAftercareToLine(clientId){
+  const client = clients.find(c=>c.id===clientId);
+  const greeting = client && client.name ? `親愛的 ${client.name}` : '親愛的';
+  const msg = `${greeting}～今天美睫辛苦囉！✨ 為了讓美麗的睫毛維持得更持久，貼心附上『嫁接後保養小指南』：1. 6小時內請勿碰水 2. 避免使用含油卸妝產品 3. 每日早晚用小刷子順梳。有任何問題隨時聯繫我喔！❤️`;
+  const openLine = () => window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank', 'noopener');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(
+      () => { showToast('已複製保養提醒，正在開啟 LINE'); openLine(); },
+      () => { showToast('複製失敗，請手動複製保養提醒文字'); openLine(); }
+    );
+  }else{
+    openLine();
+  }
+}
+
 /* ---- Service records ---- */
 function renderServiceSection(client){
   const recs = (client.serviceRecords||[]).slice().sort((a,b)=> b.date.localeCompare(a.date));
@@ -1909,6 +1924,7 @@ function renderRecordCard(r){
       ${r.consentAgreed?`<div class="consent-summary">
         <div class="consent-summary-label">✓ 同意書與問卷已完成（${escapeHtml(r.consentAgreedAt||'')}）</div>
         ${r.signatureDataUrl?`<img class="consent-signature" src="${r.signatureDataUrl}" alt="客人簽名">`:''}
+        <button type="button" class="btn-ghost btn btn-sm" style="margin-top:10px;" onclick="shareAftercareToLine('${r.clientId}')">📱 傳送保養指南給客戶</button>
       </div>`:''}
       <div class="form-actions">
         <button class="btn-ghost btn btn-sm" onclick="startEditRecord('${r.clientId}','${r.id}')">編輯</button>
@@ -2038,6 +2054,7 @@ function renderNewRecordPanel(){
     ${d.consentAgreed?`<div class="consent-summary" style="margin-bottom:14px;">
       <div class="consent-summary-label">✓ 同意書與問卷已完成（${escapeHtml(d.consentAgreedAt||'')}）</div>
       ${d.signatureDataUrl?`<img class="consent-signature" src="${d.signatureDataUrl}" alt="客人簽名">`:''}
+      ${d.clientId?`<button type="button" class="btn-ghost btn btn-sm" style="margin-top:10px;" onclick="shareAftercareToLine('${d.clientId}')">📱 傳送保養指南給客戶</button>`:''}
     </div>`:''}
     <div class="form-row-3">
       <div class="form-field form-field--narrow"><label>日期</label>
