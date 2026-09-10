@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /
-Allow: /sales.html
-Allow: /screenshots/
-Allow: /icons/
-Allow: /og-image.png
