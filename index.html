@@ -178,6 +178,8 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
 }
 .client-card:last-child{border-bottom:none;}
 .client-card:hover{background:var(--sage-bg);}
+.client-card.active{background:var(--sage-bg);box-shadow:inset 3px 0 0 var(--mocha-deep);}
+.client-main-wrap{display:flex;align-items:center;gap:10px;min-width:0;}
 .client-main{display:flex;flex-direction:column;gap:3px;min-width:0;}
 .client-name{font-family:var(--font-serif);font-size:19px;font-weight:700;}
 .client-meta{font-size:12.5px;color:var(--ink-soft);}
@@ -205,6 +207,24 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   display:flex;align-items:center;justify-content:center;gap:9px;
 }
 
+/* ---------- Two-column client dashboard (tablet/desktop) ---------- */
+.dashboard-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start;}
+.dashboard-sidebar{
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:14px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;
+}
+.dashboard-sidebar-head .btn{width:100%;}
+.dashboard-sidebar .search-row{margin:10px 0;}
+.dashboard-sidebar .client-name{font-size:15px;}
+.dashboard-sidebar .client-card{padding:10px 12px;}
+@media (max-width:759px){
+  .dashboard-grid{display:block;}
+  .dashboard-sidebar{display:none;}
+}
+@media (min-width:760px){
+  .dashboard-detail .back-row{display:none;}
+}
+
 /* ---------- Detail view ---------- */
 .back-row{margin-bottom:16px;}
 .client-card-hero{
@@ -230,6 +250,29 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   background:var(--mocha-deep);color:#fff;border:none;border-radius:50%;
   width:14px;height:14px;font-size:9.5px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
+.client-card-identity{display:flex;align-items:center;gap:12px;}
+.avatar-circle{border-radius:50%;object-fit:cover;flex-shrink:0;}
+.avatar-fallback{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--blush);color:var(--mocha-deep);font-family:var(--font-serif);font-weight:700;
+}
+.member-tier-badge{
+  display:inline-block;margin-left:8px;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:var(--radius-pill);vertical-align:middle;letter-spacing:0.05em;
+}
+.member-tier-silver{background:#E4E4E4;color:#555555;}
+.member-tier-gold{background:#F3E3B8;color:#8A6D1D;}
+.member-tier-black{background:#2B2B2B;color:#F3E3B8;}
+.client-notes-box{
+  margin-top:12px;padding:10px 12px;background:#fff;border:1px solid var(--blush-line);
+  border-radius:var(--radius-ui);font-size:12.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;
+}
+.client-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+@media (max-width:600px){.client-stat-grid{grid-template-columns:1fr;}}
+.client-stat-block{background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);padding:12px 14px;}
+.client-stat-block-title{font-size:12px;font-weight:700;color:var(--mocha-deep);margin-bottom:8px;letter-spacing:0.05em;}
+.client-stat-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--ink-soft);padding:4px 0;}
+.client-stat-row strong{color:var(--ink);font-weight:600;}
 
 /* Contraindication banner - clean white card, doesn't compete with brand accent colors */
 .banner-alert{
@@ -506,6 +549,14 @@ input[type="time"]::-webkit-calendar-picker-indicator{
   background:#fff;font-size:14px;color:var(--ink);transition:border-color .15s ease;
 }
 .modal-field input:focus, .modal-field select:focus{border-color:var(--mocha);}
+.modal-field textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:var(--ink);font-family:var(--font-sans);
+  resize:vertical;min-height:60px;
+}
+.modal-field textarea:focus{border-color:var(--mocha);}
+.modal-avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.modal-avatar-actions{display:flex;flex-direction:column;gap:6px;}
 .modal-field select{
   appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1,1 L6,6 L11,1' fill='none' stroke='%23A97C6C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
@@ -515,6 +566,50 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
 
 .footer-links{margin-top:34px;padding-top:16px;border-top:1px solid var(--blush-line);text-align:right;}
+
+/* ---------- Settings pages: notifications / booking rules / membership ---------- */
+.toggle-switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;cursor:pointer;background:var(--warn-line);transition:.15s;border-radius:999px;}
+.toggle-slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;transition:.15s;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,0.15);}
+.toggle-switch input:checked + .toggle-slider{background:var(--mocha);}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);}
+.var-tag-row{display:flex;flex-wrap:wrap;gap:6px;}
+.var-tag{
+  background:var(--sage-bg);border:1px solid var(--blush-line);color:var(--mocha-deep);
+  padding:4px 10px;border-radius:var(--radius-pill);font-size:11.5px;font-weight:600;
+}
+.var-tag:hover{background:var(--blush);}
+.settings-nav-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.settings-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.settings-tab-btn{
+  background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
+  padding:9px 16px;border-radius:var(--radius-pill);font-size:13.5px;font-weight:500;
+}
+.settings-tab-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.settings-block{background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);padding:18px 20px;margin-bottom:16px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--blush-line);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-label{font-size:13.5px;color:var(--ink);}
+.settings-row-hint{font-size:11.5px;color:var(--ink-faint);margin-top:2px;}
+.settings-row-input{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.settings-row-input input[type="number"], .settings-row-input input[type="text"], .settings-row-input input[type="time"]{
+  width:90px;padding:7px 9px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);font-size:13.5px;text-align:right;
+}
+.coupon-card, .points-card, .tier-card{
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  padding:14px 16px;margin-bottom:12px;
+}
+.coupon-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.coupon-card-name{font-weight:700;font-size:14.5px;}
+.blocked-slot-pill{
+  display:inline-flex;align-items:center;gap:8px;background:var(--sage-bg);border:1px solid var(--blush-line);
+  padding:5px 6px 5px 12px;border-radius:var(--radius-pill);font-size:12.5px;margin:0 8px 8px 0;
+}
+.blocked-slot-pill button{
+  background:var(--ink);color:#fff;border:none;border-radius:50%;width:16px;height:16px;
+  font-size:10px;display:flex;align-items:center;justify-content:center;
+}
 
 /* ---------- Revenue stat (home) ---------- */
 .revenue-card{
@@ -834,11 +929,18 @@ function render(){
   }else if(view==='consent'){
     app.innerHTML = renderConsentView();
     attachConsentBehaviors();
+  }else if(view==='notifications'){
+    app.innerHTML = renderNotificationsView();
+  }else if(view==='bookingRules'){
+    app.innerHTML = renderBookingRulesView();
+  }else if(view==='membership'){
+    app.innerHTML = renderMembershipView();
   }else{
     const client = clients.find(c=>c.id===activeClientId);
     if(!client){ view='list'; app.innerHTML = renderListView(); return; }
-    app.innerHTML = renderDetailView(client);
+    app.innerHTML = `<div class="dashboard-grid">${renderDashboardSidebar(client.id)}<div class="dashboard-detail">${renderDetailView(client)}</div></div>`;
     attachDetailBehaviors(client);
+    attachSearchInputBehaviors();
   }
   if(showAddClientModal){
     document.body.insertAdjacentHTML('beforeend', renderClientModal());
@@ -857,37 +959,47 @@ function render(){
 
 /* ---- List view ---- */
 let searchTerm = '';
-function renderListView(){
+function filteredClientList(){
   const term = searchTerm.trim().toLowerCase();
-  const filtered = clients.filter(c=>{
+  return clients.filter(c=>{
     if(!term) return true;
     return (c.name||'').toLowerCase().includes(term) || (c.phone||'').includes(term);
   }).sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'zh-Hant'));
-
-  let cardsHtml = '';
+}
+function renderClientListItems(highlightId){
+  const filtered = filteredClientList();
   if(clients.length===0){
-    cardsHtml = `<div class="empty-state">
+    return `<div class="empty-state">
       <h3>還沒有客戶紀錄</h3>
       <p>新增第一位客戶，開始取代紙本記事卡。</p>
     </div>`;
-  }else if(filtered.length===0){
-    cardsHtml = `<div class="empty-state"><p>找不到符合「${escapeHtml(searchTerm)}」的客戶。</p></div>`;
-  }else{
-    cardsHtml = '<div class="client-list">' + filtered.map(c=>{
-      const lastVisit = latestServiceDate(c) || c.status.lastLashDate || '';
-      const tagCount = (c.contraindications||[]).length;
-      return `<div class="client-card" onclick="openClient('${c.id}')">
+  }
+  if(filtered.length===0){
+    return `<div class="empty-state"><p>找不到符合「${escapeHtml(searchTerm)}」的客戶。</p></div>`;
+  }
+  return '<div class="client-list">' + filtered.map(c=>{
+    const lastVisit = latestServiceDate(c) || c.status.lastLashDate || '';
+    const tagCount = (c.contraindications||[]).length;
+    const visitCount = (c.serviceRecords||[]).length;
+    return `<div class="client-card ${c.id===highlightId?'active':''}" onclick="openClient('${c.id}')">
+      <div class="client-main-wrap">
+        ${avatarHtml(c, 38)}
         <div class="client-main">
           <div class="client-name">${escapeHtml(c.name)}</div>
-          <div class="client-meta">${c.phone?escapeHtml(c.phone)+' · ':''}${lastVisit?'上次：'+escapeHtml(lastVisit):'尚無服務紀錄'}</div>
+          <div class="client-meta">${c.phone?escapeHtml(c.phone)+' · ':''}累積 ${visitCount} 次${lastVisit?' · 上次：'+escapeHtml(lastVisit):''}</div>
         </div>
-        <div class="client-side">
-          ${tagCount>0?`<span class="tag-count">留意 ${tagCount}</span>`:''}
-          <button class="quick-add-btn" title="快速新增服務紀錄" onclick="event.stopPropagation(); quickAddRecord('${c.id}')">＋</button>
-        </div>
-      </div>`;
-    }).join('') + '</div>';
-  }
+      </div>
+      <div class="client-side">
+        ${tagCount>0?`<span class="tag-count">留意 ${tagCount}</span>`:''}
+        <button class="quick-add-btn" title="快速新增服務紀錄" onclick="event.stopPropagation(); quickAddRecord('${c.id}')">＋</button>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+function renderListView(){
+  const term = searchTerm.trim().toLowerCase();
+  const filtered = filteredClientList();
+  const cardsHtml = renderClientListItems(null);
 
   const countLine = clients.length>0
     ? `<div style="font-size:12.5px;color:var(--ink-faint);margin-bottom:12px;">共 ${clients.length} 位客戶${term && filtered.length!==clients.length ? `，符合搜尋 ${filtered.length} 位` : ''}</div>`
@@ -931,6 +1043,20 @@ function renderListView(){
           <span class="icon-btn-label"><span class="zh">匯入備份</span><span class="en">IMPORT</span></span>
         </button>
       </div>
+      <div class="icon-btn-group icon-btn-group--footer" style="margin-top:8px;">
+        <button class="icon-btn" onclick="openNotifications()">
+          <span class="icon-btn-glyph">🔔</span>
+          <span class="icon-btn-label"><span class="zh">自動通知</span><span class="en">NOTIFY</span></span>
+        </button>
+        <button class="icon-btn" onclick="openBookingRules()">
+          <span class="icon-btn-glyph">📋</span>
+          <span class="icon-btn-label"><span class="zh">預約規則</span><span class="en">RULES</span></span>
+        </button>
+        <button class="icon-btn" onclick="openMembership()">
+          <span class="icon-btn-glyph">🎁</span>
+          <span class="icon-btn-label"><span class="zh">會員與行銷</span><span class="en">MEMBERS</span></span>
+        </button>
+      </div>
       <div class="list-footer-en">EYELASH — CLIENT RECORD SYSTEM</div>
       <p class="list-footer-notice"><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</p>
       <div class="list-footer-copyright">© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。</div>
@@ -954,6 +1080,17 @@ function attachSearchInputBehaviors(){
   if(!input) return;
   input.addEventListener('compositionstart', onSearchCompositionStart);
   input.addEventListener('compositionend', function(){ onSearchCompositionEnd(input.value); });
+}
+function renderDashboardSidebar(highlightId){
+  return `<div class="dashboard-sidebar">
+    <div class="dashboard-sidebar-head">
+      <button class="btn btn-sm" onclick="openAddClientModal()">＋ 新增客戶</button>
+    </div>
+    <div class="search-row">
+      <input class="search-input" placeholder="搜尋姓名或電話…" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
+    </div>
+    ${renderClientListItems(highlightId)}
+  </div>`;
 }
 function openClient(id){
   activeClientId = id;
@@ -1251,6 +1388,103 @@ function computeRevisitStats(client){
     isOverdue: sinceLastDays > avgDays*1.2,
   };
 }
+function computeClientBookingStats(client){
+  const recs = client.serviceRecords||[];
+  const firstDate = recs.length ? recs.slice().sort((a,b)=>a.date.localeCompare(b.date))[0].date : '';
+  return {
+    totalCount: recs.length,
+    firstDate: client.firstVisitDate || firstDate || '',
+    cancelledCount: recs.filter(r=>r.status==='cancelled').length,
+    noshowCount: recs.filter(r=>r.status==='noshow').length,
+  };
+}
+function computeClientSpendStats(client){
+  const completed = (client.serviceRecords||[]).filter(r=>r.status==='completed' && Number(r.amount)>0)
+    .slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const total = completed.reduce((sum,r)=>sum+(Number(r.amount)||0), 0);
+  const last = completed[completed.length-1] || null;
+  return {
+    total,
+    lastAmount: last ? Number(last.amount)||0 : 0,
+    lastDate: last ? last.date : '',
+    avgOrderValue: completed.length ? Math.round(total/completed.length) : 0,
+  };
+}
+/* ============ Notification templates (manual-send; no backend/LINE API to auto-send) ============ */
+const NOTIF_STORAGE_KEY = 'meiye-notification-settings';
+function defaultNotificationSettings(){
+  return {
+    reviewLink: '',
+    templates: {
+      booked: {enabled:true, label:'預約成功通知', text:'🎉 [客戶姓名] 您好，已為您預約 [日期] [時間] 的美睫服務，時長約 [服務時長]。若時間有異動請提前告知，期待與您相見！'},
+      reminder: {enabled:true, label:'預約前一天提醒', sendTime:'18:00', text:'💗 [客戶姓名] 您好，提醒您明天 [日期] [時間] 有預約美睫服務（約 [服務時長]），請記得準時到店，若有需要調整請提前告知喔！'},
+      thanks: {enabled:true, label:'完成後感謝與評價邀請', text:'✨ [客戶姓名] 感謝您今天蒞臨！希望您喜歡這次的睫毛設計～期待您的使用心得，也歡迎留下評價支持我：[評價連結]'},
+      cancelled: {enabled:true, label:'取消自動釋出時段通知', text:'您好，[日期] [時間] 的時段目前已釋出，歡迎有興趣的客人重新預約喔！'},
+    },
+  };
+}
+function loadNotificationSettings(){
+  try{
+    const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed ? Object.assign(defaultNotificationSettings(), parsed, {templates: Object.assign(defaultNotificationSettings().templates, parsed.templates||{})}) : defaultNotificationSettings();
+  }catch(e){ return defaultNotificationSettings(); }
+}
+function saveNotificationSettingsObj(s){
+  localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(s));
+}
+const NOTIF_VAR_TAGS = ['[客戶姓名]','[日期]','[時間]','[服務時長]','[評價連結]'];
+function substituteVars(text, vars){
+  let out = text||'';
+  Object.keys(vars).forEach(key=>{ out = out.split(key).join(vars[key]||''); });
+  return out;
+}
+function insertVarTag(textareaId, tag){
+  const el = document.getElementById(textareaId);
+  if(!el) return;
+  const start = el.selectionStart, end = el.selectionEnd;
+  el.value = el.value.slice(0,start) + tag + el.value.slice(end);
+  el.focus();
+  el.selectionStart = el.selectionEnd = start + tag.length;
+}
+function copyAndOpenLine(msg){
+  const openLine = () => window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank', 'noopener');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(
+      () => { showToast('已複製訊息內容，正在開啟 LINE'); openLine(); },
+      () => { showToast('複製失敗，請手動複製訊息文字'); openLine(); }
+    );
+  }else{
+    openLine();
+  }
+}
+
+const MEMBERSHIP_STORAGE_KEY = 'meiye-membership-settings';
+function defaultMembershipSettings(){
+  return {
+    validityMonths: 12,
+    tiers: [
+      {key:'silver', label:'銀卡', threshold:3000, perks:'生日禮＋每月優先預約通知'},
+      {key:'gold', label:'金卡', threshold:8000, perks:'單次服務 95 折＋生日禮升級'},
+      {key:'black', label:'黑卡', threshold:20000, perks:'單次服務 9 折＋專屬客服＋優先候補'},
+    ],
+  };
+}
+function loadMembershipSettings(){
+  try{
+    const raw = localStorage.getItem(MEMBERSHIP_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : defaultMembershipSettings();
+  }catch(e){ return defaultMembershipSettings(); }
+}
+function saveMembershipSettings(s){
+  localStorage.setItem(MEMBERSHIP_STORAGE_KEY, JSON.stringify(s));
+}
+function computeMemberTier(client){
+  const settings = loadMembershipSettings();
+  const total = computeClientSpendStats(client).total;
+  const sorted = (settings.tiers||[]).slice().sort((a,b)=>b.threshold-a.threshold);
+  return sorted.find(t=>total>=t.threshold) || null;
+}
 function computeMonthlyRevenue(){
   const monthPrefix = todayStr().slice(0,7);
   let total = 0;
@@ -1270,18 +1504,53 @@ function computeMonthlyRevenue(){
 /* ---- Add/edit client modal ---- */
 const CLIENT_SOURCES = ['IG','朋友介紹','Google','舊客介紹','其他'];
 function openAddClientModal(){
-  editClientDraft = {id:null, name:'', phone:'', igLine:'', birthday:'', firstVisitDate: '', source:'', sourceOther:''};
+  editClientDraft = {id:null, name:'', phone:'', email:'', igLine:'', birthday:'', firstVisitDate: '', source:'', sourceOther:'', notes:'', avatarDataUrl:''};
   showAddClientModal = true;
   render();
 }
 function openEditClientModal(client){
   editClientDraft = {
-    id:client.id, name:client.name, phone:client.phone||'',
+    id:client.id, name:client.name, phone:client.phone||'', email: client.email||'',
     igLine: client.igLine||'', birthday: client.birthday||'',
     firstVisitDate: client.firstVisitDate||'', source: client.source||'', sourceOther: client.sourceOther||'',
+    notes: client.notes||'', avatarDataUrl: client.avatarDataUrl||'',
   };
   showAddClientModal = true;
   render();
+}
+function onAvatarFileChange(evt){
+  const file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const size = 160;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size/img.width, size/img.height);
+      const w = img.width*scale, h = img.height*scale;
+      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+      editClientDraft.avatarDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      render();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  evt.target.value='';
+}
+function removeAvatarDraft(){
+  editClientDraft.avatarDataUrl = '';
+  render();
+}
+function avatarHtml(client, size){
+  size = size||44;
+  if(client.avatarDataUrl){
+    return `<img class="avatar-circle" style="width:${size}px;height:${size}px;" src="${client.avatarDataUrl}" alt="">`;
+  }
+  const initial = (client.name||'？').trim().charAt(0);
+  return `<span class="avatar-circle avatar-fallback" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.42)}px;">${escapeHtml(initial)}</span>`;
 }
 function closeClientModal(){
   showAddClientModal=false; editClientDraft=null; render();
@@ -1297,6 +1566,16 @@ function renderClientModal(){
   return `<div class="modal-overlay" onclick="if(event.target===this) closeClientModal()">
     <div class="modal-box">
       <h3>${isEdit?'編輯客戶資料':'建立客戶檔案'}</h3>
+      <div class="modal-avatar-row">
+        ${avatarHtml(d, 64)}
+        <div class="modal-avatar-actions">
+          <label class="btn-ghost btn btn-sm" style="display:inline-block;">
+            上傳大頭照
+            <input type="file" accept="image/*" style="display:none" onchange="onAvatarFileChange(event)">
+          </label>
+          ${d.avatarDataUrl?`<button type="button" class="btn-text" onclick="removeAvatarDraft()">移除照片</button>`:''}
+        </div>
+      </div>
       <div class="modal-field">
         <label>姓名／暱稱</label>
         <input id="modal-name" value="${escapeHtml(d.name)}" placeholder="客戶姓名或暱稱">
@@ -1304,6 +1583,10 @@ function renderClientModal(){
       <div class="modal-field">
         <label>電話（選填）</label>
         <input id="modal-phone" value="${escapeHtml(d.phone)}" placeholder="0912-xxx-xxx">
+      </div>
+      <div class="modal-field">
+        <label>Email（選填）</label>
+        <input id="modal-email" type="email" value="${escapeHtml(d.email||'')}" placeholder="name@example.com">
       </div>
       <div class="modal-field">
         <label>IG／LINE（選填）</label>
@@ -1336,6 +1619,10 @@ function renderClientModal(){
           ${dateFieldIcon('date')}
         </div>
       </div>
+      <div class="modal-field">
+        <label>客製化備註（選填）</label>
+        <textarea id="modal-notes" placeholder="例如：偏好自然款、對某成分過敏、聊天喜好…">${escapeHtml(d.notes||'')}</textarea>
+      </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
       <div class="modal-actions">
         <button class="btn-ghost btn" onclick="closeClientModal()">取消</button>
@@ -1347,26 +1634,32 @@ function renderClientModal(){
 async function saveClientModal(){
   const name = document.getElementById('modal-name').value.trim();
   const phone = document.getElementById('modal-phone').value.trim();
+  const email = document.getElementById('modal-email').value.trim();
   const igLine = document.getElementById('modal-igline').value.trim();
   const birthday = document.getElementById('modal-birthday').value;
   const firstVisitDate = document.getElementById('modal-first-visit').value;
   const source = document.getElementById('modal-source').value;
   const sourceOther = document.getElementById('modal-source-other').value.trim();
+  const notes = document.getElementById('modal-notes').value.trim();
+  const avatarDataUrl = editClientDraft.avatarDataUrl||'';
   const errEl = document.getElementById('modal-error');
   if(!name){ if(errEl) errEl.textContent='請輸入姓名'; return; }
   if(editClientDraft.id){
     const c = clients.find(x=>x.id===editClientDraft.id);
-    c.name = name; c.phone = phone; c.igLine = igLine; c.birthday = birthday;
+    c.name = name; c.phone = phone; c.email = email; c.igLine = igLine; c.birthday = birthday;
     c.firstVisitDate = firstVisitDate; c.source = source; c.sourceOther = sourceOther;
+    c.notes = notes; c.avatarDataUrl = avatarDataUrl;
   }else{
     clients.push({
       id: uid('client'),
-      name, phone, igLine, birthday, firstVisitDate, source, sourceOther,
+      name, phone, email, igLine, birthday, firstVisitDate, source, sourceOther,
+      notes, avatarDataUrl,
       createdAt: todayStr(),
       status: blankStatus(),
       statusUpdatedAt: null,
       contraindications: [],
       tags: [],
+      points: 0,
       serviceRecords: [],
     });
   }
@@ -1447,6 +1740,7 @@ function renderClientCard(client){
   const visitCount = (client.serviceRecords||[]).length;
   const rows = [];
   if(client.phone) rows.push(`<span class="card-info-item">📞 ${escapeHtml(client.phone)}</span>`);
+  if(client.email) rows.push(`<span class="card-info-item">✉️ ${escapeHtml(client.email)}</span>`);
   if(client.igLine) rows.push(`<span class="card-info-item">💬 ${escapeHtml(client.igLine)}</span>`);
   if(client.birthday) rows.push(`<span class="card-info-item">生日：${escapeHtml(client.birthday)}</span>`);
   if(client.firstVisitDate) rows.push(`<span class="card-info-item">首次到店：${escapeHtml(client.firstVisitDate)}</span>`);
@@ -1460,16 +1754,56 @@ function renderClientCard(client){
 
   const tags = client.tags||[];
   const tagsHtml = tags.map((t,i)=>`<span class="client-tag-pill">${escapeHtml(t)}<button onclick="removeClientTag('${client.id}',${i})" aria-label="移除">✕</button></span>`).join('');
-  const tagsRowHtml = tags.length ? `<div class="client-tags-row">${tagsHtml}</div>` : '';
+  const tagsRowHtml = `<div class="client-tags-row">${tagsHtml}</div>
+    <div class="tag-add-row">
+      <input id="new-client-tag-input" placeholder="新增標籤，例如：VIP、敏感肌" onkeydown="if(event.key==='Enter') addClientTag('${client.id}')">
+      <button onclick="addClientTag('${client.id}')">加入</button>
+    </div>`;
+
+  const bStats = computeClientBookingStats(client);
+  const sStats = computeClientSpendStats(client);
+  const memberTier = computeMemberTier(client);
 
   return `<div class="client-card-hero">
     <div class="client-card-top">
-      <h1>${escapeHtml(client.name)}</h1>
+      <div class="client-card-identity">
+        ${avatarHtml(client, 56)}
+        <div>
+          <h1>${escapeHtml(client.name)}${memberTier?`<span class="member-tier-badge member-tier-${memberTier.key}">${escapeHtml(memberTier.label)}</span>`:''}</h1>
+        </div>
+      </div>
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>編輯客戶資料</button>
     </div>
     <div class="card-info-row">${rows.join('')}</div>
     ${tagsRowHtml}
+    ${client.notes?`<div class="client-notes-box">${escapeHtml(client.notes)}</div>`:''}
+    <div class="client-stat-grid">
+      <div class="client-stat-block">
+        <div class="client-stat-block-title">預約統計</div>
+        <div class="client-stat-row"><span>累積預約次數</span><strong>${bStats.totalCount}</strong></div>
+        <div class="client-stat-row"><span>第一次預約日期</span><strong>${escapeHtml(bStats.firstDate||'—')}</strong></div>
+        <div class="client-stat-row"><span>取消次數</span><strong>${bStats.cancelledCount}</strong></div>
+        <div class="client-stat-row"><span>未到次數</span><strong>${bStats.noshowCount}</strong></div>
+      </div>
+      <div class="client-stat-block">
+        <div class="client-stat-block-title">消費金額統計</div>
+        <div class="client-stat-row"><span>累積消費總額</span><strong>NT$ ${sStats.total.toLocaleString()}</strong></div>
+        <div class="client-stat-row"><span>最近一次消費</span><strong>${sStats.lastDate?`NT$ ${sStats.lastAmount.toLocaleString()}（${escapeHtml(sStats.lastDate)}）`:'—'}</strong></div>
+        <div class="client-stat-row"><span>平均客單價</span><strong>${sStats.avgOrderValue?`NT$ ${sStats.avgOrderValue.toLocaleString()}`:'—'}</strong></div>
+        <div class="client-stat-row"><span>累積點數</span><strong>${client.points||0} 點</strong></div>
+      </div>
+    </div>
   </div>`;
+}
+async function addClientTag(clientId){
+  const input = document.getElementById('new-client-tag-input');
+  const val = (input && input.value || '').trim();
+  if(!val) return;
+  const client = clients.find(c=>c.id===clientId);
+  client.tags = client.tags||[];
+  client.tags.push(val);
+  await saveData();
+  render();
 }
 async function removeClientTag(clientId, idx){
   const client = clients.find(c=>c.id===clientId);
@@ -1843,17 +2177,20 @@ async function submitConsentAndContinue(){
 
 function shareAftercareToLine(clientId){
   const client = clients.find(c=>c.id===clientId);
-  const greeting = client && client.name ? `親愛的 ${client.name}` : '親愛的';
-  const msg = `${greeting}～今天美睫辛苦囉！✨ 為了讓美麗的睫毛維持得更持久，貼心附上『嫁接後保養小指南』：1. 6小時內請勿碰水 2. 避免使用含油卸妝產品 3. 每日早晚用小刷子順梳。有任何問題隨時聯繫我喔！❤️`;
-  const openLine = () => window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank', 'noopener');
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(msg).then(
-      () => { showToast('已複製保養提醒，正在開啟 LINE'); openLine(); },
-      () => { showToast('複製失敗，請手動複製保養提醒文字'); openLine(); }
-    );
+  const name = client && client.name ? client.name : '';
+  const aftercare = `今天美睫辛苦囉！✨ 為了讓美麗的睫毛維持得更持久，貼心附上『嫁接後保養小指南』：1. 6小時內請勿碰水 2. 避免使用含油卸妝產品 3. 每日早晚用小刷子順梳。`;
+  const notifSettings = loadNotificationSettings();
+  const thanksTpl = notifSettings.templates.thanks;
+  let msg;
+  if(thanksTpl && thanksTpl.enabled && thanksTpl.text){
+    msg = substituteVars(thanksTpl.text, {
+      '[客戶姓名]': name, '[評價連結]': notifSettings.reviewLink || '',
+      '[日期]': '', '[時間]': '', '[服務時長]': '',
+    }) + ' ' + aftercare;
   }else{
-    openLine();
+    msg = `${name?`親愛的 ${name}`:'親愛的'}～${aftercare} 有任何問題隨時聯繫我喔！❤️`;
   }
+  copyAndOpenLine(msg);
 }
 
 /* ---- Service records ---- */
@@ -1878,8 +2215,10 @@ function blankRecordDraft(clientId){
   return {
     clientId, id: null, date: '',
     time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
+    couponId:'', couponLabel:'', discountAmount:'',
     lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
+    lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'',
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
   };
 }
@@ -1892,11 +2231,34 @@ function recordDraftFromLast(clientId, last){
     lenRL: last.lenRL||'', lenRM: last.lenRM||'', lenRR: last.lenRR||'',
     style: last.style||'', length: last.length||'', curl: last.curl||'', thickness: last.thickness||'',
     countLeft: last.countLeft||'', countRight: last.countRight||'',
+    lowerLength: last.lowerLength||'', lowerCurl: last.lowerCurl||'', lowerCount: last.lowerCount||'', lowerNote: last.lowerNote||'',
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
   };
 }
 
+function renderCouponPickerHtml(d){
+  const campaigns = loadCampaigns();
+  if(!campaigns.length) return '';
+  const options = campaigns.map(c=>`<option value="${escapeHtml(c.id)}" ${d.couponId===c.id?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
+  return `<div class="form-row" style="margin-bottom:12px;">
+    <div class="form-field"><label>使用優惠券（選填）</label>
+      <select onchange="setCouponSelection(this.value)">
+        <option value="">不使用</option>
+        ${options}
+      </select>
+    </div>
+    <div class="form-field"><label>折抵金額</label>
+      <input type="number" min="0" value="${escapeHtml(d.discountAmount||'')}" placeholder="折抵 NT$" oninput="newRecordDraft.discountAmount=this.value">
+    </div>
+  </div>`;
+}
+function setCouponSelection(couponId){
+  const campaigns = loadCampaigns();
+  const c = campaigns.find(x=>x.id===couponId);
+  newRecordDraft.couponId = couponId||'';
+  newRecordDraft.couponLabel = c ? c.name : '';
+}
 function eyeArcSvg(side){
   const flipStyle = side==='R' ? ' style="transform:scaleX(-1);transform-origin:100px 60px;"' : '';
   return `<svg viewBox="0 0 200 120"><g${flipStyle}>
@@ -1930,7 +2292,7 @@ function renderRecordCard(r){
       <div class="record-detail-grid">
         ${serviceLabelOf(r)?`<div class="record-detail-item"><label>服務項目</label><span>${escapeHtml(serviceLabelOf(r))}</span></div>`:''}
         ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
-        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}</span></div>`:''}
+        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
@@ -1938,6 +2300,11 @@ function renderRecordCard(r){
         <div class="record-detail-item"><label>粗度</label><span>${escapeHtml(r.thickness||'—')}</span></div>
         <div class="record-detail-item"><label>根數（左／右）</label><span>${escapeHtml(r.countLeft||'—')} ／ ${escapeHtml(r.countRight||'—')}${totalCount?`（共 ${totalCount}）`:''}</span></div>
         <div class="record-detail-item"><label>技術</label><span>${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span></div>
+        ${(r.lowerLength||r.lowerCurl||r.lowerCount||r.lowerNote)?`
+        <div class="record-detail-item"><label>下睫毛長度</label><span>${escapeHtml(r.lowerLength||'—')}</span></div>
+        <div class="record-detail-item"><label>下睫毛翹度</label><span>${escapeHtml(r.lowerCurl||'—')}</span></div>
+        <div class="record-detail-item"><label>下睫毛根數</label><span>${escapeHtml(r.lowerCount||'—')}</span></div>
+        <div class="record-detail-item"><label>下睫毛備註</label><span>${escapeHtml(r.lowerNote||'—')}</span></div>`:''}
       </div>
       ${r.designNotes?`<div class="record-notes"><strong>眼型設計：</strong>${escapeHtml(r.designNotes)}</div>`:''}
       ${r.adjustmentNotes?`<div class="record-notes"><strong>本次調整：</strong>${escapeHtml(r.adjustmentNotes)}</div>`:''}
@@ -1975,7 +2342,9 @@ function findLatestRecord(clientId, excludeId){
 function summarizeRecord(r){
   if(!r) return '';
   const techLabel = r.technique==='其他' ? (r.techniqueOther||'其他') : r.technique;
-  return [r.style, r.length, r.curl, r.thickness, techLabel].filter(Boolean).join(' · ');
+  const upper = [r.style, r.length, r.curl, r.thickness, techLabel].filter(Boolean).join(' · ');
+  const lower = [r.lowerLength, r.lowerCurl].filter(Boolean).join('/');
+  return lower ? `${upper}（下睫毛：${lower}）` : upper;
 }
 function toggleRecord(id){
   expandedRecordId = expandedRecordId===id ? null : id;
@@ -2000,10 +2369,12 @@ function startEditRecord(clientId, recordId){
     date: r.date,
     time: r.time||'', duration: r.duration||90, service: r.service||'', serviceOther: r.serviceOther||'', status: r.status||'completed',
     amount: r.amount||'', deposit: r.deposit||'',
+    couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'',
     lenLL: r.lenLL||'', lenLM: r.lenLM||'', lenLR: r.lenLR||'',
     lenRL: r.lenRL||'', lenRM: r.lenRM||'', lenRR: r.lenRR||'',
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
     countLeft: r.countLeft||'', countRight: r.countRight||'',
+    lowerLength: r.lowerLength||'', lowerCurl: r.lowerCurl||'', lowerCount: r.lowerCount||'', lowerNote: r.lowerNote||'',
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
     designNotes: r.designNotes||'', adjustmentNotes: r.adjustmentNotes||'', notes: r.notes||'',
   };
@@ -2117,6 +2488,7 @@ function renderNewRecordPanel(){
       </div>
     </div>
     <div class="field-hint" style="margin:-8px 0 12px;">訂金只在客人「未到」時才會用到：客人爽約但有先收訂金，這筆訂金會算進本月營收；正常完成服務的話不用填，「金額」會直接算進營收。</div>
+    ${renderCouponPickerHtml(d)}
     <div class="form-field" style="margin-bottom:12px;">
       <label>款式</label>
       <div class="chip-select">
@@ -2181,6 +2553,26 @@ function renderNewRecordPanel(){
         </div>
       </div>
     </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>下睫毛專區（選填）</label>
+      <div class="form-row">
+        <div class="form-field"><label>下睫毛長度</label>
+          <input type="text" value="${escapeHtml(d.lowerLength)}" placeholder="例如：5-7mm" oninput="newRecordDraft.lowerLength=this.value">
+        </div>
+        <div class="form-field"><label>下睫毛翹度</label>
+          <input type="text" list="lower-curl-list" value="${escapeHtml(d.lowerCurl)}" placeholder="例如：J" oninput="newRecordDraft.lowerCurl=this.value">
+          <datalist id="lower-curl-list"><option value="J"><option value="B"><option value="C"></datalist>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>下睫毛根數</label>
+          <input type="number" min="0" value="${escapeHtml(d.lowerCount)}" placeholder="總根數" oninput="newRecordDraft.lowerCount=this.value">
+        </div>
+        <div class="form-field"><label>下睫毛款式備註</label>
+          <input type="text" value="${escapeHtml(d.lowerNote)}" placeholder="例如：僅眼尾3根，自然款" oninput="newRecordDraft.lowerNote=this.value">
+        </div>
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-field"><label>技術</label>
         <select onchange="onTechniqueChange(this.value)">
@@ -2228,9 +2620,10 @@ async function saveNewRecord(){
     }else{
       clientId = uid('client');
       clients.push({
-        id: clientId, name, phone:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
+        id: clientId, name, phone:'', email:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
+        notes:'', avatarDataUrl:'',
         createdAt: todayStr(), status: blankStatus(), statusUpdatedAt: null,
-        contraindications: [], tags: [], serviceRecords: [],
+        contraindications: [], tags: [], points: 0, serviceRecords: [],
       });
     }
   }
@@ -2242,10 +2635,12 @@ async function saveNewRecord(){
     date: d.date,
     time: d.time||'', duration: d.duration||'', service: d.service||'', serviceOther: d.serviceOther||'',
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
+    couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'',
     lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
     lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
     countLeft: d.countLeft||'', countRight: d.countRight||'',
+    lowerLength: d.lowerLength||'', lowerCurl: d.lowerCurl||'', lowerCount: d.lowerCount||'', lowerNote: d.lowerNote||'',
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
   };
@@ -2267,6 +2662,11 @@ async function saveNewRecord(){
     if(idx>-1) client.serviceRecords[idx] = payload; else client.serviceRecords.push(payload);
   }else{
     client.serviceRecords.push(payload);
+    if(payload.status==='completed' && Number(payload.amount)>0){
+      const rate = loadPointsSettings().rate || 100;
+      const net = Math.max(0, Number(payload.amount) - (Number(payload.discountAmount)||0));
+      client.points = (client.points||0) + Math.floor(net/rate);
+    }
   }
   newRecordDraft = null;
   await saveData();
@@ -2276,6 +2676,434 @@ async function saveNewRecord(){
 
 function attachDetailBehaviors(client){
   // placeholder for future DOM-level bindings if needed
+}
+
+/* ============ Notifications settings view ============ */
+function openNotifications(){
+  view = 'notifications';
+  render();
+}
+function renderNotificationTemplateCard(key, t){
+  const timeFieldHtml = key==='reminder' ? `
+    <div class="modal-field" style="max-width:160px;margin-bottom:12px;">
+      <label>發送時間</label>
+      <input type="time" id="notif-${key}-time" value="${escapeHtml(t.sendTime||'18:00')}">
+    </div>` : '';
+  return `<div class="panel notif-card" style="margin-bottom:16px;">
+    <div class="panel-title">
+      <h2>${escapeHtml(t.label)}</h2>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-${key}-enabled" ${t.enabled?'checked':''}>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    ${timeFieldHtml}
+    <div class="var-tag-row">
+      ${NOTIF_VAR_TAGS.map(tag=>`<button type="button" class="var-tag" onclick="insertVarTag('notif-${key}-text','${tag}')">${tag}</button>`).join('')}
+    </div>
+    <textarea id="notif-${key}-text" rows="3" style="width:100%;margin-top:8px;">${escapeHtml(t.text)}</textarea>
+    <div class="form-actions" style="margin-top:10px;">
+      <button type="button" class="btn-ghost btn btn-sm" onclick="previewCopyNotifTemplate('${key}')">📋 複製範本內容（測試用，套入範例資料）</button>
+    </div>
+  </div>`;
+}
+function renderNotificationsView(){
+  const s = loadNotificationSettings();
+  const cardsHtml = Object.keys(s.templates).map(key=>renderNotificationTemplateCard(key, s.templates[key])).join('');
+  return `
+    <div class="back-row">
+      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+    </div>
+    <div class="client-card-hero">
+      <div class="client-card-top"><h1>自動通知設定</h1></div>
+      <p class="field-hint" style="margin-top:2px;">此工具是純前端網頁、沒有後端伺服器，尚無法直接串接 LINE 官方帳號 API 自動發送訊息。「開啟」代表你想在對應時機使用這則範本：把下面的變數標籤加進文字中，之後在對應情境（例如完成服務後）按下複製按鈕，系統會自動代入客戶資料，一鍵複製並開啟 LINE，貼上即可手動發送，省去自己重新打字的時間。</p>
+    </div>
+    <div class="modal-field" style="margin-bottom:18px;">
+      <label>評價連結（選填，會取代範本中的 [評價連結]）</label>
+      <input id="notif-review-link" value="${escapeHtml(s.reviewLink||'')}" placeholder="例如：Google 評論連結">
+    </div>
+    ${cardsHtml}
+    <div class="form-actions">
+      <button class="btn" onclick="saveNotificationSettingsFromForm()">儲存設定</button>
+    </div>
+  `;
+}
+function saveNotificationSettingsFromForm(){
+  const s = loadNotificationSettings();
+  s.reviewLink = document.getElementById('notif-review-link').value.trim();
+  Object.keys(s.templates).forEach(key=>{
+    const t = s.templates[key];
+    t.enabled = document.getElementById(`notif-${key}-enabled`).checked;
+    t.text = document.getElementById(`notif-${key}-text`).value;
+    if(key==='reminder'){
+      const timeEl = document.getElementById('notif-reminder-time');
+      if(timeEl) t.sendTime = timeEl.value || '18:00';
+    }
+  });
+  saveNotificationSettingsObj(s);
+  showToast('已儲存通知範本設定');
+}
+function previewCopyNotifTemplate(key){
+  const textEl = document.getElementById(`notif-${key}-text`);
+  const text = textEl ? textEl.value : '';
+  const sample = substituteVars(text, {
+    '[客戶姓名]': '小美', '[日期]': todayStr(), '[時間]': '14:00',
+    '[服務時長]': '90分鐘', '[評價連結]': document.getElementById('notif-review-link').value.trim() || '（尚未設定評價連結）',
+  });
+  copyAndOpenLine(sample);
+}
+
+/* ============ Booking rules settings view ============ */
+const BOOKING_RULES_STORAGE_KEY = 'meiye-booking-rules';
+function defaultBookingRules(){
+  return {
+    maxAdvanceDays: 30,
+    manualConfirmRequired: true,
+    selfCancelAllowed: true,
+    selfCancelHours: 24,
+    noshowSuspendThreshold: 3,
+    depositRequired: false,
+    dailyNewClientCap: '',
+    dailyBookingCap: '',
+    blockedSlots: [],
+  };
+}
+function loadBookingRules(){
+  try{
+    const raw = localStorage.getItem(BOOKING_RULES_STORAGE_KEY);
+    return raw ? Object.assign(defaultBookingRules(), JSON.parse(raw)) : defaultBookingRules();
+  }catch(e){ return defaultBookingRules(); }
+}
+function saveBookingRulesObj(r){
+  localStorage.setItem(BOOKING_RULES_STORAGE_KEY, JSON.stringify(r));
+}
+let bookingRulesDraft = null;
+function openBookingRules(){
+  view = 'bookingRules';
+  bookingRulesDraft = loadBookingRules();
+  render();
+}
+function setBookingRuleVal(key, val){
+  bookingRulesDraft[key] = val;
+}
+function renderBlockedSlotsHtml(){
+  const slots = bookingRulesDraft.blockedSlots||[];
+  if(!slots.length) return `<p class="field-hint">尚未新增公休／不可預約時段。</p>`;
+  return slots.map((s,i)=>`<span class="blocked-slot-pill">${escapeHtml(s)}<button onclick="removeBlockedSlot(${i})" aria-label="移除">✕</button></span>`).join('');
+}
+function addBlockedSlot(){
+  const input = document.getElementById('new-blocked-slot-input');
+  const val = (input.value||'').trim();
+  if(!val) return;
+  bookingRulesDraft.blockedSlots = bookingRulesDraft.blockedSlots||[];
+  bookingRulesDraft.blockedSlots.push(val);
+  input.value='';
+  document.getElementById('blocked-slots-list').innerHTML = renderBlockedSlotsHtml();
+}
+function removeBlockedSlot(idx){
+  bookingRulesDraft.blockedSlots.splice(idx,1);
+  document.getElementById('blocked-slots-list').innerHTML = renderBlockedSlotsHtml();
+}
+function buildBookingPolicyText(r){
+  const lines = ['【預約須知】'];
+  lines.push(`・最早可提前 ${r.maxAdvanceDays} 天預約`);
+  lines.push(r.manualConfirmRequired ? '・新預約需經過美睫師確認後才正式成立' : '・新預約送出後即自動成立，無需另外確認');
+  lines.push(r.selfCancelAllowed ? `・如需取消，請提前至少 ${r.selfCancelHours} 小時告知` : '・如需取消或改期，請直接私訊聯繫，恕不開放自行取消');
+  lines.push(`・連續爽約 ${r.noshowSuspendThreshold} 次將暫停預約資格`);
+  if(r.depositRequired) lines.push('・預約時需支付訂金以保留時段');
+  if(r.dailyNewClientCap) lines.push(`・每日開放新客名額：${r.dailyNewClientCap} 位`);
+  if(r.dailyBookingCap) lines.push(`・每日最多接單：${r.dailyBookingCap} 位`);
+  if((r.blockedSlots||[]).length) lines.push(`・公休／不可預約時段：${r.blockedSlots.join('、')}`);
+  return lines.join('\n');
+}
+function renderBookingRulesView(){
+  const r = bookingRulesDraft;
+  return `
+    <div class="back-row">
+      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+    </div>
+    <div class="client-card-hero">
+      <div class="client-card-top"><h1>預約規則</h1></div>
+      <p class="field-hint" style="margin-top:2px;">設定你的預約規則後，可以一鍵複製成一段文字傳給客人，讓大家清楚知道預約與取消的規範。</p>
+    </div>
+    <div class="settings-block">
+      <div class="settings-row">
+        <div><div class="settings-row-label">最早可提前預約天數</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.maxAdvanceDays)}" oninput="setBookingRuleVal('maxAdvanceDays', this.value)"> 天</div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">新預約需要人工確認</div></div>
+        <label class="toggle-switch"><input type="checkbox" ${r.manualConfirmRequired?'checked':''} onchange="setBookingRuleVal('manualConfirmRequired', this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">開放客人自行取消</div>
+          ${r.selfCancelAllowed?`<div class="settings-row-hint">需提前 <input type="number" min="1" style="width:52px;padding:2px 6px;" value="${escapeHtml(r.selfCancelHours)}" oninput="setBookingRuleVal('selfCancelHours', this.value)"> 小時</div>`:''}
+        </div>
+        <label class="toggle-switch"><input type="checkbox" ${r.selfCancelAllowed?'checked':''} onchange="setBookingRuleVal('selfCancelAllowed', this.checked); render();"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">爽約幾次後暫停預約資格</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.noshowSuspendThreshold)}" oninput="setBookingRuleVal('noshowSuspendThreshold', this.value)"> 次</div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">需要收訂金</div></div>
+        <label class="toggle-switch"><input type="checkbox" ${r.depositRequired?'checked':''} onchange="setBookingRuleVal('depositRequired', this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">每日新客人數上限（選填）</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyNewClientCap)}" placeholder="不限" oninput="setBookingRuleVal('dailyNewClientCap', this.value)"> 位</div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">每日最多接單數（選填）</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyBookingCap)}" placeholder="不限" oninput="setBookingRuleVal('dailyBookingCap', this.value)"> 位</div>
+      </div>
+    </div>
+    <div class="settings-block">
+      <div class="settings-row-label" style="margin-bottom:10px;font-weight:600;">公休／不可預約時段</div>
+      <div id="blocked-slots-list">${renderBlockedSlotsHtml()}</div>
+      <div class="tag-add-row" style="margin-top:10px;">
+        <input id="new-blocked-slot-input" placeholder="例如：每週一公休、12/25 公休" onkeydown="if(event.key==='Enter') addBlockedSlot()">
+        <button onclick="addBlockedSlot()">新增時段</button>
+      </div>
+    </div>
+    <div class="form-actions" style="justify-content:space-between;">
+      <button class="btn-ghost btn" onclick="copyBookingPolicy()">📋 一鍵複製預約規則傳給客人</button>
+      <button class="btn" onclick="saveBookingRules()">儲存設定</button>
+    </div>
+  `;
+}
+function saveBookingRules(){
+  saveBookingRulesObj(bookingRulesDraft);
+  showToast('已儲存預約規則設定');
+}
+function copyBookingPolicy(){
+  copyAndOpenLine(buildBookingPolicyText(bookingRulesDraft));
+}
+
+/* ============ Membership & marketing (4-tab) settings view ============ */
+const POINTS_STORAGE_KEY = 'meiye-points-settings';
+const CAMPAIGNS_STORAGE_KEY = 'meiye-campaigns';
+const BIRTHDAY_STORAGE_KEY = 'meiye-birthday-settings';
+
+function defaultPointsSettings(){
+  return { rate: 100, redemptions: [{id:uid('rdm'), label:'折抵 NT$50', pointsCost:50}] };
+}
+function loadPointsSettings(){
+  try{ const raw = localStorage.getItem(POINTS_STORAGE_KEY); return raw ? Object.assign(defaultPointsSettings(), JSON.parse(raw)) : defaultPointsSettings(); }
+  catch(e){ return defaultPointsSettings(); }
+}
+function savePointsSettingsObj(p){ localStorage.setItem(POINTS_STORAGE_KEY, JSON.stringify(p)); }
+
+function loadCampaigns(){
+  try{ const raw = localStorage.getItem(CAMPAIGNS_STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+  catch(e){ return []; }
+}
+function saveCampaignsArr(c){ localStorage.setItem(CAMPAIGNS_STORAGE_KEY, JSON.stringify(c)); }
+
+function defaultBirthdaySettings(){
+  return { leadDays:7, content:'生日快樂🎂 送你一份專屬生日禮，到店出示這則訊息即可兌換！', expiryDays:30, eligibleServices:[] };
+}
+function loadBirthdaySettings(){
+  try{ const raw = localStorage.getItem(BIRTHDAY_STORAGE_KEY); return raw ? Object.assign(defaultBirthdaySettings(), JSON.parse(raw)) : defaultBirthdaySettings(); }
+  catch(e){ return defaultBirthdaySettings(); }
+}
+function saveBirthdaySettingsObj(b){ localStorage.setItem(BIRTHDAY_STORAGE_KEY, JSON.stringify(b)); }
+
+let membershipTab = 'tiers';
+let membershipDraft = null; // {membership, points, campaigns, birthday}
+function openMembership(){
+  view = 'membership';
+  membershipTab = 'tiers';
+  membershipDraft = {
+    membership: loadMembershipSettings(),
+    points: loadPointsSettings(),
+    campaigns: loadCampaigns(),
+    birthday: loadBirthdaySettings(),
+  };
+  render();
+}
+function switchMembershipTab(tab){
+  membershipTab = tab;
+  render();
+}
+function renderMembershipView(){
+  const tabs = [
+    {key:'tiers', label:'會員制度'},
+    {key:'points', label:'點數規則'},
+    {key:'campaigns', label:'活動管理／優惠券'},
+    {key:'birthday', label:'生日禮'},
+  ];
+  const tabBtns = tabs.map(t=>`<button class="settings-tab-btn ${membershipTab===t.key?'active':''}" onclick="switchMembershipTab('${t.key}')">${t.label}</button>`).join('');
+  let body = '';
+  if(membershipTab==='tiers') body = renderTiersTab();
+  else if(membershipTab==='points') body = renderPointsTab();
+  else if(membershipTab==='campaigns') body = renderCampaignsTab();
+  else body = renderBirthdayTab();
+  return `
+    <div class="back-row">
+      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+    </div>
+    <div class="client-card-hero">
+      <div class="client-card-top"><h1>會員與行銷</h1></div>
+      <p class="field-hint" style="margin-top:2px;">設定會員等級、點數與優惠活動，讓熟客感受到被重視。等級與點數會依照客戶的「累積消費總額」自動判定，優惠券可在服務結帳時套用折抵金額。</p>
+    </div>
+    <div class="settings-tabs">${tabBtns}</div>
+    ${body}
+  `;
+}
+
+/* -- Tab A: membership tiers -- */
+function renderTiersTab(){
+  const m = membershipDraft.membership;
+  const tiersHtml = m.tiers.map((t,i)=>`
+    <div class="tier-card">
+      <div class="form-row">
+        <div class="form-field"><label>等級名稱</label><input value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value"></div>
+        <div class="form-field"><label>升級門檻（累積消費 NT$）</label><input type="number" min="0" value="${escapeHtml(t.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
+      </div>
+      <div class="form-field"><label>專屬福利</label><input value="${escapeHtml(t.perks||'')}" oninput="membershipDraft.membership.tiers[${i}].perks=this.value"></div>
+      <div class="form-actions"><button class="btn-danger-text" onclick="removeTier(${i})">刪除此等級</button></div>
+    </div>`).join('');
+  return `<div class="settings-block">
+    <div class="settings-row">
+      <div><div class="settings-row-label">會員有效期限</div></div>
+      <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(m.validityMonths)}" oninput="membershipDraft.membership.validityMonths=Number(this.value)||12"> 個月</div>
+    </div>
+  </div>
+  <div id="tiers-list">${tiersHtml}</div>
+  <div class="form-actions" style="justify-content:space-between;">
+    <button class="btn-ghost btn" onclick="addTier()">＋ 新增等級</button>
+    <button class="btn" onclick="saveTiersTab()">儲存設定</button>
+  </div>`;
+}
+function addTier(){
+  membershipDraft.membership.tiers.push({key:uid('tier'), label:'新等級', threshold:0, perks:''});
+  render();
+}
+function removeTier(i){
+  membershipDraft.membership.tiers.splice(i,1);
+  render();
+}
+function saveTiersTab(){
+  saveMembershipSettings(membershipDraft.membership);
+  showToast('已儲存會員制度設定');
+}
+
+/* -- Tab B: points -- */
+function renderPointsTab(){
+  const p = membershipDraft.points;
+  const redemptionsHtml = p.redemptions.map((r,i)=>`
+    <div class="points-card">
+      <div class="form-row">
+        <div class="form-field"><label>兌換方案名稱</label><input value="${escapeHtml(r.label)}" oninput="membershipDraft.points.redemptions[${i}].label=this.value"></div>
+        <div class="form-field"><label>所需點數</label><input type="number" min="0" value="${escapeHtml(r.pointsCost)}" oninput="membershipDraft.points.redemptions[${i}].pointsCost=Number(this.value)||0"></div>
+      </div>
+      <div class="form-actions"><button class="btn-danger-text" onclick="removeRedemption(${i})">刪除此方案</button></div>
+    </div>`).join('') || `<p class="field-hint">尚未新增兌換方案。</p>`;
+  return `<div class="settings-block">
+    <div class="settings-row">
+      <div><div class="settings-row-label">消費金額換算點數</div><div class="settings-row-hint">每消費多少金額，可累積 1 點</div></div>
+      <div class="settings-row-input">每消費 NT$ <input type="number" min="1" value="${escapeHtml(p.rate)}" oninput="membershipDraft.points.rate=Number(this.value)||100"> 得 1 點</div>
+    </div>
+  </div>
+  <div id="redemptions-list">${redemptionsHtml}</div>
+  <div class="form-actions" style="justify-content:space-between;">
+    <button class="btn-ghost btn" onclick="addRedemption()">＋ 新增兌換方案</button>
+    <button class="btn" onclick="savePointsTab()">儲存設定</button>
+  </div>`;
+}
+function addRedemption(){
+  membershipDraft.points.redemptions.push({id:uid('rdm'), label:'新兌換方案', pointsCost:0});
+  render();
+}
+function removeRedemption(i){
+  membershipDraft.points.redemptions.splice(i,1);
+  render();
+}
+function savePointsTab(){
+  savePointsSettingsObj(membershipDraft.points);
+  showToast('已儲存點數規則設定');
+}
+
+/* -- Tab C: campaigns / coupons -- */
+function renderCampaignsTab(){
+  const list = membershipDraft.campaigns;
+  const html = list.map((c,i)=>`
+    <div class="coupon-card">
+      <div class="coupon-card-top">
+        <input class="coupon-card-name" style="border:none;background:transparent;flex:1;" value="${escapeHtml(c.name)}" oninput="membershipDraft.campaigns[${i}].name=this.value">
+        <button class="btn-danger-text" onclick="removeCampaign(${i})">刪除</button>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>活動期間</label><input value="${escapeHtml(c.period||'')}" placeholder="例如：2025/01/01–2025/01/31" oninput="membershipDraft.campaigns[${i}].period=this.value"></div>
+        <div class="form-field"><label>適用對象</label><input value="${escapeHtml(c.audience||'')}" placeholder="例如：新客／全體客人" oninput="membershipDraft.campaigns[${i}].audience=this.value"></div>
+      </div>
+      <div class="form-field"><label>活動內容</label><textarea rows="2" oninput="membershipDraft.campaigns[${i}].content=this.value">${escapeHtml(c.content||'')}</textarea></div>
+      <div class="settings-row">
+        <div class="settings-row-label">啟用優惠碼</div>
+        <label class="toggle-switch"><input type="checkbox" ${c.codeEnabled?'checked':''} onchange="membershipDraft.campaigns[${i}].codeEnabled=this.checked; render();"><span class="toggle-slider"></span></label>
+      </div>
+      ${c.codeEnabled?`<div class="form-field"><label>優惠碼</label><input value="${escapeHtml(c.code||'')}" oninput="membershipDraft.campaigns[${i}].code=this.value"></div>`:''}
+    </div>`).join('') || `<p class="field-hint">尚未建立任何活動。點下方「＋ 新增活動」開始建立你的第一個折價活動或優惠券。</p>`;
+  return `${html}
+  <div class="form-actions" style="justify-content:space-between;">
+    <button class="btn-ghost btn" onclick="addCampaign()">＋ 新增活動</button>
+    <button class="btn" onclick="saveCampaignsTab()">儲存設定</button>
+  </div>
+  <p class="field-hint" style="margin-top:8px;">儲存後，這些活動會出現在「新增服務紀錄」表單中，可在客人結帳時選擇套用，折抵金額會顯示在該筆消費紀錄上。</p>`;
+}
+function addCampaign(){
+  membershipDraft.campaigns.push({id:uid('camp'), name:'新活動', period:'', content:'', audience:'', codeEnabled:false, code:''});
+  render();
+}
+function removeCampaign(i){
+  membershipDraft.campaigns.splice(i,1);
+  render();
+}
+function saveCampaignsTab(){
+  saveCampaignsArr(membershipDraft.campaigns);
+  showToast('已儲存活動與優惠券設定');
+}
+
+/* -- Tab D: birthday gift -- */
+function renderBirthdayTab(){
+  const b = membershipDraft.birthday;
+  const chips = SERVICE_ITEMS.map(s=>{
+    const active = (b.eligibleServices||[]).includes(s);
+    return `<button type="button" class="chip ${active?'active':''}" onclick="toggleBirthdayService('${s}')">${escapeHtml(s)}</button>`;
+  }).join('');
+  return `<div class="settings-block">
+    <div class="settings-row">
+      <div><div class="settings-row-label">提前發送天數</div></div>
+      <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(b.leadDays)}" oninput="membershipDraft.birthday.leadDays=Number(this.value)||0"> 天</div>
+    </div>
+    <div class="settings-row">
+      <div><div class="settings-row-label">使用期限</div></div>
+      <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(b.expiryDays)}" oninput="membershipDraft.birthday.expiryDays=Number(this.value)||30"> 天</div>
+    </div>
+  </div>
+  <div class="form-field" style="margin:16px 0;">
+    <label>生日禮內容描述</label>
+    <textarea rows="3" oninput="membershipDraft.birthday.content=this.value">${escapeHtml(b.content)}</textarea>
+  </div>
+  <div class="form-field" style="margin-bottom:16px;">
+    <label>適用服務</label>
+    <div class="chip-select">${chips}</div>
+  </div>
+  <div class="form-actions">
+    <button class="btn" onclick="saveBirthdayTab()">儲存設定</button>
+  </div>`;
+}
+function toggleBirthdayService(s){
+  const arr = membershipDraft.birthday.eligibleServices = membershipDraft.birthday.eligibleServices||[];
+  const idx = arr.indexOf(s);
+  if(idx>=0) arr.splice(idx,1); else arr.push(s);
+  render();
+}
+function saveBirthdayTab(){
+  saveBirthdaySettingsObj(membershipDraft.birthday);
+  showToast('已儲存生日禮設定');
 }
 
 /* ============ Init ============ */
