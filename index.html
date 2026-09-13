@@ -223,6 +223,17 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
   font-family:var(--font-serif);letter-spacing:0.3px;
   display:flex;align-items:center;justify-content:center;gap:9px;
 }
+.welcome-first-run{
+  background:var(--sage-bg);border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:22px 24px;margin-bottom:22px;
+}
+.welcome-first-run-title{
+  font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--mocha-deep);
+  letter-spacing:0.04em;margin-bottom:10px;
+}
+.welcome-first-run p{margin:0 0 10px;font-size:13.5px;color:var(--ink-soft);line-height:1.7;}
+.welcome-first-run p:last-of-type{margin-bottom:6px;}
+.welcome-first-run-steps{margin:0;padding-left:20px;font-size:13px;color:var(--ink);line-height:1.9;}
 
 /* ---------- Two-column client dashboard (tablet/desktop) ---------- */
 .dashboard-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start;}
@@ -1131,7 +1142,16 @@ function filteredClientList(){
 function renderClientListItems(highlightId){
   const filtered = filteredClientList();
   if(clients.length===0){
-    return `<div class="empty-state">
+    return `<div class="welcome-first-run">
+      <div class="welcome-first-run-title">感謝購買，歡迎使用 EYELASH</div>
+      <p>這個網頁就是你剛剛付款購買的客戶紀錄工具，資料只會儲存在「這台裝置、這個瀏覽器」裡。</p>
+      <p><strong>強烈建議現在就做這件事：</strong>把這個網頁加入手機主畫面或瀏覽器書籤，之後才能隨時打開，不用擔心關掉分頁後找不到。</p>
+      <ul class="welcome-first-run-steps">
+        <li>iPhone／Safari：點畫面下方的分享圖示 → 選「加入主畫面」</li>
+        <li>Android／Chrome：點右上角選單「⋮」→ 選「加到主畫面」</li>
+      </ul>
+    </div>
+    <div class="empty-state">
       <h3>還沒有客戶紀錄</h3>
       <p>新增第一位客戶，開始取代紙本記事卡。</p>
     </div>`;
