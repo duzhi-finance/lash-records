@@ -73,7 +73,7 @@ h1,h2,h3{
   margin:0;
 }
 button{font-family:var(--font-sans);cursor:pointer;}
-input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;letter-spacing:0.02em;}
+input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;letter-spacing:0.02em;}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
@@ -108,33 +108,35 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   border:1px solid var(--mocha);
   background:var(--mocha);
   color:#fff;
-  padding:9px 18px;
+  padding:9px 20px;
   border-radius:var(--radius-pill);
-  font-size:14px;
-  font-weight:500;
-  transition:background .15s ease, transform .05s ease;
+  font-size:13.5px;
+  font-weight:600;
+  letter-spacing:0.05em;
+  transition:background .15s ease, transform .05s ease, box-shadow .15s ease;
 }
-.btn:hover{background:var(--mocha-deep);border-color:var(--mocha-deep);}
+.btn:hover{background:var(--mocha-deep);border-color:var(--mocha-deep);box-shadow:0 4px 14px rgba(173,136,67,0.22);}
 .btn:active{transform:translateY(1px);}
 .btn-ghost{
-  background:#fff;color:var(--ink);border:1px solid var(--blush-line);border-radius:var(--radius-pill);
+  background:#fff;color:#4A4A4A;border:1px solid #EAEAEA;border-radius:var(--radius-pill);
+  letter-spacing:0.04em;
 }
-.btn-ghost:hover{background:var(--sage-bg);}
+.btn-ghost:hover{background:var(--sage-bg);border-color:var(--mocha);color:var(--mocha-deep);}
 .btn-text{
   background:none;border:none;color:var(--mocha-deep);padding:6px 4px;
-  font-size:13.5px;
+  font-size:13.5px;letter-spacing:0.03em;
 }
 .btn-danger-text{
   background:none;border:none;color:var(--ink-soft);padding:6px 4px;
-  font-size:13px;
+  font-size:13px;letter-spacing:0.02em;
 }
 .btn-danger-text:hover{color:var(--alert);}
 .btn-sage{
   border:1px solid var(--ink);background:var(--ink);color:#fff;
-  padding:9px 18px;border-radius:var(--radius-pill);font-size:14px;font-weight:500;
+  padding:9px 20px;border-radius:var(--radius-pill);font-size:13.5px;font-weight:600;letter-spacing:0.05em;
 }
 .btn-sage:hover{background:#000;}
-.btn-sm{padding:6px 14px;font-size:13px;}
+.btn-sm{padding:6px 15px;font-size:12.5px;}
 
 /* ---------- Top bar action group ---------- */
 .topbar-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
@@ -257,12 +259,14 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   background:var(--blush);color:var(--mocha-deep);font-family:var(--font-serif);font-weight:700;
 }
 .member-tier-badge{
-  display:inline-block;margin-left:8px;font-size:11px;font-weight:600;
-  padding:3px 10px;border-radius:var(--radius-pill);vertical-align:middle;letter-spacing:0.05em;
+  display:inline-flex;align-items:center;margin-left:9px;font-size:10.5px;font-weight:700;
+  padding:4px 12px;border-radius:var(--radius-pill);vertical-align:middle;letter-spacing:0.12em;
+  text-transform:uppercase;box-shadow:inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.08);
 }
-.member-tier-silver{background:#E4E4E4;color:#555555;}
-.member-tier-gold{background:#F3E3B8;color:#8A6D1D;}
-.member-tier-black{background:#2B2B2B;color:#F3E3B8;}
+.member-tier-silver{background:linear-gradient(150deg,#F4F4F4,#D4D4D4 45%,#EFEFEF 55%,#BFBFBF);color:#5A5A5A;}
+.member-tier-gold{background:linear-gradient(150deg,#F7E9BE,#D4AF37 45%,#F3E3B8 55%,#B8892E);color:#5C4413;}
+.member-tier-black{background:linear-gradient(150deg,#4A4A4A,#1A1A1A 45%,#3A3A3A 55%,#0A0A0A);color:#EAD9A0;box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);}
+.tier-badge-preview{margin-bottom:12px;}
 .client-notes-box{
   margin-top:12px;padding:10px 12px;background:#fff;border:1px solid var(--blush-line);
   border-radius:var(--radius-ui);font-size:12.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;
@@ -325,33 +329,36 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   background:#fff;
   border:1px solid var(--blush-line);
   border-radius:var(--radius-card);
-  padding:20px 20px 22px;
+  padding:22px 22px 24px;
+  box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 10px 28px rgba(43,41,38,0.035);
 }
 .panel-title{
   display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:16px;
+  margin-bottom:18px;
 }
-.panel-title h2{font-size:16px;display:flex;align-items:center;gap:7px;}
+.panel-title h2{font-size:16px;letter-spacing:0.08em;display:flex;align-items:center;gap:7px;}
 .panel-title small{font-size:11.5px;color:var(--ink-faint);}
 
-.status-group{margin-bottom:22px;}
+.status-group{margin-bottom:24px;}
 .status-group:last-child{margin-bottom:0;}
 .status-group-title{
-  font-family:var(--font-serif);font-size:14.5px;font-weight:700;color:var(--mocha-deep);
-  letter-spacing:0.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--blush-line);
+  font-family:var(--font-serif);font-size:13.5px;font-weight:700;color:var(--mocha-deep);
+  letter-spacing:0.16em;text-transform:uppercase;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--blush-line);
 }
 .status-field{
-  margin-bottom:10px;padding:13px 14px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;
+  margin-bottom:10px;padding:15px 16px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  background:#fff;transition:box-shadow .15s ease, border-color .15s ease;
 }
+.status-field:hover{box-shadow:0 3px 10px rgba(43,41,38,0.045);border-color:#DCD6CC;}
 .status-field:last-child{margin-bottom:0;}
 .status-field label{
-  display:block;font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:500;
+  display:block;font-size:12.5px;color:var(--ink);margin-bottom:9px;font-weight:600;letter-spacing:0.03em;
 }
 .tri-toggle{display:inline-flex;border:1px solid var(--blush-line);border-radius:var(--radius-pill);overflow:hidden;}
 .tri-toggle button{
-  background:#fff;border:none;padding:6px 14px;font-size:13px;color:var(--ink-soft);
-  border-right:1px solid var(--blush-line);
+  background:#fff;border:none;padding:6px 16px;font-size:11.5px;color:var(--ink-soft);
+  border-right:1px solid var(--blush-line);letter-spacing:0.1em;font-weight:600;
+  transition:background .15s ease, color .15s ease;
 }
 .tri-toggle button:last-child{border-right:none;}
 .tri-toggle button.active-yes,
@@ -359,27 +366,30 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
 .tri-toggle button.active-unknown,
 .tri-toggle button.active{background:var(--ink);color:#fff;}
 .status-field input[type="text"], .status-field input[type="date"]{
-  width:100%;padding:8px 10px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:13.5px;
+  width:100%;padding:9px 11px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
+  background:#fff;font-size:13.5px;color:#4A4A4A;letter-spacing:0.01em;
 }
 .status-note{
-  margin-top:8px;width:100%;padding:7px 9px;border:1px solid var(--blush-line);
-  border-radius:var(--radius-ui);background:#fff;font-size:13px;resize:vertical;min-height:38px;
+  margin-top:9px;width:100%;padding:8px 10px;border:1px solid #EAEAEA;
+  border-radius:var(--radius-ui);background:#fff;font-size:13px;color:#4A4A4A;resize:vertical;min-height:38px;
 }
 .status-footer{
-  display:flex;align-items:center;justify-content:space-between;margin-top:16px;
-  padding-top:16px;border-top:1px solid var(--blush-line);
+  display:flex;align-items:center;justify-content:space-between;margin-top:18px;
+  padding-top:18px;border-top:1px solid var(--blush-line);
 }
-.status-updated{font-size:11.5px;color:var(--ink-faint);}
+.status-updated{font-size:11.5px;color:var(--ink-faint);letter-spacing:0.03em;}
 
 /* Pre-service consent & questionnaire */
-.consent-view .panel-title h2{font-family:var(--font-serif);font-size:18px;font-weight:700;color:var(--mocha-deep);}
-.consent-list{display:flex;flex-direction:column;gap:2px;border-radius:var(--radius-ui);overflow:hidden;background:var(--blush-line);}
+.consent-view .panel-title h2{font-family:var(--font-serif);font-size:18px;font-weight:700;letter-spacing:0.06em;color:var(--mocha-deep);}
+.consent-list{display:flex;flex-direction:column;gap:8px;}
 .consent-item{
-  display:flex;gap:12px;align-items:flex-start;background:#fff;padding:14px 16px;
-  font-size:13.5px;color:var(--ink);line-height:1.6;cursor:pointer;
+  display:flex;gap:12px;align-items:flex-start;background:#fff;padding:15px 17px;
+  font-size:13.5px;color:var(--ink);line-height:1.7;letter-spacing:0.01em;cursor:pointer;
+  border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
-.consent-item:has(input:checked){background:var(--sage-bg);}
+.consent-item:hover{border-color:var(--mocha);box-shadow:0 3px 10px rgba(43,41,38,0.045);}
+.consent-item:has(input:checked){background:var(--sage-bg);border-color:var(--mocha-deep);}
 .consent-item input[type="checkbox"]{margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--mocha-deep);}
 .signature-preview{
   border:1px solid var(--blush-line);border-radius:var(--radius-ui);background:#fff;
@@ -410,20 +420,29 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
 .consent-summary-label{font-size:12.5px;color:var(--ink-soft);font-weight:600;}
 .consent-signature{display:block;margin-top:8px;max-height:80px;background:#fff;border:1px solid var(--blush-line);border-radius:6px;}
 
-/* Service records */
-.service-history{display:flex;flex-direction:column;gap:10px;}
+/* Service records — minimal timeline */
+.service-history{display:flex;flex-direction:column;gap:18px;position:relative;padding-left:26px;}
+.service-history::before{
+  content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:var(--blush-line);
+}
 .record-card{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
-  padding:15px 18px;
+  padding:16px 20px;position:relative;
+  box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 8px 20px rgba(43,41,38,0.03);
+}
+.record-card::before{
+  content:"";position:absolute;left:-26px;top:21px;width:9px;height:9px;border-radius:50%;
+  background:var(--mocha-deep);border:3px solid var(--paper);box-shadow:0 0 0 1px var(--blush-line);
 }
 .record-top{display:flex;justify-content:space-between;align-items:baseline;cursor:pointer;gap:10px;}
-.record-date{font-size:15.5px;font-weight:600;}
-.record-tech{font-size:12px;color:var(--mocha-deep);background:var(--blush);padding:3px 11px;border-radius:var(--radius-pill);}
-.record-summary{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
-.record-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--blush-line);}
-.record-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
-.record-detail-item label{display:block;font-size:11px;color:var(--ink-faint);margin-bottom:2px;}
-.record-detail-item span{font-size:13.5px;}
+.record-date{font-family:var(--font-serif);font-size:17px;font-weight:700;letter-spacing:0.04em;color:var(--ink);}
+.record-tech{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--mocha-deep);background:var(--blush);padding:4px 12px;border-radius:var(--radius-pill);}
+.record-summary{font-size:12.5px;color:var(--ink-soft);letter-spacing:0.02em;margin-top:5px;}
+.record-summary-lower{color:var(--ink-faint);}
+.record-body{margin-top:14px;padding-top:14px;border-top:1px solid var(--blush-line);}
+.record-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px 10px;margin-bottom:16px;}
+.record-detail-item label{display:block;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;}
+.record-detail-item span{font-size:13.5px;color:var(--ink);letter-spacing:0.01em;}
 .record-notes{font-size:13px;color:var(--ink-soft);margin-top:8px;white-space:pre-wrap;}
 
 /* Eye segment diagram: a lash-line arc with 3 marker lines (left/mid/right, mid longest)
@@ -467,8 +486,8 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#333333;
   letter-spacing:0.1px;
 }
 .form-field input, .form-field select, .form-field textarea{
-  width:100%;padding:9px 11px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--ink);transition:border-color .15s ease;
+  width:100%;padding:9px 11px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;transition:border-color .15s ease;
   font-family:var(--font-sans);
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{border-color:var(--mocha);}
@@ -519,8 +538,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .chip-select{display:flex;flex-wrap:wrap;gap:8px;}
 .chip{
   background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
-  padding:7px 14px;border-radius:var(--radius-pill);font-size:13px;
+  padding:7px 15px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:500;letter-spacing:0.04em;
+  transition:border-color .15s ease, color .15s ease, background .15s ease;
 }
+.chip:hover{border-color:var(--mocha);color:var(--mocha-deep);}
 .chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .chip-add-row{display:flex;gap:6px;margin-top:8px;}
 .chip-add-row input{
@@ -545,13 +566,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .modal-field{margin-bottom:14px;}
 .modal-field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
 .modal-field input, .modal-field select{
-  width:100%;padding:9px 12px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--ink);transition:border-color .15s ease;
+  width:100%;padding:9px 12px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;transition:border-color .15s ease;
 }
 .modal-field input:focus, .modal-field select:focus{border-color:var(--mocha);}
 .modal-field textarea{
-  width:100%;padding:9px 12px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--ink);font-family:var(--font-sans);
+  width:100%;padding:9px 12px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;font-family:var(--font-sans);
   resize:vertical;min-height:60px;
 }
 .modal-field textarea:focus{border-color:var(--mocha);}
@@ -581,27 +602,38 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 }
 .var-tag:hover{background:var(--blush);}
 .settings-nav-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
-.settings-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
-.settings-tab-btn{
-  background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
-  padding:9px 16px;border-radius:var(--radius-pill);font-size:13.5px;font-weight:500;
+.settings-tabs{
+  display:flex;flex-wrap:wrap;gap:4px;margin-bottom:24px;
+  background:#F3F0EA;border-radius:var(--radius-pill);padding:5px;
 }
-.settings-tab-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
-.settings-block{background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);padding:18px 20px;margin-bottom:16px;}
-.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--blush-line);}
+.settings-tab-btn{
+  flex:1 1 auto;
+  background:transparent;border:none;color:#8A8478;
+  padding:10px 16px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;letter-spacing:0.07em;
+  white-space:nowrap;transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.settings-tab-btn:hover{color:var(--mocha-deep);}
+.settings-tab-btn.active{background:#2E2C28;color:#F3EEE3;box-shadow:0 3px 10px rgba(43,41,38,0.18);}
+.settings-block{
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:20px 22px;margin-bottom:18px;
+  box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 10px 26px rgba(43,41,38,0.03);
+}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--blush-line);}
 .settings-row:last-child{border-bottom:none;}
-.settings-row-label{font-size:13.5px;color:var(--ink);}
-.settings-row-hint{font-size:11.5px;color:var(--ink-faint);margin-top:2px;}
+.settings-row-label{font-size:13.5px;color:var(--ink);letter-spacing:0.02em;}
+.settings-row-hint{font-size:11.5px;color:var(--ink-faint);margin-top:3px;letter-spacing:0.02em;}
 .settings-row-input{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .settings-row-input input[type="number"], .settings-row-input input[type="text"], .settings-row-input input[type="time"]{
-  width:90px;padding:7px 9px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);font-size:13.5px;text-align:right;
+  width:90px;padding:7px 9px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);font-size:13.5px;color:#4A4A4A;text-align:right;
 }
 .coupon-card, .points-card, .tier-card{
-  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
-  padding:14px 16px;margin-bottom:12px;
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:20px 22px;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 8px 22px rgba(43,41,38,0.03);
 }
-.coupon-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
-.coupon-card-name{font-weight:700;font-size:14.5px;}
+.coupon-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.coupon-card-name{font-family:var(--font-serif);font-weight:700;font-size:17px;letter-spacing:0.02em;}
 .blocked-slot-pill{
   display:inline-flex;align-items:center;gap:8px;background:var(--sage-bg);border:1px solid var(--blush-line);
   padding:5px 6px 5px 12px;border-radius:var(--radius-pill);font-size:12.5px;margin:0 8px 8px 0;
@@ -1415,11 +1447,12 @@ const NOTIF_STORAGE_KEY = 'meiye-notification-settings';
 function defaultNotificationSettings(){
   return {
     reviewLink: '',
+    studioAddress: '',
     templates: {
-      booked: {enabled:true, label:'預約成功通知', text:'🎉 [客戶姓名] 您好，已為您預約 [日期] [時間] 的美睫服務，時長約 [服務時長]。若時間有異動請提前告知，期待與您相見！'},
-      reminder: {enabled:true, label:'預約前一天提醒', sendTime:'18:00', text:'💗 [客戶姓名] 您好，提醒您明天 [日期] [時間] 有預約美睫服務（約 [服務時長]），請記得準時到店，若有需要調整請提前告知喔！'},
-      thanks: {enabled:true, label:'完成後感謝與評價邀請', text:'✨ [客戶姓名] 感謝您今天蒞臨！希望您喜歡這次的睫毛設計～期待您的使用心得，也歡迎留下評價支持我：[評價連結]'},
-      cancelled: {enabled:true, label:'取消自動釋出時段通知', text:'您好，[日期] [時間] 的時段目前已釋出，歡迎有興趣的客人重新預約喔！'},
+      booked: {enabled:true, label:'預約成功通知', text:'[客戶姓名] 您好，已為您完成預約訂單。\n預約日期：[日期] [時間]\n預約項目：[服務項目]\n預約地點：[工作室地址]\n\n【蒞臨溫馨提醒】\n1. 當天前來請勿繪製眼妝（含睫毛膏、眼線、眼影），以利操作進行與維持嫁接持久度。\n2. 若需變更或取消時段，請提前 [時段] 告知，感謝您的配合。'},
+      reminder: {enabled:true, label:'預約前一天提醒', sendTime:'18:00', text:'[客戶姓名] 您好，溫馨提醒您明日有美睫預約服務。\n預約時間：[日期] [時間]\n期待您的光臨，若有時間異動請及時與我們聯繫。'},
+      thanks: {enabled:true, label:'完成後感謝與評價邀請', text:'[客戶姓名] 您好，感謝您今日蒞臨。期待您喜歡此次的睫毛設計，若您方便，也誠摯邀請您留下使用心得：[評價連結]'},
+      cancelled: {enabled:true, label:'取消自動釋出時段通知', text:'[客戶姓名] 您好，您於 [日期] [時間] 的預約已完成取消手續。該時段已為您釋出，期待下次為您服務。'},
     },
   };
 }
@@ -1433,7 +1466,7 @@ function loadNotificationSettings(){
 function saveNotificationSettingsObj(s){
   localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(s));
 }
-const NOTIF_VAR_TAGS = ['[客戶姓名]','[日期]','[時間]','[服務時長]','[評價連結]'];
+const NOTIF_VAR_TAGS = ['[客戶姓名]','[日期]','[時間]','[服務項目]','[服務時長]','[工作室地址]','[時段]','[評價連結]'];
 function substituteVars(text, vars){
   let out = text||'';
   Object.keys(vars).forEach(key=>{ out = out.split(key).join(vars[key]||''); });
@@ -1482,8 +1515,11 @@ function saveMembershipSettings(s){
 function computeMemberTier(client){
   const settings = loadMembershipSettings();
   const total = computeClientSpendStats(client).total;
-  const sorted = (settings.tiers||[]).slice().sort((a,b)=>b.threshold-a.threshold);
-  return sorted.find(t=>total>=t.threshold) || null;
+  const ascending = (settings.tiers||[]).slice().sort((a,b)=>a.threshold-b.threshold);
+  const descending = ascending.slice().reverse();
+  const tier = descending.find(t=>total>=t.threshold) || null;
+  if(!tier) return null;
+  return Object.assign({}, tier, {badgeIdx: ascending.indexOf(tier)});
 }
 function computeMonthlyRevenue(){
   const monthPrefix = todayStr().slice(0,7);
@@ -1769,7 +1805,7 @@ function renderClientCard(client){
       <div class="client-card-identity">
         ${avatarHtml(client, 56)}
         <div>
-          <h1>${escapeHtml(client.name)}${memberTier?`<span class="member-tier-badge member-tier-${memberTier.key}">${escapeHtml(memberTier.label)}</span>`:''}</h1>
+          <h1>${escapeHtml(client.name)}${memberTier?`<span class="member-tier-badge ${TIER_BADGE_CLASSES[memberTier.badgeIdx%TIER_BADGE_CLASSES.length]}">${escapeHtml(memberTier.label)}</span>`:''}</h1>
         </div>
       </div>
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>編輯客戶資料</button>
@@ -2185,7 +2221,8 @@ function shareAftercareToLine(clientId){
   if(thanksTpl && thanksTpl.enabled && thanksTpl.text){
     msg = substituteVars(thanksTpl.text, {
       '[客戶姓名]': name, '[評價連結]': notifSettings.reviewLink || '',
-      '[日期]': '', '[時間]': '', '[服務時長]': '',
+      '[工作室地址]': notifSettings.studioAddress || '',
+      '[日期]': '', '[時間]': '', '[服務項目]': '', '[服務時長]': '', '[時段]': '',
     }) + ' ' + aftercare;
   }else{
     msg = `${name?`親愛的 ${name}`:'親愛的'}～${aftercare} 有任何問題隨時聯繫我喔！❤️`;
@@ -2324,7 +2361,7 @@ function renderRecordCard(r){
     <div class="record-top" onclick="toggleRecord('${r.id}')">
       <div>
         <div class="record-date">${r.date}${r.time?' · '+escapeHtml(r.time):''}</div>
-        <div class="record-summary">${escapeHtml(serviceLabelOf(r)?serviceLabelOf(r)+' · ':(r.style?r.style+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}</div>
+        <div class="record-summary">${escapeHtml(serviceLabelOf(r)?serviceLabelOf(r)+' · ':(r.style?r.style+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}${(r.lowerLength||r.lowerCurl)?`<span class="record-summary-lower">・下睫毛 ${escapeHtml(r.lowerLength||'')} ${escapeHtml(r.lowerCurl||'')}</span>`:''}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
         ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(APPT_STATUS_LABELS[r.status]||r.status)}</button>`:''}
@@ -2701,7 +2738,7 @@ function renderNotificationTemplateCard(key, t){
     <div class="var-tag-row">
       ${NOTIF_VAR_TAGS.map(tag=>`<button type="button" class="var-tag" onclick="insertVarTag('notif-${key}-text','${tag}')">${tag}</button>`).join('')}
     </div>
-    <textarea id="notif-${key}-text" rows="3" style="width:100%;margin-top:8px;">${escapeHtml(t.text)}</textarea>
+    <textarea id="notif-${key}-text" rows="${Math.max(3, (t.text||'').split('\n').length+1)}" style="width:100%;margin-top:8px;">${escapeHtml(t.text)}</textarea>
     <div class="form-actions" style="margin-top:10px;">
       <button type="button" class="btn-ghost btn btn-sm" onclick="previewCopyNotifTemplate('${key}')">📋 複製範本內容（測試用，套入範例資料）</button>
     </div>
@@ -2718,9 +2755,15 @@ function renderNotificationsView(){
       <div class="client-card-top"><h1>自動通知設定</h1></div>
       <p class="field-hint" style="margin-top:2px;">此工具是純前端網頁、沒有後端伺服器，尚無法直接串接 LINE 官方帳號 API 自動發送訊息。「開啟」代表你想在對應時機使用這則範本：把下面的變數標籤加進文字中，之後在對應情境（例如完成服務後）按下複製按鈕，系統會自動代入客戶資料，一鍵複製並開啟 LINE，貼上即可手動發送，省去自己重新打字的時間。</p>
     </div>
-    <div class="modal-field" style="margin-bottom:18px;">
-      <label>評價連結（選填，會取代範本中的 [評價連結]）</label>
-      <input id="notif-review-link" value="${escapeHtml(s.reviewLink||'')}" placeholder="例如：Google 評論連結">
+    <div class="form-row" style="margin-bottom:18px;">
+      <div class="modal-field" style="margin-bottom:0;">
+        <label>評價連結（選填，會取代範本中的 [評價連結]）</label>
+        <input id="notif-review-link" value="${escapeHtml(s.reviewLink||'')}" placeholder="例如：Google 評論連結">
+      </div>
+      <div class="modal-field" style="margin-bottom:0;">
+        <label>工作室地址（選填，會取代範本中的 [工作室地址]）</label>
+        <input id="notif-studio-address" value="${escapeHtml(s.studioAddress||'')}" placeholder="例如：台北市○○區○○路000號">
+      </div>
     </div>
     ${cardsHtml}
     <div class="form-actions">
@@ -2731,6 +2774,7 @@ function renderNotificationsView(){
 function saveNotificationSettingsFromForm(){
   const s = loadNotificationSettings();
   s.reviewLink = document.getElementById('notif-review-link').value.trim();
+  s.studioAddress = document.getElementById('notif-studio-address').value.trim();
   Object.keys(s.templates).forEach(key=>{
     const t = s.templates[key];
     t.enabled = document.getElementById(`notif-${key}-enabled`).checked;
@@ -2746,9 +2790,13 @@ function saveNotificationSettingsFromForm(){
 function previewCopyNotifTemplate(key){
   const textEl = document.getElementById(`notif-${key}-text`);
   const text = textEl ? textEl.value : '';
+  const rules = loadBookingRules();
   const sample = substituteVars(text, {
     '[客戶姓名]': '小美', '[日期]': todayStr(), '[時間]': '14:00',
-    '[服務時長]': '90分鐘', '[評價連結]': document.getElementById('notif-review-link').value.trim() || '（尚未設定評價連結）',
+    '[服務項目]': '全新嫁接', '[服務時長]': '90分鐘',
+    '[工作室地址]': document.getElementById('notif-studio-address').value.trim() || '（尚未設定工作室地址）',
+    '[時段]': `${rules.selfCancelHours||24} 小時`,
+    '[評價連結]': document.getElementById('notif-review-link').value.trim() || '（尚未設定評價連結）',
   });
   copyAndOpenLine(sample);
 }
@@ -2868,7 +2916,7 @@ function renderBookingRulesView(){
       </div>
     </div>
     <div class="form-actions" style="justify-content:space-between;">
-      <button class="btn-ghost btn" onclick="copyBookingPolicy()">📋 一鍵複製預約規則傳給客人</button>
+      <button class="btn-ghost btn" onclick="copyBookingPolicy()">📋 一鍵複製完整預約須知</button>
       <button class="btn" onclick="saveBookingRules()">儲存設定</button>
     </div>
   `;
@@ -2902,7 +2950,7 @@ function loadCampaigns(){
 function saveCampaignsArr(c){ localStorage.setItem(CAMPAIGNS_STORAGE_KEY, JSON.stringify(c)); }
 
 function defaultBirthdaySettings(){
-  return { leadDays:7, content:'生日快樂🎂 送你一份專屬生日禮，到店出示這則訊息即可兌換！', expiryDays:30, eligibleServices:[] };
+  return { leadDays:7, content:'[客戶姓名] 您好，祝您生日快樂。為感謝您長期以來的支持，特別為您準備一份專屬生日禮，敬請於效期內攜此訊息至店內兌換。', expiryDays:30, eligibleServices:[] };
 }
 function loadBirthdaySettings(){
   try{ const raw = localStorage.getItem(BIRTHDAY_STORAGE_KEY); return raw ? Object.assign(defaultBirthdaySettings(), JSON.parse(raw)) : defaultBirthdaySettings(); }
@@ -2954,12 +3002,14 @@ function renderMembershipView(){
 }
 
 /* -- Tab A: membership tiers -- */
+const TIER_BADGE_CLASSES = ['member-tier-silver','member-tier-gold','member-tier-black'];
 function renderTiersTab(){
   const m = membershipDraft.membership;
   const tiersHtml = m.tiers.map((t,i)=>`
     <div class="tier-card">
+      <div class="tier-badge-preview"><span class="member-tier-badge ${TIER_BADGE_CLASSES[i%TIER_BADGE_CLASSES.length]}">${escapeHtml(t.label||'等級')}</span></div>
       <div class="form-row">
-        <div class="form-field"><label>等級名稱</label><input value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value"></div>
+        <div class="form-field"><label>等級名稱</label><input value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value; this.closest('.tier-card').querySelector('.member-tier-badge').textContent=this.value;"></div>
         <div class="form-field"><label>升級門檻（累積消費 NT$）</label><input type="number" min="0" value="${escapeHtml(t.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
       </div>
       <div class="form-field"><label>專屬福利</label><input value="${escapeHtml(t.perks||'')}" oninput="membershipDraft.membership.tiers[${i}].perks=this.value"></div>
@@ -3091,7 +3141,8 @@ function renderBirthdayTab(){
     <label>適用服務</label>
     <div class="chip-select">${chips}</div>
   </div>
-  <div class="form-actions">
+  <div class="form-actions" style="justify-content:space-between;">
+    <button class="btn-ghost btn" onclick="copyBirthdayMessage()">📋 一鍵複製生日禮簡訊/訊息</button>
     <button class="btn" onclick="saveBirthdayTab()">儲存設定</button>
   </div>`;
 }
@@ -3104,6 +3155,13 @@ function toggleBirthdayService(s){
 function saveBirthdayTab(){
   saveBirthdaySettingsObj(membershipDraft.birthday);
   showToast('已儲存生日禮設定');
+}
+function copyBirthdayMessage(){
+  const b = membershipDraft.birthday;
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + (Number(b.expiryDays)||30));
+  const msg = substituteVars(b.content, {'[客戶姓名]':'小美'}) + `（使用期限至 ${expiry.toISOString().slice(0,10)}）`;
+  copyAndOpenLine(msg);
 }
 
 /* ============ Init ============ */
