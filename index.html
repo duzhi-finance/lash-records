@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-title" content="EYELASH">
 <meta name="theme-color" content="#AD8843">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Serif+TC:wght@600;700&family=Montserrat:wght@700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Serif+TC:wght@600;700&family=Montserrat:wght@700;800&family=Noto+Sans+TC:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 :root{
-  --font-sans: ui-rounded, "Noto Sans TC", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
   --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, 'Times New Roman', serif;
   --paper:#FFFFFF;
   --paper-deep:#FAFAFA;
@@ -51,7 +51,10 @@
   --sage-bg:#FBF7EE;
   --radius-card:12px;
   --radius-pill:999px;
-  --radius-ui:8px;
+  --radius-ui:12px;
+  --input-border:#E2E8F0;
+  --input-text:#2D3748;
+  --input-placeholder:#A0AEC0;
 }
 
 *{box-sizing:border-box;}
@@ -73,7 +76,8 @@ h1,h2,h3{
   margin:0;
 }
 button{font-family:var(--font-sans);cursor:pointer;}
-input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;letter-spacing:0.02em;}
+input,select,textarea{font-family:var(--font-sans);font-size:14.5px;line-height:1.6;color:var(--input-text);letter-spacing:0.5px;}
+input::placeholder,textarea::placeholder{color:var(--input-placeholder);}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
@@ -141,16 +145,27 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;
 /* ---------- Top bar action group ---------- */
 .topbar-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
 .icon-btn-group{display:flex;gap:8px;flex-wrap:wrap;padding-right:12px;border-right:1px solid var(--blush-line);}
-.icon-btn-group--footer{justify-content:center;border-right:none;padding-right:0;margin-bottom:18px;}
-.icon-btn{
-  height:38px;border-radius:var(--radius-pill);flex-shrink:0;
-  background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
-  display:flex;align-items:center;gap:7px;padding:0 13px;
+.icon-btn-group--footer{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  justify-content:center;border-right:none;padding-right:0;margin-bottom:14px;
 }
-.icon-btn .icon-btn-glyph{font-size:15px;line-height:1;}
-.icon-btn .icon-btn-label{display:flex;flex-direction:column;line-height:1.2;text-align:left;}
-.icon-btn .icon-btn-label .zh{font-size:12.5px;color:var(--ink);}
-.icon-btn .icon-btn-label .en{font-size:8.5px;letter-spacing:0.5px;color:var(--ink-faint);}
+@media (max-width:480px){.icon-btn-group--footer{grid-template-columns:repeat(2,1fr);}}
+.icon-btn{
+  flex-shrink:0;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FAF8F3 100%);
+  border:1px solid var(--blush-line);color:var(--ink-soft);border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:16px 10px 14px;
+  box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 6px 18px rgba(43,41,38,0.045);
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.icon-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(43,41,38,0.08);border-color:var(--mocha);}
+.icon-btn:active{transform:translateY(0);}
+.icon-btn .icon-btn-glyph{width:20px;height:20px;color:var(--mocha-deep);line-height:1;}
+.icon-btn .icon-btn-glyph svg{width:100%;height:100%;display:block;}
+.icon-btn .icon-btn-label{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;line-height:1.3;}
+.icon-btn .icon-btn-label .zh{font-size:12px;color:var(--ink);font-weight:600;letter-spacing:0.08em;}
+.icon-btn .icon-btn-label .en{font-size:8px;letter-spacing:1.2px;color:var(--ink-faint);text-transform:uppercase;}
 .icon-btn:hover{background:var(--sage-bg);border-color:var(--mocha);}
 
 /* ---------- List footer notice ---------- */
@@ -345,8 +360,9 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;
   font-family:var(--font-serif);font-size:13.5px;font-weight:700;color:var(--mocha-deep);
   letter-spacing:0.16em;text-transform:uppercase;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--blush-line);
 }
+.status-field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
 .status-field{
-  margin-bottom:10px;padding:15px 16px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
+  margin-bottom:0;padding:15px 16px;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
   background:#fff;transition:box-shadow .15s ease, border-color .15s ease;
 }
 .status-field:hover{box-shadow:0 3px 10px rgba(43,41,38,0.045);border-color:#DCD6CC;}
@@ -366,12 +382,12 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;
 .tri-toggle button.active-unknown,
 .tri-toggle button.active{background:var(--ink);color:#fff;}
 .status-field input[type="text"], .status-field input[type="date"]{
-  width:100%;padding:9px 11px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
-  background:#fff;font-size:13.5px;color:#4A4A4A;letter-spacing:0.01em;
+  width:100%;padding:9px 11px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
+  background:#fff;font-size:13.5px;color:var(--input-text);letter-spacing:0.5px;
 }
 .status-note{
-  margin-top:9px;width:100%;padding:8px 10px;border:1px solid #EAEAEA;
-  border-radius:var(--radius-ui);background:#fff;font-size:13px;color:#4A4A4A;resize:vertical;min-height:38px;
+  margin-top:9px;width:100%;padding:8px 10px;border:1px solid var(--input-border);
+  border-radius:var(--radius-ui);background:#fff;font-size:13px;color:var(--input-text);resize:vertical;min-height:38px;
 }
 .status-footer{
   display:flex;align-items:center;justify-content:space-between;margin-top:18px;
@@ -445,6 +461,43 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;
 .record-detail-item span{font-size:13.5px;color:var(--ink);letter-spacing:0.01em;}
 .record-notes{font-size:13px;color:var(--ink-soft);margin-top:8px;white-space:pre-wrap;}
 
+/* Before/After photo comparison */
+.photo-compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:480px){.photo-compare-grid{grid-template-columns:1fr;}}
+.photo-slot-label{font-size:12px;font-weight:600;color:var(--mocha-deep);letter-spacing:0.04em;margin-bottom:8px;}
+.photo-dropzone{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  border:1.5px dashed #CBD5E1;border-radius:var(--radius-ui);
+  padding:24px 12px;cursor:pointer;background:#FAFBFC;transition:border-color .15s ease, background .15s ease;
+}
+.photo-dropzone:hover{border-color:var(--mocha);background:var(--sage-bg);}
+.photo-dropzone-icon{width:26px;height:26px;color:#94A3B8;}
+.photo-dropzone-icon svg{width:100%;height:100%;}
+.photo-dropzone-text{font-size:12px;color:#94A3B8;letter-spacing:0.02em;}
+.photo-url-row{display:flex;gap:6px;margin-top:8px;}
+.photo-url-row input{flex:1;padding:7px 10px;border:1px solid var(--input-border);border-radius:var(--radius-ui);font-size:12.5px;}
+.photo-url-row button{
+  background:#fff;border:1px solid var(--blush-line);color:var(--ink-soft);
+  padding:0 14px;border-radius:var(--radius-ui);font-size:12.5px;font-weight:600;
+}
+.photo-url-row button:hover{border-color:var(--mocha);color:var(--mocha-deep);}
+.photo-preview-wrap{position:relative;border-radius:var(--radius-ui);overflow:hidden;}
+.photo-preview{display:block;width:100%;height:160px;object-fit:cover;border-radius:var(--radius-ui);cursor:zoom-in;}
+.photo-remove-btn{
+  position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;
+  background:rgba(43,41,38,0.65);color:#fff;border:none;font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+.photo-remove-btn:hover{background:rgba(43,41,38,0.9);}
+.lightbox-overlay{background:rgba(20,18,16,0.85);}
+.lightbox-img{max-width:92vw;max-height:88vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.4);display:block;}
+.lightbox-close{
+  position:absolute;top:20px;right:24px;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.lightbox-close:hover{background:rgba(255,255,255,0.28);}
+
 /* Eye segment diagram: a lash-line arc with 3 marker lines (left/mid/right, mid longest)
    for recording extension length per segment */
 .eye-diagrams{display:flex;gap:16px;margin-bottom:6px;flex-wrap:wrap;}
@@ -486,8 +539,8 @@ input,select,textarea{font-family:var(--font-sans);font-size:14px;color:#4A4A4A;
   letter-spacing:0.1px;
 }
 .form-field input, .form-field select, .form-field textarea{
-  width:100%;padding:9px 11px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;transition:border-color .15s ease;
+  width:100%;padding:9px 11px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;transition:border-color .15s ease;
   font-family:var(--font-sans);
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{border-color:var(--mocha);}
@@ -566,13 +619,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .modal-field{margin-bottom:14px;}
 .modal-field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
 .modal-field input, .modal-field select{
-  width:100%;padding:9px 12px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;transition:border-color .15s ease;
+  width:100%;padding:9px 12px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;transition:border-color .15s ease;
 }
 .modal-field input:focus, .modal-field select:focus{border-color:var(--mocha);}
 .modal-field textarea{
-  width:100%;padding:9px 12px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:#4A4A4A;letter-spacing:0.01em;font-family:var(--font-sans);
+  width:100%;padding:9px 12px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;font-family:var(--font-sans);
   resize:vertical;min-height:60px;
 }
 .modal-field textarea:focus{border-color:var(--mocha);}
@@ -602,18 +655,23 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 }
 .var-tag:hover{background:var(--blush);}
 .settings-nav-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.notif-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;align-items:start;}
+@media (max-width:760px){.notif-grid{grid-template-columns:1fr;}}
+.settings-block--grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 32px;align-items:start;}
+@media (max-width:600px){.settings-block--grid{grid-template-columns:1fr;}}
 .settings-tabs{
-  display:flex;flex-wrap:wrap;gap:4px;margin-bottom:24px;
-  background:#F3F0EA;border-radius:var(--radius-pill);padding:5px;
+  display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;
 }
 .settings-tab-btn{
-  flex:1 1 auto;
-  background:transparent;border:none;color:#8A8478;
-  padding:10px 16px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;letter-spacing:0.07em;
-  white-space:nowrap;transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+  background:#fff;border:1px solid var(--blush-line);color:#8A8478;
+  padding:10px 20px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;letter-spacing:0.07em;
+  white-space:nowrap;transition:background .2s ease, color .2s ease, box-shadow .2s ease, border-color .2s ease, transform .15s ease;
 }
-.settings-tab-btn:hover{color:var(--mocha-deep);}
-.settings-tab-btn.active{background:#2E2C28;color:#F3EEE3;box-shadow:0 3px 10px rgba(43,41,38,0.18);}
+.settings-tab-btn:hover{color:var(--mocha-deep);border-color:var(--mocha);transform:translateY(-1px);}
+.settings-tab-btn.active{
+  background:#2E2C28;color:#F3EEE3;border-color:#2E2C28;
+  box-shadow:0 4px 14px rgba(43,41,38,0.18);
+}
 .settings-block{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:20px 22px;margin-bottom:18px;
@@ -625,7 +683,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .settings-row-hint{font-size:11.5px;color:var(--ink-faint);margin-top:3px;letter-spacing:0.02em;}
 .settings-row-input{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .settings-row-input input[type="number"], .settings-row-input input[type="text"], .settings-row-input input[type="time"]{
-  width:90px;padding:7px 9px;border:1px solid #EAEAEA;border-radius:var(--radius-ui);font-size:13.5px;color:#4A4A4A;text-align:right;
+  width:90px;padding:7px 9px;border:1px solid var(--input-border);border-radius:var(--radius-ui);font-size:13.5px;color:var(--input-text);text-align:right;
 }
 .coupon-card, .points-card, .tier-card{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
@@ -776,6 +834,21 @@ function dateFieldIcon(kind){
   return `<svg class="date-field-icon" viewBox="0 0 24 24" fill="none" stroke="#A97C6C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
 }
 
+/* Minimal feather-style line icons for the footer nav cards — drawn inline (no icon-font
+   dependency) so the site keeps working offline and doesn't depend on a third-party CDN. */
+const NAV_ICON_PATHS = {
+  calendar: `<rect x='3' y='4.5' width='18' height='16' rx='2.5'/><line x1='3' y1='9.5' x2='21' y2='9.5'/><line x1='8' y1='2.5' x2='8' y2='6.5'/><line x1='16' y1='2.5' x2='16' y2='6.5'/>`,
+  download: `<path d='M12 3v12'/><polyline points='7 10 12 15 17 10'/><path d='M4 18v1.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V18'/>`,
+  upload: `<path d='M12 21V9'/><polyline points='7 14 12 9 17 14'/><path d='M4 18v1.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V18'/>`,
+  bell: `<path d='M6 9.5a6 6 0 0 1 12 0c0 4.5 1.5 6 2 6.5H4c0.5-0.5 2-2 2-6.5Z'/><path d='M10 19a2 2 0 0 0 4 0'/>`,
+  clipboardList: `<rect x='5' y='4' width='14' height='17' rx='2'/><path d='M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z'/><line x1='8.5' y1='11' x2='15.5' y2='11'/><line x1='8.5' y1='14.5' x2='15.5' y2='14.5'/><line x1='8.5' y1='18' x2='12.5' y2='18'/>`,
+  gift: `<rect x='3.5' y='9.5' width='17' height='11' rx='1.5'/><path d='M3.5 9.5h17V13h-17Z'/><line x1='12' y1='9.5' x2='12' y2='20.5'/><path d='M12 9.5c-1.2 0-4-0.4-4-3a2.2 2.2 0 0 1 4-1.3'/><path d='M12 9.5c1.2 0 4-0.4 4-3a2.2 2.2 0 0 0-4-1.3'/>`,
+  camera: `<path d='M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5Z'/><circle cx='12' cy='12.5' r='3.4'/>`,
+};
+function navIconSvg(name){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAV_ICON_PATHS[name]||''}</svg>`;
+}
+
 /* ============ Backup: export / import ============ */
 function exportBackup(){
   const payload = {
@@ -858,6 +931,10 @@ const APPT_STATUSES = ['confirmed','completed','cancelled','noshow'];
 const APPT_STATUS_LABELS = {confirmed:'已確認', completed:'已完成', cancelled:'已取消', noshow:'未到'};
 
 const STATUS_FIELDS = [
+  {key:'eyeShape', label:'眼型與眼部特徵', type:'chips', options:['單眼皮','雙眼皮','內雙','泡泡眼','垂眼','鳳眼']},
+  {key:'lashLookPreference', label:'偏好妝感／睫毛風格', type:'chips', options:['自然裸妝','濃密款','泰妝','貓眼','漫畫款']},
+  {key:'preferredCurl', label:'偏好翹度', type:'chips', options:['J','B','C','CC','D','DD']},
+  {key:'preferredLength', label:'偏好長度', type:'text', placeholder:'例如：8-11mm'},
   {key:'isFirstTime', label:'是否第一次接睫毛', tri:true},
   {key:'lastLashDate', label:'上次接睫毛日期', type:'date'},
   {key:'keratin3Months', label:'近三個月是否操作角蛋白', tri:true},
@@ -883,6 +960,7 @@ const STATUS_FIELDS = [
   {key:'faceWashHabit', label:'洗臉習慣', type:'chips', options:['毛巾','潑水式','淋浴沖洗','洗臉海綿','洗臉刷機']},
 ];
 const STATUS_FIELD_GROUPS = [
+  {title:'眼型與喜好偏好', keys:['eyeShape','lashLookPreference','preferredCurl','preferredLength']},
   {title:'睫毛使用紀錄', keys:['isFirstTime','lastLashDate','keratin3Months','keratinFrequency','frequency','hasOldLashesToRemove']},
   {title:'眼部健康狀況', keys:['allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort','specialEyeCondition','eyeSurgeryHistory','isPregnant']},
   {title:'生活習慣', keys:['wearsContacts','wearsGlasses','rubsEyesOften','sleepPosition','oilyEyelids']},
@@ -916,6 +994,7 @@ function blankStatus(){
 
 const TECHNIQUES = ['單根','歐美','3D','4D','6D','Y Y','其他'];
 const SERVICE_ITEMS = ['全新嫁接','補睫','卸睫','其他'];
+const GLUE_BRANDS = ['黑霸','極速黑膠','低敏黑膠','其他'];
 const CONTRAINDICATION_PRESETS = ['眼睛敏感','過敏體質','隱形眼鏡配戴者','睫毛膠過敏','乾眼症','蟹足腫體質','懷孕／哺乳中'];
 
 /* ---- Custom style presets (persisted separately from client data) ---- */
@@ -979,6 +1058,9 @@ function render(){
   }
   if(pendingConfirm){
     document.body.insertAdjacentHTML('beforeend', renderConfirmModal());
+  }
+  if(lightboxImageUrl){
+    document.body.insertAdjacentHTML('beforeend', renderLightboxModal());
   }
   if(searchHadFocus){
     const newSearchInput = document.querySelector('.search-input');
@@ -1063,29 +1145,27 @@ function renderListView(){
     <div class="list-footer">
       <div class="icon-btn-group icon-btn-group--footer">
         <button class="icon-btn" onclick="openCalendar()">
-          <span class="icon-btn-glyph">📅</span>
+          <span class="icon-btn-glyph">${navIconSvg('calendar')}</span>
           <span class="icon-btn-label"><span class="zh">行事曆</span><span class="en">CALENDAR</span></span>
         </button>
         <button class="icon-btn" onclick="exportBackup()">
-          <span class="icon-btn-glyph">⭳</span>
+          <span class="icon-btn-glyph">${navIconSvg('download')}</span>
           <span class="icon-btn-label"><span class="zh">匯出備份</span><span class="en">EXPORT</span></span>
         </button>
         <button class="icon-btn" onclick="triggerImport()">
-          <span class="icon-btn-glyph">⭱</span>
+          <span class="icon-btn-glyph">${navIconSvg('upload')}</span>
           <span class="icon-btn-label"><span class="zh">匯入備份</span><span class="en">IMPORT</span></span>
         </button>
-      </div>
-      <div class="icon-btn-group icon-btn-group--footer" style="margin-top:8px;">
         <button class="icon-btn" onclick="openNotifications()">
-          <span class="icon-btn-glyph">🔔</span>
+          <span class="icon-btn-glyph">${navIconSvg('bell')}</span>
           <span class="icon-btn-label"><span class="zh">自動通知</span><span class="en">NOTIFY</span></span>
         </button>
         <button class="icon-btn" onclick="openBookingRules()">
-          <span class="icon-btn-glyph">📋</span>
+          <span class="icon-btn-glyph">${navIconSvg('clipboardList')}</span>
           <span class="icon-btn-label"><span class="zh">預約規則</span><span class="en">RULES</span></span>
         </button>
         <button class="icon-btn" onclick="openMembership()">
-          <span class="icon-btn-glyph">🎁</span>
+          <span class="icon-btn-glyph">${navIconSvg('gift')}</span>
           <span class="icon-btn-label"><span class="zh">會員與行銷</span><span class="en">MEMBERS</span></span>
         </button>
       </div>
@@ -1580,6 +1660,84 @@ function removeAvatarDraft(){
   editClientDraft.avatarDataUrl = '';
   render();
 }
+
+/* ---- Before/After service photos ----
+   Kept deliberately tiny in localStorage: a locally-uploaded photo is downscaled on a
+   canvas to a max width of 400px and re-encoded as JPEG at quality 0.6 (a phone photo of
+   several MB becomes well under 30KB) before it's ever stored. Pasting an image URL costs
+   0 bytes of local storage since only the link itself is kept. */
+function onPhotoFileChange(evt, slot){
+  const file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 400;
+      const scale = Math.min(1, maxW/img.width);
+      const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      newRecordDraft[slot+'Photo'] = {type:'data', value: canvas.toDataURL('image/jpeg', 0.6)};
+      render();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  evt.target.value = '';
+}
+function setPhotoUrlFromInput(slot){
+  const input = document.getElementById(`photo-url-${slot}`);
+  const val = (input && input.value || '').trim();
+  if(!val) return;
+  newRecordDraft[slot+'Photo'] = {type:'url', value: val};
+  render();
+}
+function removePhoto(slot){
+  newRecordDraft[slot+'Photo'] = null;
+  render();
+}
+let lightboxImageUrl = null;
+function openLightbox(url){
+  lightboxImageUrl = url;
+  render();
+}
+function closeLightbox(){
+  lightboxImageUrl = null;
+  render();
+}
+function renderLightboxModal(){
+  return `<div class="modal-overlay lightbox-overlay" onclick="if(event.target===this) closeLightbox()">
+    <img class="lightbox-img" src="${lightboxImageUrl}" alt="照片預覽">
+    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="關閉">✕</button>
+  </div>`;
+}
+function renderPhotoSlotHtml(d, slot, label){
+  const photo = d[slot+'Photo'];
+  if(photo && photo.value){
+    const safeUrl = escapeHtml(photo.value).replace(/'/g,"&#39;");
+    return `<div class="photo-slot">
+      <div class="photo-slot-label">${label}</div>
+      <div class="photo-preview-wrap">
+        <img class="photo-preview" src="${escapeHtml(photo.value)}" alt="${label}" onclick="openLightbox('${safeUrl}')">
+        <button type="button" class="photo-remove-btn" onclick="event.stopPropagation(); removePhoto('${slot}')" title="移除照片">✕</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="photo-slot">
+    <div class="photo-slot-label">${label}</div>
+    <label class="photo-dropzone">
+      <input type="file" accept="image/*" style="display:none" onchange="onPhotoFileChange(event,'${slot}')">
+      <span class="photo-dropzone-icon">${navIconSvg('camera')}</span>
+      <span class="photo-dropzone-text">點擊上傳照片</span>
+    </label>
+    <div class="photo-url-row">
+      <input type="text" id="photo-url-${slot}" placeholder="或貼上圖片網址">
+      <button type="button" onclick="setPhotoUrlFromInput('${slot}')">使用</button>
+    </div>
+  </div>`;
+}
 function avatarHtml(client, size){
   size = size||44;
   if(client.avatarDataUrl){
@@ -1657,7 +1815,7 @@ function renderClientModal(){
       </div>
       <div class="modal-field">
         <label>客製化備註（選填）</label>
-        <textarea id="modal-notes" placeholder="例如：偏好自然款、對某成分過敏、聊天喜好…">${escapeHtml(d.notes||'')}</textarea>
+        <textarea id="modal-notes" placeholder="例如：喜好茶飲、偏好安靜／聊天、對某成分過敏…">${escapeHtml(d.notes||'')}</textarea>
       </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
       <div class="modal-actions">
@@ -1964,7 +2122,7 @@ function renderStatusFieldsGrouped(allowedKeys){
     }).join('');
     return `<div class="status-group">
       <div class="status-group-title">${g.title}</div>
-      ${fieldsHtml}
+      <div class="status-field-grid">${fieldsHtml}</div>
     </div>`;
   }).join('');
 }
@@ -2255,7 +2413,8 @@ function blankRecordDraft(clientId){
     couponId:'', couponLabel:'', discountAmount:'',
     lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
-    lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'',
+    lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
+    beforePhoto:null, afterPhoto:null,
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
   };
 }
@@ -2269,6 +2428,8 @@ function recordDraftFromLast(clientId, last){
     style: last.style||'', length: last.length||'', curl: last.curl||'', thickness: last.thickness||'',
     countLeft: last.countLeft||'', countRight: last.countRight||'',
     lowerLength: last.lowerLength||'', lowerCurl: last.lowerCurl||'', lowerCount: last.lowerCount||'', lowerNote: last.lowerNote||'',
+    glueBrand: last.glueBrand||'', glueBrandOther: last.glueBrandOther||'',
+    beforePhoto:null, afterPhoto:null,
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
   };
@@ -2342,7 +2503,12 @@ function renderRecordCard(r){
         <div class="record-detail-item"><label>下睫毛翹度</label><span>${escapeHtml(r.lowerCurl||'—')}</span></div>
         <div class="record-detail-item"><label>下睫毛根數</label><span>${escapeHtml(r.lowerCount||'—')}</span></div>
         <div class="record-detail-item"><label>下睫毛備註</label><span>${escapeHtml(r.lowerNote||'—')}</span></div>`:''}
+        ${r.glueBrand?`<div class="record-detail-item"><label>使用膠水</label><span>${escapeHtml(r.glueBrand==='其他'?(r.glueBrandOther||'其他'):r.glueBrand)}</span></div>`:''}
       </div>
+      ${(r.beforePhoto&&r.beforePhoto.value)||(r.afterPhoto&&r.afterPhoto.value)?`<div class="photo-compare-grid" style="margin-top:12px;">
+        ${r.beforePhoto&&r.beforePhoto.value?`<div class="photo-slot"><div class="photo-slot-label">📷 術前 Before</div><div class="photo-preview-wrap"><img class="photo-preview" src="${escapeHtml(r.beforePhoto.value)}" alt="術前" onclick="openLightbox('${escapeHtml(r.beforePhoto.value).replace(/'/g,"&#39;")}')"></div></div>`:''}
+        ${r.afterPhoto&&r.afterPhoto.value?`<div class="photo-slot"><div class="photo-slot-label">📷 術後 After</div><div class="photo-preview-wrap"><img class="photo-preview" src="${escapeHtml(r.afterPhoto.value)}" alt="術後" onclick="openLightbox('${escapeHtml(r.afterPhoto.value).replace(/'/g,"&#39;")}')"></div></div>`:''}
+      </div>`:''}
       ${r.designNotes?`<div class="record-notes"><strong>眼型設計：</strong>${escapeHtml(r.designNotes)}</div>`:''}
       ${r.adjustmentNotes?`<div class="record-notes"><strong>本次調整：</strong>${escapeHtml(r.adjustmentNotes)}</div>`:''}
       ${r.notes?`<div class="record-notes"><strong>備註：</strong>${escapeHtml(r.notes)}</div>`:''}
@@ -2412,6 +2578,8 @@ function startEditRecord(clientId, recordId){
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
     countLeft: r.countLeft||'', countRight: r.countRight||'',
     lowerLength: r.lowerLength||'', lowerCurl: r.lowerCurl||'', lowerCount: r.lowerCount||'', lowerNote: r.lowerNote||'',
+    glueBrand: r.glueBrand||'', glueBrandOther: r.glueBrandOther||'',
+    beforePhoto: r.beforePhoto||null, afterPhoto: r.afterPhoto||null,
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
     designNotes: r.designNotes||'', adjustmentNotes: r.adjustmentNotes||'', notes: r.notes||'',
   };
@@ -2610,6 +2778,17 @@ function renderNewRecordPanel(){
         </div>
       </div>
     </div>
+    <div class="form-row" style="margin-bottom:12px;">
+      <div class="form-field"><label>當次使用膠水品牌/型號</label>
+        <select onchange="onGlueBrandChange(this.value)">
+          <option value="">請選擇</option>
+          ${GLUE_BRANDS.map(g=>`<option value="${g}" ${d.glueBrand===g?'selected':''}>${g}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-field" id="glue-brand-other-wrap" ${d.glueBrand==='其他'?'':'hidden'}><label>膠水品牌說明</label>
+        <input type="text" value="${escapeHtml(d.glueBrandOther||'')}" placeholder="請輸入膠水品牌/型號" oninput="newRecordDraft.glueBrandOther=this.value">
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-field"><label>技術</label>
         <select onchange="onTechniqueChange(this.value)">
@@ -2619,6 +2798,13 @@ function renderNewRecordPanel(){
       <div class="form-field" id="technique-other-wrap" ${d.technique==='其他'?'':'hidden'}>
         <label>技術說明</label>
         <input type="text" value="${escapeHtml(d.techniqueOther)}" placeholder="請輸入技術名稱" oninput="newRecordDraft.techniqueOther=this.value">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px;">
+      <label>照片對比（術前 / 術後，選填）</label>
+      <div class="photo-compare-grid">
+        ${renderPhotoSlotHtml(d, 'before', '📷 術前 Before')}
+        ${renderPhotoSlotHtml(d, 'after', '📷 術後 After')}
       </div>
     </div>
     <div class="form-field" style="margin-bottom:4px;">
@@ -2631,6 +2817,11 @@ function renderNewRecordPanel(){
       <button class="btn" onclick="saveNewRecord()">${d.id?'更新紀錄':'儲存紀錄'}</button>
     </div>
   </div>`;
+}
+function onGlueBrandChange(val){
+  newRecordDraft.glueBrand = val;
+  const wrap = document.getElementById('glue-brand-other-wrap');
+  if(wrap) wrap.hidden = val!=='其他';
 }
 function onTechniqueChange(val){
   newRecordDraft.technique = val;
@@ -2678,6 +2869,8 @@ async function saveNewRecord(){
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
     countLeft: d.countLeft||'', countRight: d.countRight||'',
     lowerLength: d.lowerLength||'', lowerCurl: d.lowerCurl||'', lowerCount: d.lowerCount||'', lowerNote: d.lowerNote||'',
+    glueBrand: d.glueBrand||'', glueBrandOther: d.glueBrandOther||'',
+    beforePhoto: d.beforePhoto||null, afterPhoto: d.afterPhoto||null,
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
   };
@@ -2726,7 +2919,7 @@ function renderNotificationTemplateCard(key, t){
       <label>發送時間</label>
       <input type="time" id="notif-${key}-time" value="${escapeHtml(t.sendTime||'18:00')}">
     </div>` : '';
-  return `<div class="panel notif-card" style="margin-bottom:16px;">
+  return `<div class="panel notif-card">
     <div class="panel-title">
       <h2>${escapeHtml(t.label)}</h2>
       <label class="toggle-switch">
@@ -2765,7 +2958,7 @@ function renderNotificationsView(){
         <input id="notif-studio-address" value="${escapeHtml(s.studioAddress||'')}" placeholder="例如：台北市○○區○○路000號">
       </div>
     </div>
-    ${cardsHtml}
+    <div class="notif-grid">${cardsHtml}</div>
     <div class="form-actions">
       <button class="btn" onclick="saveNotificationSettingsFromForm()">儲存設定</button>
     </div>
@@ -2874,7 +3067,7 @@ function renderBookingRulesView(){
       <div class="client-card-top"><h1>預約規則</h1></div>
       <p class="field-hint" style="margin-top:2px;">設定你的預約規則後，可以一鍵複製成一段文字傳給客人，讓大家清楚知道預約與取消的規範。</p>
     </div>
-    <div class="settings-block">
+    <div class="settings-block settings-block--grid">
       <div class="settings-row">
         <div><div class="settings-row-label">最早可提前預約天數</div></div>
         <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.maxAdvanceDays)}" oninput="setBookingRuleVal('maxAdvanceDays', this.value)"> 天</div>
