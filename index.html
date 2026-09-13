@@ -27,10 +27,10 @@
 <meta name="apple-mobile-web-app-title" content="EYELASH">
 <meta name="theme-color" content="#AD8843">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Serif+TC:wght@600;700&family=Montserrat:wght@700;800&family=Noto+Sans+TC:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Montserrat:wght@700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Cormorant Garamond', 'Cinzel', 'Songti TC', 'Noto Serif TC', 'PMingLiU', Georgia, serif;
+  --font-sans: var(--font-serif);
   --paper:#FFFFFF;
   --paper-deep:#FAFAFA;
   --ink:#2B2B2B;
@@ -53,7 +53,7 @@
   --radius-pill:999px;
   --radius-ui:12px;
   --input-border:#E2E8F0;
-  --input-text:#2D3748;
+  --input-text:#333333;
   --input-placeholder:#A0AEC0;
 }
 
@@ -76,8 +76,8 @@ h1,h2,h3{
   margin:0;
 }
 button{font-family:var(--font-sans);cursor:pointer;}
-input,select,textarea{font-family:var(--font-sans);font-size:14.5px;line-height:1.6;color:var(--input-text);letter-spacing:0.5px;}
-input::placeholder,textarea::placeholder{color:var(--input-placeholder);}
+input,select,textarea{font-family:var(--font-sans);font-size:14.5px;line-height:1.6;color:var(--input-text);letter-spacing:0.8px;}
+input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-spacing:0.8px;}
 :focus-visible{outline:2px solid var(--mocha-deep);outline-offset:2px;}
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
@@ -383,7 +383,7 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);}
 .tri-toggle button.active{background:var(--ink);color:#fff;}
 .status-field input[type="text"], .status-field input[type="date"]{
   width:100%;padding:9px 11px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
-  background:#fff;font-size:13.5px;color:var(--input-text);letter-spacing:0.5px;
+  background:#fff;font-size:13.5px;color:var(--input-text);letter-spacing:0.8px;
 }
 .status-note{
   margin-top:9px;width:100%;padding:8px 10px;border:1px solid var(--input-border);
@@ -540,7 +540,7 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);}
 }
 .form-field input, .form-field select, .form-field textarea{
   width:100%;padding:9px 11px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;transition:border-color .15s ease;
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.8px;transition:border-color .15s ease;
   font-family:var(--font-sans);
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{border-color:var(--mocha);}
@@ -620,12 +620,12 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .modal-field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
 .modal-field input, .modal-field select{
   width:100%;padding:9px 12px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;transition:border-color .15s ease;
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.8px;transition:border-color .15s ease;
 }
 .modal-field input:focus, .modal-field select:focus{border-color:var(--mocha);}
 .modal-field textarea{
   width:100%;padding:9px 12px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
-  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.5px;font-family:var(--font-sans);
+  background:#fff;font-size:14px;color:var(--input-text);letter-spacing:0.8px;font-family:var(--font-sans);
   resize:vertical;min-height:60px;
 }
 .modal-field textarea:focus{border-color:var(--mocha);}
@@ -690,6 +690,52 @@ input[type="time"]::-webkit-calendar-picker-indicator{
   padding:20px 22px;margin-bottom:16px;
   box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 8px 22px rgba(43,41,38,0.03);
 }
+.tier-card--row{
+  display:flex;align-items:center;gap:24px;padding:18px 22px;
+  border:1px solid #EAEAEA;
+}
+.tier-col{display:flex;flex-direction:column;gap:6px;}
+.tier-col label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);}
+.tier-col-badge{flex:0 0 auto;align-items:flex-start;gap:8px;}
+.tier-name-input{border:none;background:transparent;padding:0;font-size:13px;color:var(--ink-soft);width:120px;}
+.tier-name-input:focus{outline:none;border-bottom:1px solid var(--mocha);}
+.tier-col-threshold{flex:0 0 auto;}
+.tier-threshold-input{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);}
+.tier-threshold-input input{width:90px;padding:7px 9px;border:1px solid var(--input-border);border-radius:var(--radius-ui);}
+.tier-col-perks{flex:1;min-width:0;}
+.tier-col-perks input{width:100%;padding:8px 11px;border:1px solid var(--input-border);border-radius:var(--radius-ui);}
+.tier-remove-btn{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;background:#fff;
+  border:1px solid var(--blush-line);color:var(--ink-faint);font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+.tier-remove-btn:hover{border-color:var(--alert);color:var(--alert);}
+@media (max-width:700px){
+  .tier-card--row{flex-wrap:wrap;}
+  .tier-col-perks{flex:1 1 100%;}
+}
+.birthday-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:20px;margin-bottom:18px;align-items:start;}
+@media (max-width:700px){.birthday-grid{grid-template-columns:1fr;}}
+.birthday-message-card{
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:20px 22px;box-shadow:0 1px 2px rgba(43,41,38,0.03), 0 8px 22px rgba(43,41,38,0.03);
+}
+.birthday-message-card-title{font-family:var(--font-serif);font-size:14px;font-weight:600;color:var(--mocha-deep);letter-spacing:0.06em;margin-bottom:10px;}
+.birthday-message-card textarea{width:100%;min-height:120px;}
+.points-rate-row{
+  display:flex;align-items:baseline;justify-content:center;gap:10px;
+  background:var(--paper-deep);border-radius:var(--radius-card);
+  padding:24px;margin-bottom:20px;
+  font-family:var(--font-serif);font-size:16px;color:var(--ink);letter-spacing:0.04em;
+}
+.points-rate-currency{color:var(--ink-faint);font-size:13px;}
+.points-rate-row input{
+  width:80px;text-align:center;padding:8px;border:1px solid var(--input-border);
+  border-radius:var(--radius-ui);font-size:18px;color:var(--mocha-deep);font-weight:600;
+}
+.points-redemptions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
+.points-card--grid{position:relative;margin-bottom:0;padding-right:44px;}
+.points-card-remove{position:absolute;top:16px;right:16px;}
 .coupon-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
 .coupon-card-name{font-family:var(--font-serif);font-weight:700;font-size:17px;letter-spacing:0.02em;}
 .blocked-slot-pill{
@@ -932,7 +978,9 @@ const APPT_STATUS_LABELS = {confirmed:'已確認', completed:'已完成', cancel
 
 const STATUS_FIELDS = [
   {key:'eyeShape', label:'眼型與眼部特徵', type:'chips', options:['單眼皮','雙眼皮','內雙','泡泡眼','垂眼','鳳眼']},
-  {key:'lashLookPreference', label:'偏好妝感／睫毛風格', type:'chips', options:['自然裸妝','濃密款','泰妝','貓眼','漫畫款']},
+  {key:'eyeSensitivityLevel', label:'眼部敏感度', type:'chips', options:['極度敏感','易流淚','剛做過眼部手術','無過敏史']},
+  {key:'lifestyleTags', label:'生活習慣', type:'chips', options:['配戴隱形眼鏡','習慣側睡','常擦眼霜','眼皮易出油']},
+  {key:'lashLookPreference', label:'偏好妝感／睫毛風格', type:'chips', options:['自然裸妝','濃密款','漫畫款','泰妝','貓眼設計']},
   {key:'preferredCurl', label:'偏好翹度', type:'chips', options:['J','B','C','CC','D','DD']},
   {key:'preferredLength', label:'偏好長度', type:'text', placeholder:'例如：8-11mm'},
   {key:'isFirstTime', label:'是否第一次接睫毛', tri:true},
@@ -960,7 +1008,7 @@ const STATUS_FIELDS = [
   {key:'faceWashHabit', label:'洗臉習慣', type:'chips', options:['毛巾','潑水式','淋浴沖洗','洗臉海綿','洗臉刷機']},
 ];
 const STATUS_FIELD_GROUPS = [
-  {title:'眼型與喜好偏好', keys:['eyeShape','lashLookPreference','preferredCurl','preferredLength']},
+  {title:'眼型、敏感度與喜好偏好', keys:['eyeShape','eyeSensitivityLevel','lifestyleTags','lashLookPreference','preferredCurl','preferredLength']},
   {title:'睫毛使用紀錄', keys:['isFirstTime','lastLashDate','keratin3Months','keratinFrequency','frequency','hasOldLashesToRemove']},
   {title:'眼部健康狀況', keys:['allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort','specialEyeCondition','eyeSurgeryHistory','isPregnant']},
   {title:'生活習慣', keys:['wearsContacts','wearsGlasses','rubsEyesOften','sleepPosition','oilyEyelids']},
@@ -3199,14 +3247,20 @@ const TIER_BADGE_CLASSES = ['member-tier-silver','member-tier-gold','member-tier
 function renderTiersTab(){
   const m = membershipDraft.membership;
   const tiersHtml = m.tiers.map((t,i)=>`
-    <div class="tier-card">
-      <div class="tier-badge-preview"><span class="member-tier-badge ${TIER_BADGE_CLASSES[i%TIER_BADGE_CLASSES.length]}">${escapeHtml(t.label||'等級')}</span></div>
-      <div class="form-row">
-        <div class="form-field"><label>等級名稱</label><input value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value; this.closest('.tier-card').querySelector('.member-tier-badge').textContent=this.value;"></div>
-        <div class="form-field"><label>升級門檻（累積消費 NT$）</label><input type="number" min="0" value="${escapeHtml(t.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
+    <div class="tier-card tier-card--row">
+      <div class="tier-col tier-col-badge">
+        <span class="member-tier-badge ${TIER_BADGE_CLASSES[i%TIER_BADGE_CLASSES.length]}">${escapeHtml(t.label||'等級')}</span>
+        <input class="tier-name-input" value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value; this.closest('.tier-card').querySelector('.member-tier-badge').textContent=this.value;">
       </div>
-      <div class="form-field"><label>專屬福利</label><input value="${escapeHtml(t.perks||'')}" oninput="membershipDraft.membership.tiers[${i}].perks=this.value"></div>
-      <div class="form-actions"><button class="btn-danger-text" onclick="removeTier(${i})">刪除此等級</button></div>
+      <div class="tier-col tier-col-threshold">
+        <label>升級門檻</label>
+        <div class="tier-threshold-input">NT$ <input type="number" min="0" value="${escapeHtml(t.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
+      </div>
+      <div class="tier-col tier-col-perks">
+        <label>專屬福利</label>
+        <input value="${escapeHtml(t.perks||'')}" placeholder="例如：生日禮加碼、優先預約" oninput="membershipDraft.membership.tiers[${i}].perks=this.value">
+      </div>
+      <button class="tier-remove-btn" onclick="removeTier(${i})" title="刪除此等級" aria-label="刪除此等級">✕</button>
     </div>`).join('');
   return `<div class="settings-block">
     <div class="settings-row">
@@ -3237,20 +3291,19 @@ function saveTiersTab(){
 function renderPointsTab(){
   const p = membershipDraft.points;
   const redemptionsHtml = p.redemptions.map((r,i)=>`
-    <div class="points-card">
-      <div class="form-row">
-        <div class="form-field"><label>兌換方案名稱</label><input value="${escapeHtml(r.label)}" oninput="membershipDraft.points.redemptions[${i}].label=this.value"></div>
-        <div class="form-field"><label>所需點數</label><input type="number" min="0" value="${escapeHtml(r.pointsCost)}" oninput="membershipDraft.points.redemptions[${i}].pointsCost=Number(this.value)||0"></div>
-      </div>
-      <div class="form-actions"><button class="btn-danger-text" onclick="removeRedemption(${i})">刪除此方案</button></div>
+    <div class="points-card points-card--grid">
+      <div class="form-field"><label>兌換方案名稱</label><input value="${escapeHtml(r.label)}" oninput="membershipDraft.points.redemptions[${i}].label=this.value"></div>
+      <div class="form-field"><label>所需點數</label><input type="number" min="0" value="${escapeHtml(r.pointsCost)}" oninput="membershipDraft.points.redemptions[${i}].pointsCost=Number(this.value)||0"></div>
+      <button class="tier-remove-btn points-card-remove" onclick="removeRedemption(${i})" title="刪除此方案" aria-label="刪除此方案">✕</button>
     </div>`).join('') || `<p class="field-hint">尚未新增兌換方案。</p>`;
-  return `<div class="settings-block">
-    <div class="settings-row">
-      <div><div class="settings-row-label">消費金額換算點數</div><div class="settings-row-hint">每消費多少金額，可累積 1 點</div></div>
-      <div class="settings-row-input">每消費 NT$ <input type="number" min="1" value="${escapeHtml(p.rate)}" oninput="membershipDraft.points.rate=Number(this.value)||100"> 得 1 點</div>
-    </div>
+  return `
+  <div class="points-rate-row">
+    <span>每消費</span>
+    <span class="points-rate-currency">NT$</span>
+    <input type="number" min="1" value="${escapeHtml(p.rate)}" oninput="membershipDraft.points.rate=Number(this.value)||100">
+    <span>得 1 點</span>
   </div>
-  <div id="redemptions-list">${redemptionsHtml}</div>
+  <div class="points-redemptions-grid">${redemptionsHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
     <button class="btn-ghost btn" onclick="addRedemption()">＋ 新增兌換方案</button>
     <button class="btn" onclick="savePointsTab()">儲存設定</button>
@@ -3316,26 +3369,28 @@ function renderBirthdayTab(){
     const active = (b.eligibleServices||[]).includes(s);
     return `<button type="button" class="chip ${active?'active':''}" onclick="toggleBirthdayService('${s}')">${escapeHtml(s)}</button>`;
   }).join('');
-  return `<div class="settings-block">
-    <div class="settings-row">
-      <div><div class="settings-row-label">提前發送天數</div></div>
-      <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(b.leadDays)}" oninput="membershipDraft.birthday.leadDays=Number(this.value)||0"> 天</div>
+  return `<div class="birthday-grid">
+    <div class="settings-block birthday-settings-col">
+      <div class="settings-row">
+        <div><div class="settings-row-label">提前發送天數</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(b.leadDays)}" oninput="membershipDraft.birthday.leadDays=Number(this.value)||0"> 天</div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">使用期限</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(b.expiryDays)}" oninput="membershipDraft.birthday.expiryDays=Number(this.value)||30"> 天</div>
+      </div>
+      <div class="settings-row" style="border-bottom:none;flex-direction:column;align-items:flex-start;gap:10px;">
+        <div class="settings-row-label">適用服務</div>
+        <div class="chip-select">${chips}</div>
+      </div>
     </div>
-    <div class="settings-row">
-      <div><div class="settings-row-label">使用期限</div></div>
-      <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(b.expiryDays)}" oninput="membershipDraft.birthday.expiryDays=Number(this.value)||30"> 天</div>
+    <div class="birthday-message-card">
+      <div class="birthday-message-card-title">生日禮祝福文案</div>
+      <textarea rows="6" oninput="membershipDraft.birthday.content=this.value">${escapeHtml(b.content)}</textarea>
+      <button class="btn-ghost btn" style="width:100%;margin-top:14px;" onclick="copyBirthdayMessage()">📋 一鍵複製生日禮簡訊</button>
     </div>
   </div>
-  <div class="form-field" style="margin:16px 0;">
-    <label>生日禮內容描述</label>
-    <textarea rows="3" oninput="membershipDraft.birthday.content=this.value">${escapeHtml(b.content)}</textarea>
-  </div>
-  <div class="form-field" style="margin-bottom:16px;">
-    <label>適用服務</label>
-    <div class="chip-select">${chips}</div>
-  </div>
-  <div class="form-actions" style="justify-content:space-between;">
-    <button class="btn-ghost btn" onclick="copyBirthdayMessage()">📋 一鍵複製生日禮簡訊/訊息</button>
+  <div class="form-actions">
     <button class="btn" onclick="saveBirthdayTab()">儲存設定</button>
   </div>`;
 }
