@@ -101,6 +101,7 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 }
 .access-gate-btn{width:100%;}
 .access-gate-error{color:var(--alert);font-size:12.5px;margin-top:10px;min-height:16px;}
+.access-gate-line-link{display:inline-block;margin-top:6px;font-size:12.5px;color:var(--mocha-deep);text-decoration:underline;}
 
 /* ---------- Top bar ---------- */
 .topbar{
@@ -244,9 +245,16 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
   display:flex;align-items:center;justify-content:center;gap:9px;
 }
 .welcome-first-run{
+  position:relative;
   background:var(--sage-bg);border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:22px 24px;margin-bottom:22px;
 }
+.welcome-first-run-close{
+  position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:50%;
+  background:#fff;border:1px solid var(--blush-line);color:var(--ink-faint);font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+.welcome-first-run-close:hover{border-color:var(--mocha);color:var(--mocha-deep);}
 .welcome-first-run-title{
   font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--mocha-deep);
   letter-spacing:0.04em;margin-bottom:10px;
@@ -868,6 +876,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     <input type="password" id="gate-password-input" class="access-gate-input" placeholder="輸入密碼" autocomplete="off">
     <button type="button" class="btn access-gate-btn" onclick="attemptUnlock()">進入</button>
     <p id="gate-error" class="access-gate-error"></p>
+    <a class="access-gate-line-link" href="https://line.me/R/ti/p/%40799vhtvj" target="_blank" rel="noopener">還沒有密碼？點此透過 LINE 索取 →</a>
   </div>
 </div>
 <div id="app">載入中…</div>
@@ -1175,10 +1184,19 @@ function filteredClientList(){
     return (c.name||'').toLowerCase().includes(term) || (c.phone||'').includes(term);
   }).sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'zh-Hant'));
 }
+const WELCOME_DISMISSED_KEY = 'meiye-welcome-dismissed';
+function isWelcomeDismissed(){
+  try{ return localStorage.getItem(WELCOME_DISMISSED_KEY)==='1'; }catch(e){ return false; }
+}
+function dismissWelcome(){
+  try{ localStorage.setItem(WELCOME_DISMISSED_KEY, '1'); }catch(e){}
+  render();
+}
 function renderClientListItems(highlightId){
   const filtered = filteredClientList();
   if(clients.length===0){
-    return `<div class="welcome-first-run">
+    const welcomeHtml = isWelcomeDismissed() ? '' : `<div class="welcome-first-run">
+      <button type="button" class="welcome-first-run-close" onclick="dismissWelcome()" aria-label="關閉，不再顯示">✕</button>
       <div class="welcome-first-run-title">感謝購買，歡迎使用 EYELASH</div>
       <p>這個網頁就是你剛剛付款購買的客戶紀錄工具，資料只會儲存在「這台裝置、這個瀏覽器」裡。</p>
       <p><strong>強烈建議現在就做這件事：</strong>把這個網頁加入手機主畫面或瀏覽器書籤，之後才能隨時打開，不用擔心關掉分頁後找不到。</p>
@@ -1186,7 +1204,9 @@ function renderClientListItems(highlightId){
         <li>iPhone／Safari：點畫面下方的分享圖示 → 選「加入主畫面」</li>
         <li>Android／Chrome：點右上角選單「⋮」→ 選「加到主畫面」</li>
       </ul>
-    </div>
+      <button type="button" class="btn-ghost btn btn-sm" style="margin-top:6px;" onclick="dismissWelcome()">我知道了，不再顯示</button>
+    </div>`;
+    return `${welcomeHtml}
     <div class="empty-state">
       <h3>還沒有客戶紀錄</h3>
       <p>新增第一位客戶，開始取代紙本記事卡。</p>
@@ -2641,9 +2661,12 @@ function renderStoredValueUseHtml(d){
   if(!d.clientId) return '';
   const client = clients.find(c=>c.id===d.clientId);
   if(!client || !(client.storedBalance>0)) return '';
+  const used = Math.min(Number(d.storedValueUsed)||0, client.storedBalance);
+  const remain = Math.max(0, client.storedBalance - used);
   return `<div class="form-field" style="margin-bottom:12px;">
     <label>使用儲值餘額折抵（目前餘額 NT$ ${client.storedBalance.toLocaleString()}）</label>
-    <input type="number" min="0" max="${client.storedBalance}" value="${escapeHtml(d.storedValueUsed||'')}" placeholder="折抵金額" oninput="newRecordDraft.storedValueUsed=this.value">
+    <input type="number" min="0" max="${client.storedBalance}" value="${escapeHtml(d.storedValueUsed||'')}" placeholder="這次折抵金額" oninput="newRecordDraft.storedValueUsed=this.value; document.getElementById('sv-use-preview').textContent='折抵後剩餘 NT' + '$ ' + Math.max(0, ${client.storedBalance} - (Number(this.value)||0)).toLocaleString();">
+    <div class="field-hint" id="sv-use-preview">折抵後剩餘 NT$ ${remain.toLocaleString()}</div>
   </div>`;
 }
 function setCouponSelection(couponId){
@@ -3332,8 +3355,8 @@ const BIRTHDAY_STORAGE_KEY = 'meiye-birthday-settings';
 const STORED_VALUE_STORAGE_KEY = 'meiye-stored-value-settings';
 function defaultStoredValueSettings(){
   return { tiers: [
-    {id:'sv-default-1', payAmount:3000, creditAmount:3300, note:''},
-    {id:'sv-default-2', payAmount:5000, creditAmount:6000, note:''},
+    {id:'sv-default-1', payAmount:3000, discountPercent:90, creditAmount:3333, note:''},
+    {id:'sv-default-2', payAmount:5000, discountPercent:83, creditAmount:6024, note:''},
   ]};
 }
 function loadStoredValueSettings(){
@@ -3534,27 +3557,39 @@ function saveCampaignsTab(){
 
 /* -- Tab D: birthday gift -- */
 /* -- Tab: stored-value (儲值) tiers -- */
+function tierCreditAmount(t){
+  const pct = Number(t.discountPercent)||100;
+  const pay = Number(t.payAmount)||0;
+  return pct>0 ? Math.round(pay/(pct/100)) : pay;
+}
 function renderStoredValueTab(){
   const sv = membershipDraft.storedValue;
   const tiersHtml = sv.tiers.map((t,i)=>{
-    const discount = t.payAmount>0 ? Math.round((t.payAmount/t.creditAmount)*1000)/10 : 0;
+    const pct = t.discountPercent!=null ? t.discountPercent : 100;
     return `<div class="points-card points-card--grid">
-      <div class="form-field"><label>儲值金額（客人實付 NT$）</label><input type="number" min="0" value="${escapeHtml(t.payAmount)}" oninput="membershipDraft.storedValue.tiers[${i}].payAmount=Number(this.value)||0"></div>
-      <div class="form-field"><label>可用餘額（NT$，含贈送）</label><input type="number" min="0" value="${escapeHtml(t.creditAmount)}" oninput="membershipDraft.storedValue.tiers[${i}].creditAmount=Number(this.value)||0"></div>
-      <div class="field-hint" style="grid-column:1/-1;">相當於 ${discount>0?discount:'—'} 折</div>
+      <div class="form-field"><label>儲值門檻（客人實付 NT$）</label><input type="number" min="0" value="${escapeHtml(t.payAmount)}" oninput="updateStoredValueTier(${i}, 'payAmount', this.value)"></div>
+      <div class="form-field"><label>折扣（打幾折，例如 90 代表九折）</label><input type="number" min="1" max="100" value="${escapeHtml(pct)}" oninput="updateStoredValueTier(${i}, 'discountPercent', this.value)"></div>
+      <div class="field-hint" style="grid-column:1/-1;" id="sv-tier-result-${i}">客人可獲得餘額：NT$ ${tierCreditAmount(t).toLocaleString()}</div>
       <button class="tier-remove-btn points-card-remove" onclick="removeStoredValueTier(${i})" title="刪除此方案" aria-label="刪除此方案">✕</button>
     </div>`;
   }).join('') || `<p class="field-hint">尚未新增儲值方案。</p>`;
   return `
-  <p class="field-hint" style="margin-bottom:16px;">設定儲值方案後，可在客戶詳細頁為客人加值；儲值餘額可在服務結帳時折抵金額。</p>
+  <p class="field-hint" style="margin-bottom:16px;">設定「客人付多少錢」＋「打幾折」，系統會自動算出客人實際可獲得的儲值餘額。儲值餘額可在服務結帳時折抵金額。</p>
   <div class="points-redemptions-grid">${tiersHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
     <button class="btn-ghost btn" onclick="addStoredValueTier()">＋ 新增儲值方案</button>
     <button class="btn" onclick="saveStoredValueTab()">儲存設定</button>
   </div>`;
 }
+function updateStoredValueTier(i, key, val){
+  const t = membershipDraft.storedValue.tiers[i];
+  t[key] = Number(val)||0;
+  t.creditAmount = tierCreditAmount(t);
+  const resultEl = document.getElementById(`sv-tier-result-${i}`);
+  if(resultEl) resultEl.textContent = `客人可獲得餘額：NT$ ${t.creditAmount.toLocaleString()}`;
+}
 function addStoredValueTier(){
-  membershipDraft.storedValue.tiers.push({id:uid('sv'), payAmount:1000, creditAmount:1000, note:''});
+  membershipDraft.storedValue.tiers.push({id:uid('sv'), payAmount:1000, discountPercent:100, creditAmount:1000, note:''});
   render();
 }
 function removeStoredValueTier(i){
