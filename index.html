@@ -82,6 +82,26 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 
 #app{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
 
+/* ---------- Access gate ---------- */
+.access-gate{
+  position:fixed;inset:0;z-index:999;background:var(--paper);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.access-gate-card{
+  width:100%;max-width:360px;text-align:center;
+  background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
+  padding:44px 32px;box-shadow:0 1px 2px rgba(43,41,38,0.04), 0 24px 60px rgba(43,41,38,0.1);
+}
+.access-gate-brand{font-family:var(--font-serif);font-size:24px;font-weight:700;letter-spacing:1px;color:var(--mocha-deep);margin-bottom:20px;}
+.access-gate-title{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--ink);letter-spacing:0.04em;margin-bottom:10px;}
+.access-gate-hint{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px;}
+.access-gate-input{
+  width:100%;padding:12px 14px;border:1px solid var(--input-border);border-radius:var(--radius-ui);
+  font-size:17px;text-align:center;letter-spacing:3px;margin-bottom:14px;
+}
+.access-gate-btn{width:100%;}
+.access-gate-error{color:var(--alert);font-size:12.5px;margin-top:10px;min-height:16px;}
+
 /* ---------- Top bar ---------- */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
@@ -840,6 +860,16 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 </style>
 </head>
 <body>
+<div id="access-gate" class="access-gate">
+  <div class="access-gate-card">
+    <div class="access-gate-brand">EYELASH</div>
+    <h1 class="access-gate-title">請輸入通行密碼</h1>
+    <p class="access-gate-hint">這是付費客戶專用工具。付款完成後，請透過 LINE 私訊索取密碼。</p>
+    <input type="password" id="gate-password-input" class="access-gate-input" placeholder="輸入密碼" autocomplete="off">
+    <button type="button" class="btn access-gate-btn" onclick="attemptUnlock()">進入</button>
+    <p id="gate-error" class="access-gate-error"></p>
+  </div>
+</div>
 <div id="app">載入中…</div>
 
 <script>
@@ -3585,11 +3615,53 @@ function copyBirthdayMessage(){
   copyAndOpenLine(msg);
 }
 
-/* ============ Init ============ */
-(async function init(){
+/* ============ Access gate ============
+   NOT real security — this is a static site with no backend, so the entire app's
+   code always ships to every visitor regardless of this check; anyone who opens
+   devtools can bypass it in one line. Its only purpose is to stop someone from
+   casually landing on this page (e.g. by editing the URL) and starting to use the
+   tool for free without realizing it's paid. Give this password out manually to
+   customers after confirming their payment. */
+const ACCESS_HASH = '1a46d93c2dad9b8f15d9a6a6cb362c29cce4cc7f1e29c2b985d76b8dc2dedea9';
+const ACCESS_STORAGE_KEY = 'meiye-access-unlocked';
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function attemptUnlock(){
+  const input = document.getElementById('gate-password-input');
+  const errEl = document.getElementById('gate-error');
+  const val = (input.value||'').trim();
+  if(!val){ errEl.textContent = '請輸入密碼'; return; }
+  const hash = await sha256Hex(val);
+  if(hash===ACCESS_HASH){
+    localStorage.setItem(ACCESS_STORAGE_KEY, '1');
+    const gate = document.getElementById('access-gate');
+    if(gate) gate.remove();
+    startApp();
+  }else{
+    errEl.textContent = '密碼不正確，請確認後再輸入一次';
+    input.select();
+  }
+}
+async function startApp(){
   await loadData();
   await loadCustomStyles();
   render();
+}
+
+/* ============ Init ============ */
+(function initGate(){
+  const gateInput = document.getElementById('gate-password-input');
+  if(gateInput){
+    gateInput.addEventListener('keydown', e=>{ if(e.key==='Enter') attemptUnlock(); });
+    gateInput.focus();
+  }
+  if(localStorage.getItem(ACCESS_STORAGE_KEY)==='1'){
+    const gate = document.getElementById('access-gate');
+    if(gate) gate.remove();
+    startApp();
+  }
 })();
 
 let __resizeTimer;
