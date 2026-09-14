@@ -303,6 +303,9 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 .client-stat-block-title{font-size:12px;font-weight:700;color:var(--mocha-deep);margin-bottom:8px;letter-spacing:0.05em;}
 .client-stat-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--ink-soft);padding:4px 0;}
 .client-stat-row strong{color:var(--ink);font-weight:600;}
+.stored-value-log{margin-top:10px;padding-top:10px;border-top:1px solid var(--blush-line);display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;}
+.stored-value-log-row{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--ink-soft);}
+.stored-value-log-balance{color:var(--ink-faint);flex-shrink:0;}
 
 /* Contraindication banner - clean white card, doesn't compete with brand accent colors */
 .banner-alert{
@@ -1121,6 +1124,9 @@ function render(){
   if(lightboxImageUrl){
     document.body.insertAdjacentHTML('beforeend', renderLightboxModal());
   }
+  if(topUpDraft){
+    document.body.insertAdjacentHTML('beforeend', renderTopUpModal());
+  }
   if(searchHadFocus){
     const newSearchInput = document.querySelector('.search-input');
     if(newSearchInput){
@@ -1922,6 +1928,8 @@ async function saveClientModal(){
       contraindications: [],
       tags: [],
       points: 0,
+      storedBalance: 0,
+      storedValueLog: [],
       serviceRecords: [],
     });
   }
@@ -2054,8 +2062,88 @@ function renderClientCard(client){
         <div class="client-stat-row"><span>平均客單價</span><strong>${sStats.avgOrderValue?`NT$ ${sStats.avgOrderValue.toLocaleString()}`:'—'}</strong></div>
         <div class="client-stat-row"><span>累積點數</span><strong>${client.points||0} 點</strong></div>
       </div>
+      <div class="client-stat-block">
+        <div class="client-stat-block-title">儲值餘額</div>
+        <div class="client-stat-row"><span>目前可用餘額</span><strong>NT$ ${(client.storedBalance||0).toLocaleString()}</strong></div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn-ghost btn btn-sm" onclick="openTopUpModal('${client.id}')">＋ 儲值</button>
+          ${(client.storedValueLog||[]).length?`<button class="btn-text" onclick="toggleStoredValueLog('${client.id}')">查看紀錄</button>`:''}
+        </div>
+        ${storedValueLogVisibleFor===client.id?renderStoredValueLogHtml(client):''}
+      </div>
     </div>
   </div>`;
+}
+let storedValueLogVisibleFor = null;
+function toggleStoredValueLog(clientId){
+  storedValueLogVisibleFor = storedValueLogVisibleFor===clientId ? null : clientId;
+  render();
+}
+function renderStoredValueLogHtml(client){
+  const log = (client.storedValueLog||[]).slice().reverse();
+  if(!log.length) return '';
+  return `<div class="stored-value-log">${log.map(l=>`
+    <div class="stored-value-log-row">
+      <span>${escapeHtml(l.date)} · ${l.type==='topup'?'儲值':'扣抵'} ${l.type==='topup'?'+':'-'}NT$ ${Number(l.amount).toLocaleString()}</span>
+      <span class="stored-value-log-balance">餘額 NT$ ${Number(l.balanceAfter).toLocaleString()}</span>
+    </div>`).join('')}</div>`;
+}
+
+/* ---- Stored-value top-up modal ---- */
+let topUpDraft = null; // {clientId, tierId, customAmount}
+function openTopUpModal(clientId){
+  const tiers = loadStoredValueSettings().tiers;
+  topUpDraft = {clientId, tierId: tiers[0] ? tiers[0].id : '', customAmount:''};
+  render();
+}
+function closeTopUpModal(){
+  topUpDraft = null;
+  render();
+}
+function onTopUpTierChange(val){
+  topUpDraft.tierId = val;
+}
+function renderTopUpModal(){
+  const client = clients.find(c=>c.id===topUpDraft.clientId);
+  const tiers = loadStoredValueSettings().tiers;
+  const options = tiers.map(t=>`<option value="${t.id}" ${topUpDraft.tierId===t.id?'selected':''}>付 NT$${t.payAmount.toLocaleString()} → 得 NT$${t.creditAmount.toLocaleString()}</option>`).join('');
+  return `<div class="modal-overlay" onclick="if(event.target===this) closeTopUpModal()">
+    <div class="modal-box">
+      <h3>為 ${escapeHtml(client?client.name:'')} 儲值</h3>
+      ${tiers.length?`<div class="modal-field">
+        <label>選擇儲值方案</label>
+        <select onchange="onTopUpTierChange(this.value)">${options}</select>
+      </div>`:''}
+      <div class="modal-field">
+        <label>或輸入自訂金額（NT$，客人實付＝實得，不套用方案優惠）</label>
+        <input type="number" min="0" id="topup-custom-amount" placeholder="留空則使用上面選的方案" oninput="topUpDraft.customAmount=this.value">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost btn" onclick="closeTopUpModal()">取消</button>
+        <button class="btn" onclick="confirmTopUp()">確認儲值</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function confirmTopUp(){
+  const client = clients.find(c=>c.id===topUpDraft.clientId);
+  if(!client) return;
+  let creditAmount;
+  if(topUpDraft.customAmount && Number(topUpDraft.customAmount)>0){
+    creditAmount = Number(topUpDraft.customAmount);
+  }else{
+    const tiers = loadStoredValueSettings().tiers;
+    const tier = tiers.find(t=>t.id===topUpDraft.tierId);
+    if(!tier){ showToast('請選擇儲值方案或輸入金額'); return; }
+    creditAmount = tier.creditAmount;
+  }
+  client.storedBalance = (client.storedBalance||0) + creditAmount;
+  client.storedValueLog = client.storedValueLog||[];
+  client.storedValueLog.push({id:uid('svlog'), date: todayStr(), type:'topup', amount: creditAmount, balanceAfter: client.storedBalance});
+  await saveData();
+  topUpDraft = null;
+  showToast(`已為 ${client.name} 儲值 NT$${creditAmount.toLocaleString()}`);
+  render();
 }
 async function addClientTag(clientId){
   const input = document.getElementById('new-client-tag-input');
@@ -2478,7 +2566,7 @@ function blankRecordDraft(clientId){
   return {
     clientId, id: null, date: '',
     time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
-    couponId:'', couponLabel:'', discountAmount:'',
+    couponId:'', couponLabel:'', discountAmount:'', storedValueUsed:'',
     lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
     lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
@@ -2517,6 +2605,15 @@ function renderCouponPickerHtml(d){
     <div class="form-field"><label>折抵金額</label>
       <input type="number" min="0" value="${escapeHtml(d.discountAmount||'')}" placeholder="折抵 NT$" oninput="newRecordDraft.discountAmount=this.value">
     </div>
+  </div>`;
+}
+function renderStoredValueUseHtml(d){
+  if(!d.clientId) return '';
+  const client = clients.find(c=>c.id===d.clientId);
+  if(!client || !(client.storedBalance>0)) return '';
+  return `<div class="form-field" style="margin-bottom:12px;">
+    <label>使用儲值餘額折抵（目前餘額 NT$ ${client.storedBalance.toLocaleString()}）</label>
+    <input type="number" min="0" max="${client.storedBalance}" value="${escapeHtml(d.storedValueUsed||'')}" placeholder="折抵金額" oninput="newRecordDraft.storedValueUsed=this.value">
   </div>`;
 }
 function setCouponSelection(couponId){
@@ -2558,7 +2655,7 @@ function renderRecordCard(r){
       <div class="record-detail-grid">
         ${serviceLabelOf(r)?`<div class="record-detail-item"><label>服務項目</label><span>${escapeHtml(serviceLabelOf(r))}</span></div>`:''}
         ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
-        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}</span></div>`:''}
+        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}${r.storedValueUsed?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用儲值餘額折抵 NT$ ${escapeHtml(String(r.storedValueUsed))}</span>`:''}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
@@ -2640,7 +2737,7 @@ function startEditRecord(clientId, recordId){
     date: r.date,
     time: r.time||'', duration: r.duration||90, service: r.service||'', serviceOther: r.serviceOther||'', status: r.status||'completed',
     amount: r.amount||'', deposit: r.deposit||'',
-    couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'',
+    couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'', storedValueUsed: r.storedValueUsed||'',
     lenLL: r.lenLL||'', lenLM: r.lenLM||'', lenLR: r.lenLR||'',
     lenRL: r.lenRL||'', lenRM: r.lenRM||'', lenRR: r.lenRR||'',
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
@@ -2762,6 +2859,7 @@ function renderNewRecordPanel(){
     </div>
     <div class="field-hint" style="margin:-8px 0 12px;">訂金只在客人「未到」時才會用到：客人爽約但有先收訂金，這筆訂金會算進本月營收；正常完成服務的話不用填，「金額」會直接算進營收。</div>
     ${renderCouponPickerHtml(d)}
+    ${renderStoredValueUseHtml(d)}
     <div class="form-field" style="margin-bottom:12px;">
       <label>款式</label>
       <div class="chip-select">
@@ -2919,7 +3017,7 @@ async function saveNewRecord(){
         id: clientId, name, phone:'', email:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
         notes:'', avatarDataUrl:'',
         createdAt: todayStr(), status: blankStatus(), statusUpdatedAt: null,
-        contraindications: [], tags: [], points: 0, serviceRecords: [],
+        contraindications: [], tags: [], points: 0, storedBalance: 0, storedValueLog: [], serviceRecords: [],
       });
     }
   }
@@ -2931,7 +3029,7 @@ async function saveNewRecord(){
     date: d.date,
     time: d.time||'', duration: d.duration||'', service: d.service||'', serviceOther: d.serviceOther||'',
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
-    couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'',
+    couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'', storedValueUsed: d.storedValueUsed||'',
     lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
     lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
@@ -2964,6 +3062,13 @@ async function saveNewRecord(){
       const rate = loadPointsSettings().rate || 100;
       const net = Math.max(0, Number(payload.amount) - (Number(payload.discountAmount)||0));
       client.points = (client.points||0) + Math.floor(net/rate);
+    }
+    const useAmount = Math.min(Number(payload.storedValueUsed)||0, client.storedBalance||0);
+    if(useAmount>0){
+      client.storedBalance = (client.storedBalance||0) - useAmount;
+      client.storedValueLog = client.storedValueLog||[];
+      client.storedValueLog.push({id:uid('svlog'), date: todayStr(), type:'use', amount: useAmount, balanceAfter: client.storedBalance});
+      payload.storedValueUsed = useAmount;
     }
   }
   newRecordDraft = null;
@@ -3194,6 +3299,18 @@ function copyBookingPolicy(){
 const POINTS_STORAGE_KEY = 'meiye-points-settings';
 const CAMPAIGNS_STORAGE_KEY = 'meiye-campaigns';
 const BIRTHDAY_STORAGE_KEY = 'meiye-birthday-settings';
+const STORED_VALUE_STORAGE_KEY = 'meiye-stored-value-settings';
+function defaultStoredValueSettings(){
+  return { tiers: [
+    {id:'sv-default-1', payAmount:3000, creditAmount:3300, note:''},
+    {id:'sv-default-2', payAmount:5000, creditAmount:6000, note:''},
+  ]};
+}
+function loadStoredValueSettings(){
+  try{ const raw = localStorage.getItem(STORED_VALUE_STORAGE_KEY); return raw ? Object.assign(defaultStoredValueSettings(), JSON.parse(raw)) : defaultStoredValueSettings(); }
+  catch(e){ return defaultStoredValueSettings(); }
+}
+function saveStoredValueSettingsObj(s){ localStorage.setItem(STORED_VALUE_STORAGE_KEY, JSON.stringify(s)); }
 
 function defaultPointsSettings(){
   return { rate: 100, redemptions: [{id:uid('rdm'), label:'折抵 NT$50', pointsCost:50}] };
@@ -3229,6 +3346,7 @@ function openMembership(){
     points: loadPointsSettings(),
     campaigns: loadCampaigns(),
     birthday: loadBirthdaySettings(),
+    storedValue: loadStoredValueSettings(),
   };
   render();
 }
@@ -3241,6 +3359,7 @@ function renderMembershipView(){
     {key:'tiers', label:'會員制度'},
     {key:'points', label:'點數規則'},
     {key:'campaigns', label:'活動管理／優惠券'},
+    {key:'storedValue', label:'儲值方案'},
     {key:'birthday', label:'生日禮'},
   ];
   const tabBtns = tabs.map(t=>`<button class="settings-tab-btn ${membershipTab===t.key?'active':''}" onclick="switchMembershipTab('${t.key}')">${t.label}</button>`).join('');
@@ -3248,6 +3367,7 @@ function renderMembershipView(){
   if(membershipTab==='tiers') body = renderTiersTab();
   else if(membershipTab==='points') body = renderPointsTab();
   else if(membershipTab==='campaigns') body = renderCampaignsTab();
+  else if(membershipTab==='storedValue') body = renderStoredValueTab();
   else body = renderBirthdayTab();
   return `
     <div class="back-row">
@@ -3383,6 +3503,39 @@ function saveCampaignsTab(){
 }
 
 /* -- Tab D: birthday gift -- */
+/* -- Tab: stored-value (儲值) tiers -- */
+function renderStoredValueTab(){
+  const sv = membershipDraft.storedValue;
+  const tiersHtml = sv.tiers.map((t,i)=>{
+    const discount = t.payAmount>0 ? Math.round((t.payAmount/t.creditAmount)*1000)/10 : 0;
+    return `<div class="points-card points-card--grid">
+      <div class="form-field"><label>儲值金額（客人實付 NT$）</label><input type="number" min="0" value="${escapeHtml(t.payAmount)}" oninput="membershipDraft.storedValue.tiers[${i}].payAmount=Number(this.value)||0"></div>
+      <div class="form-field"><label>可用餘額（NT$，含贈送）</label><input type="number" min="0" value="${escapeHtml(t.creditAmount)}" oninput="membershipDraft.storedValue.tiers[${i}].creditAmount=Number(this.value)||0"></div>
+      <div class="field-hint" style="grid-column:1/-1;">相當於 ${discount>0?discount:'—'} 折</div>
+      <button class="tier-remove-btn points-card-remove" onclick="removeStoredValueTier(${i})" title="刪除此方案" aria-label="刪除此方案">✕</button>
+    </div>`;
+  }).join('') || `<p class="field-hint">尚未新增儲值方案。</p>`;
+  return `
+  <p class="field-hint" style="margin-bottom:16px;">設定儲值方案後，可在客戶詳細頁為客人加值；儲值餘額可在服務結帳時折抵金額。</p>
+  <div class="points-redemptions-grid">${tiersHtml}</div>
+  <div class="form-actions" style="justify-content:space-between;">
+    <button class="btn-ghost btn" onclick="addStoredValueTier()">＋ 新增儲值方案</button>
+    <button class="btn" onclick="saveStoredValueTab()">儲存設定</button>
+  </div>`;
+}
+function addStoredValueTier(){
+  membershipDraft.storedValue.tiers.push({id:uid('sv'), payAmount:1000, creditAmount:1000, note:''});
+  render();
+}
+function removeStoredValueTier(i){
+  membershipDraft.storedValue.tiers.splice(i,1);
+  render();
+}
+function saveStoredValueTab(){
+  saveStoredValueSettingsObj(membershipDraft.storedValue);
+  showToast('已儲存儲值方案設定');
+}
+
 function renderBirthdayTab(){
   const b = membershipDraft.birthday;
   const chips = SERVICE_ITEMS.map(s=>{
