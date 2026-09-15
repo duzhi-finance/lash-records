@@ -801,8 +801,35 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 .revenue-card .revenue-amount{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--mocha-deep);}
 
 /* ---------- Calendar / appointments ---------- */
-.calendar-header{background:var(--paper-deep);border-radius:var(--radius-card);padding:18px 22px;margin-bottom:16px;}
+.calendar-header{background:var(--paper-deep);border-radius:var(--radius-card);padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .calendar-header h1{font-family:var(--font-serif);font-size:26px;font-weight:700;display:flex;align-items:center;gap:9px;}
+.calendar-mode-toggle{display:flex;gap:4px;background:#fff;border:1px solid var(--blush-line);border-radius:999px;padding:3px;}
+.calendar-mode-btn{border:none;background:transparent;border-radius:999px;padding:6px 16px;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;}
+.calendar-mode-btn.active{background:var(--mocha-deep);color:#fff;}
+.month-grid-header{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:4px;}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;}
+.month-cell{
+  min-height:56px;border:1px solid var(--blush-line);border-radius:8px;background:#fff;
+  padding:5px 4px;cursor:pointer;display:flex;flex-direction:column;gap:4px;box-sizing:border-box;
+}
+.month-cell.other-month{background:var(--paper-deep);opacity:.5;}
+.month-cell.is-today{border-color:var(--mocha-deep);}
+.month-cell.is-selected{background:var(--mocha-deep);border-color:var(--mocha-deep);}
+.month-cell.is-selected .month-cell-num{color:#fff;}
+.month-cell-num{font-size:13px;font-weight:700;color:var(--ink);}
+.month-cell-dots{display:flex;flex-wrap:wrap;gap:3px;align-items:center;}
+.month-cell-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.month-cell-dot.status-confirmed{background:var(--mocha-deep);}
+.month-cell-dot.status-completed{background:var(--ink);}
+.month-cell-dot.status-cancelled{background:var(--ink-faint);}
+.month-cell-dot.status-noshow{background:var(--warn);}
+.month-cell.is-selected .month-cell-dot{background:#fff;}
+.month-cell-more{font-size:9px;color:var(--ink-faint);}
+.month-cell.is-selected .month-cell-more{color:#fff;}
+@media (max-width:640px){
+  .month-cell{min-height:44px;padding:4px 3px;}
+  .month-cell-num{font-size:11.5px;}
+}
 .status-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:12px;color:var(--ink-soft);}
 .legend-item{display:flex;align-items:center;gap:6px;}
 .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -1027,6 +1054,7 @@ let consentError = '';
 let signatureModalOpen = false; // full-screen signature pad shown over the consent view
 let signatureBackup = null;     // signatureDataUrl snapshot to restore on cancel
 let calendarSelectedDate = null; // 'YYYY-MM-DD', set on entering calendar view
+let calendarViewMode = 'week'; // 'week' | 'month'
 
 const APPT_STATUSES = ['confirmed','completed','cancelled','noshow'];
 const APPT_STATUS_LABELS = {confirmed:'已確認', completed:'已完成', cancelled:'已取消', noshow:'未到'};
@@ -1399,6 +1427,18 @@ function jumpToToday(){
   newRecordDraft = null;
   render();
 }
+function switchCalendarViewMode(mode){
+  calendarViewMode = mode;
+  render();
+}
+function shiftCalendarMonth(months){
+  const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
+  d.setDate(1);
+  d.setMonth(d.getMonth()+months);
+  calendarSelectedDate = d.toISOString().slice(0,10);
+  newRecordDraft = null;
+  render();
+}
 function getWeekDates(dateStr){
   const d = new Date(dateStr+'T00:00:00');
   const sunday = new Date(d);
@@ -1505,6 +1545,34 @@ function renderWeekGrid(weekDates, selectedDate){
     ${dayCols}
   </div></div>`;
 }
+function renderMonthGrid(dateStr, selectedDate){
+  const weekdayLabels = ['日','一','二','三','四','五','六'];
+  const d = new Date(dateStr+'T00:00:00');
+  const year = d.getFullYear(), month = d.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const gridStart = new Date(firstOfMonth);
+  gridStart.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+  const today = todayStr();
+  const cells = [];
+  for(let i=0;i<42;i++){
+    const x = new Date(gridStart);
+    x.setDate(gridStart.getDate()+i);
+    const xStr = x.toISOString().slice(0,10);
+    const inMonth = x.getMonth()===month;
+    const appts = inMonth ? collectAppointmentsForDate(xStr) : [];
+    const isToday = xStr===today;
+    const isSelected = xStr===selectedDate;
+    const dotsHtml = appts.slice(0,3).map(r=>`<span class="month-cell-dot status-${r.status||'confirmed'}"></span>`).join('');
+    const moreHtml = appts.length>3 ? `<span class="month-cell-more">+${appts.length-3}</span>` : '';
+    cells.push(`<div class="month-cell ${inMonth?'':'other-month'} ${isToday?'is-today':''} ${isSelected?'is-selected':''}" onclick="selectCalendarDate('${xStr}')">
+      <span class="month-cell-num">${x.getDate()}</span>
+      ${appts.length ? `<span class="month-cell-dots">${dotsHtml}${moreHtml}</span>` : ''}
+    </div>`);
+  }
+  const headerHtml = weekdayLabels.map(w=>`<div class="month-grid-dow">${w}</div>`).join('');
+  return `<div class="month-grid-header">${headerHtml}</div>
+  <div class="month-grid">${cells.join('')}</div>`;
+}
 function getMiniDateRange(dateStr){
   const d = new Date(dateStr+'T00:00:00');
   const arr = [];
@@ -1515,38 +1583,60 @@ function getMiniDateRange(dateStr){
   }
   return arr;
 }
+function fmtMonthLabel(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
+}
 function renderCalendarView(){
   const selected = calendarSelectedDate || todayStr();
   const mobile = isMobileViewport();
-  const weekDates = mobile ? getMiniDateRange(selected) : getWeekDates(selected);
   const dayAppts = collectAppointmentsForDate(selected);
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
   const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment()">＋ 新增預約</button>`;
   const agendaHtml = dayAppts.length
     ? `<div class="agenda-list">${dayAppts.map(r=>renderAgendaRow(r)).join('')}</div>`
     : `<div class="empty-state" style="padding:30px 10px;"><p>這天還沒有預約。</p></div>`;
-  const navHtml = mobile ? `
-    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(-1)">‹ 前一天</button>
-    <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(1)">後一天 ›</button>
-  ` : `
-    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
-    <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-    <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
-  `;
+
+  const modeToggleHtml = `<div class="calendar-mode-toggle">
+    <button class="calendar-mode-btn ${calendarViewMode==='week'?'active':''}" onclick="switchCalendarViewMode('week')">${mobile?'日':'週'}</button>
+    <button class="calendar-mode-btn ${calendarViewMode==='month'?'active':''}" onclick="switchCalendarViewMode('month')">月</button>
+  </div>`;
+
+  let gridHtml, navHtml;
+  if(calendarViewMode==='month'){
+    gridHtml = renderMonthGrid(selected, selected);
+    navHtml = `
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(-1)">‹ 上個月</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(1)">下個月 ›</button>
+    `;
+  }else{
+    const weekDates = mobile ? getMiniDateRange(selected) : getWeekDates(selected);
+    gridHtml = renderWeekGrid(weekDates, selected);
+    navHtml = mobile ? `
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(-1)">‹ 前一天</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(1)">後一天 ›</button>
+    ` : `
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
+    `;
+  }
+  const headerLabel = calendarViewMode==='month' ? fmtMonthLabel(selected) : '行事曆';
 
   return `
     <div class="back-row">
       <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
     </div>
-    <div class="calendar-header"><h1>行事曆</h1></div>
+    <div class="calendar-header"><h1>${headerLabel}</h1>${modeToggleHtml}</div>
     <div class="status-legend">
       <span class="legend-item"><span class="legend-dot status-confirmed"></span>已確認</span>
       <span class="legend-item"><span class="legend-dot status-completed"></span>已完成</span>
       <span class="legend-item"><span class="legend-dot status-cancelled"></span>已取消</span>
       <span class="legend-item"><span class="legend-dot status-noshow"></span>未到</span>
     </div>
-    ${renderWeekGrid(weekDates, selected)}
+    ${gridHtml}
     <div class="week-nav">${navHtml}</div>
     <div class="agenda-panel">
       <div class="panel-title"><h2>${fmtDateLabel(selected)}</h2>${addBtn}</div>
