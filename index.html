@@ -1082,6 +1082,7 @@ const CONSENT_ITEMS = [
   '了解接睫過程可能帶來的不適感（流淚、紅眼、過敏現象）',
   '接受睫毛脫落速度因個人體質、生活習慣、保養方式不同而不同',
   '了解卸除睫毛須由專業美睫師處理，自行卸除可能傷害真睫毛',
+  '本工作室會拍攝美睫作品作為作品集及社群平台分享；如不希望公開，請提前告知，我們會尊重您的意願。',
 ];
 
 function blankStatus(){
@@ -1167,6 +1168,9 @@ function render(){
   }
   if(topUpDraft){
     document.body.insertAdjacentHTML('beforeend', renderTopUpModal());
+  }
+  if(adjustBalanceDraft){
+    document.body.insertAdjacentHTML('beforeend', renderAdjustBalanceModal());
   }
   if(searchHadFocus){
     const newSearchInput = document.querySelector('.search-input');
@@ -2114,17 +2118,21 @@ function renderClientCard(client){
         <div class="client-stat-row"><span>平均客單價</span><strong>${sStats.avgOrderValue?`NT$ ${sStats.avgOrderValue.toLocaleString()}`:'—'}</strong></div>
         <div class="client-stat-row"><span>累積點數</span><strong>${client.points||0} 點</strong></div>
       </div>
-      <div class="client-stat-block">
+      ${storedValueFeatureEnabled() || (client.storedBalance||0)!==0 || (client.storedValueLog||[]).length ? `<div class="client-stat-block">
         <div class="client-stat-block-title">儲值餘額</div>
         <div class="client-stat-row"><span>目前可用餘額</span><strong>NT$ ${(client.storedBalance||0).toLocaleString()}</strong></div>
         <div class="form-actions" style="margin-top:10px;">
-          <button class="btn-ghost btn btn-sm" onclick="openTopUpModal('${client.id}')">＋ 儲值</button>
+          ${storedValueFeatureEnabled()?`<button class="btn-ghost btn btn-sm" onclick="openTopUpModal('${client.id}')">＋ 儲值</button>`:''}
+          ${(client.storedBalance||0)!==0||(client.storedValueLog||[]).length?`<button class="btn-ghost btn btn-sm" onclick="openAdjustBalanceModal('${client.id}')">更正餘額</button>`:''}
           ${(client.storedValueLog||[]).length?`<button class="btn-text" onclick="toggleStoredValueLog('${client.id}')">查看紀錄</button>`:''}
         </div>
         ${storedValueLogVisibleFor===client.id?renderStoredValueLogHtml(client):''}
-      </div>
+      </div>` : ''}
     </div>
   </div>`;
+}
+function storedValueFeatureEnabled(){
+  return loadStoredValueSettings().enabled!==false;
 }
 let storedValueLogVisibleFor = null;
 function toggleStoredValueLog(clientId){
@@ -2134,11 +2142,14 @@ function toggleStoredValueLog(clientId){
 function renderStoredValueLogHtml(client){
   const log = (client.storedValueLog||[]).slice().reverse();
   if(!log.length) return '';
-  return `<div class="stored-value-log">${log.map(l=>`
-    <div class="stored-value-log-row">
-      <span>${escapeHtml(l.date)} · ${l.type==='topup'?'儲值':'扣抵'} ${l.type==='topup'?'+':'-'}NT$ ${Number(l.amount).toLocaleString()}</span>
+  return `<div class="stored-value-log">${log.map(l=>{
+    const label = l.type==='topup' ? '儲值' : l.type==='adjust' ? '更正' : '扣抵';
+    const sign = l.type==='use' ? '-' : (Number(l.amount)<0 ? '-' : '+');
+    return `<div class="stored-value-log-row">
+      <span>${escapeHtml(l.date)} · ${label} ${sign}NT$ ${Math.abs(Number(l.amount)).toLocaleString()}</span>
       <span class="stored-value-log-balance">餘額 NT$ ${Number(l.balanceAfter).toLocaleString()}</span>
-    </div>`).join('')}</div>`;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 /* ---- Stored-value top-up modal ---- */
@@ -2195,6 +2206,51 @@ async function confirmTopUp(){
   await saveData();
   topUpDraft = null;
   showToast(`已為 ${client.name} 儲值 NT$${creditAmount.toLocaleString()}`);
+  render();
+}
+
+/* ---- Stored-value balance correction modal ---- */
+let adjustBalanceDraft = null; // {clientId, newBalance}
+function openAdjustBalanceModal(clientId){
+  const client = clients.find(c=>c.id===clientId);
+  if(!client) return;
+  adjustBalanceDraft = {clientId, newBalance: String(client.storedBalance||0)};
+  render();
+}
+function closeAdjustBalanceModal(){
+  adjustBalanceDraft = null;
+  render();
+}
+function renderAdjustBalanceModal(){
+  const client = clients.find(c=>c.id===adjustBalanceDraft.clientId);
+  return `<div class="modal-overlay" onclick="if(event.target===this) closeAdjustBalanceModal()">
+    <div class="modal-box">
+      <h3>更正 ${escapeHtml(client?client.name:'')} 的儲值餘額</h3>
+      <p class="field-hint" style="margin-bottom:14px;">目前餘額 NT$ ${(client?.storedBalance||0).toLocaleString()}。若是誤點選儲值或金額打錯，可以在這裡直接把餘額改成正確的金額（例如歸零）。這筆更正會記錄在儲值紀錄中。</p>
+      <div class="modal-field">
+        <label>正確的餘額（NT$）</label>
+        <input type="number" min="0" id="adjust-balance-input" value="${escapeHtml(adjustBalanceDraft.newBalance)}" oninput="adjustBalanceDraft.newBalance=this.value">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost btn" onclick="closeAdjustBalanceModal()">取消</button>
+        <button class="btn" onclick="confirmAdjustBalance()">確認更正</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function confirmAdjustBalance(){
+  const client = clients.find(c=>c.id===adjustBalanceDraft.clientId);
+  if(!client) return;
+  const newBalance = Math.max(0, Number(adjustBalanceDraft.newBalance)||0);
+  const delta = newBalance - (client.storedBalance||0);
+  if(delta!==0){
+    client.storedBalance = newBalance;
+    client.storedValueLog = client.storedValueLog||[];
+    client.storedValueLog.push({id:uid('svlog'), date: todayStr(), type:'adjust', amount: delta, balanceAfter: newBalance});
+    await saveData();
+    showToast(`已將 ${client.name} 的儲值餘額更正為 NT$${newBalance.toLocaleString()}`);
+  }
+  adjustBalanceDraft = null;
   render();
 }
 async function addClientTag(clientId){
@@ -3356,7 +3412,7 @@ const CAMPAIGNS_STORAGE_KEY = 'meiye-campaigns';
 const BIRTHDAY_STORAGE_KEY = 'meiye-birthday-settings';
 const STORED_VALUE_STORAGE_KEY = 'meiye-stored-value-settings';
 function defaultStoredValueSettings(){
-  return { tiers: [
+  return { enabled: true, tiers: [
     {id:'sv-default-1', payAmount:3000, discountPercent:90, creditAmount:3333, note:''},
     {id:'sv-default-2', payAmount:5000, discountPercent:83, creditAmount:6024, note:''},
   ]};
@@ -3576,6 +3632,13 @@ function renderStoredValueTab(){
     </div>`;
   }).join('') || `<p class="field-hint">尚未新增儲值方案。</p>`;
   return `
+  <div class="settings-row" style="margin-bottom:16px;">
+    <div>
+      <div class="settings-row-label">啟用儲值功能</div>
+      <div class="settings-row-hint">關閉後，客戶頁面不會顯示儲值餘額與儲值按鈕；已累積的餘額與紀錄不會被刪除。</div>
+    </div>
+    <label class="toggle-switch"><input type="checkbox" ${sv.enabled!==false?'checked':''} onchange="membershipDraft.storedValue.enabled=this.checked; render();"><span class="toggle-slider"></span></label>
+  </div>
   <p class="field-hint" style="margin-bottom:16px;">設定「客人付多少錢」＋「打幾折」，系統會自動算出客人實際可獲得的儲值餘額。儲值餘額可在服務結帳時折抵金額。</p>
   <div class="points-redemptions-grid">${tiersHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
