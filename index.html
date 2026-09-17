@@ -2239,8 +2239,9 @@ function renderStoredValueLogHtml(client){
   return `<div class="stored-value-log">${log.map(l=>{
     const label = l.type==='topup' ? '儲值' : l.type==='adjust' ? '更正' : l.type==='expire' ? '過期作廢' : '扣抵';
     const sign = (l.type==='use'||l.type==='expire') ? '-' : (Number(l.amount)<0 ? '-' : '+');
+    const faceNote = l.type==='use' && l.faceAmount && Number(l.faceAmount)!==Number(l.amount) ? `（支付 NT$ ${Number(l.faceAmount).toLocaleString()} 消費）` : '';
     return `<div class="stored-value-log-row">
-      <span>${escapeHtml(l.date)} · ${label} ${sign}NT$ ${Math.abs(Number(l.amount)).toLocaleString()}${l.expiresAt?`（期限至 ${escapeHtml(l.expiresAt)}）`:''}</span>
+      <span>${escapeHtml(l.date)} · ${label} ${sign}NT$ ${Math.abs(Number(l.amount)).toLocaleString()}${faceNote}${l.expiresAt?`（期限至 ${escapeHtml(l.expiresAt)}）`:''}</span>
       <span class="stored-value-log-balance">餘額 NT$ ${Number(l.balanceAfter).toLocaleString()}</span>
     </div>`;
   }).join('')}</div>`;
@@ -2255,12 +2256,34 @@ function renderStoredValueExpiryHint(client){
   return `<div class="client-stat-row"><span>最近到期日</span><strong${soon?' style="color:var(--warn);"':''}>NT$ ${nearest.remaining.toLocaleString()} · ${escapeHtml(nearest.expiresAt)}</strong></div>`;
 }
 
-/* ---- Stored-value lot tracking (for usage-deadline enforcement) ---- */
-function addStoredValueLot(client, amount, expiryMonths, date){
+/* ---- Stored-value lot tracking (for usage-deadline + per-lot discount rate) ---- */
+function addStoredValueLot(client, amount, discountPercent, expiryMonths, date){
   client.storedValueLots = client.storedValueLots||[];
   const expiresAt = Number(expiryMonths)>0 ? addMonthsToDate(date, expiryMonths) : null;
-  client.storedValueLots.push({id: uid('svlot'), amount, remaining: amount, date, expiresAt});
+  client.storedValueLots.push({id: uid('svlot'), amount, remaining: amount, discountPercent: discountPercent||100, date, expiresAt});
   return expiresAt;
+}
+/* Converts a face-value consumption amount into the actual balance deducted,
+   applying each lot's own discount rate, oldest non-expired lot first.
+   apply=true mutates the lots; apply=false just previews. */
+function computeStoredValueDeduction(client, faceAmt, apply){
+  const today = todayStr();
+  let remainingFace = Math.max(0, Number(faceAmt)||0);
+  let deducted = 0;
+  const lots = (client.storedValueLots||[])
+    .filter(l=>l.remaining>0 && (!l.expiresAt || l.expiresAt>=today))
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  for(const lot of lots){
+    if(remainingFace<=0) break;
+    const rate = (lot.discountPercent!=null ? lot.discountPercent : 100)/100;
+    if(rate<=0) continue;
+    const faceFromThisLot = Math.min(remainingFace, lot.remaining/rate);
+    const deductFromThisLot = Math.round(faceFromThisLot*rate);
+    if(apply) lot.remaining -= deductFromThisLot;
+    deducted += deductFromThisLot;
+    remainingFace -= faceFromThisLot;
+  }
+  return { deducted, coveredFace: Math.round((Number(faceAmt)||0) - remainingFace) };
 }
 function expireStoredValueLots(client){
   client.storedValueLots = client.storedValueLots||[];
@@ -2311,7 +2334,11 @@ function onTopUpTierChange(val){
 function renderTopUpModal(){
   const client = clients.find(c=>c.id===topUpDraft.clientId);
   const tiers = loadStoredValueSettings().tiers;
-  const options = tiers.map(t=>`<option value="${t.id}" ${topUpDraft.tierId===t.id?'selected':''}>付 NT$${t.payAmount.toLocaleString()} → 得 NT$${t.creditAmount.toLocaleString()}</option>`).join('');
+  const options = tiers.map(t=>{
+    const pct = t.discountPercent!=null ? t.discountPercent : 100;
+    const discountLabel = pct<100 ? `，消費打 ${pct} 折（約可消費 NT$${tierCreditAmount(t).toLocaleString()} 服務）` : '';
+    return `<option value="${t.id}" ${topUpDraft.tierId===t.id?'selected':''}>儲值 NT$${t.payAmount.toLocaleString()}${discountLabel}</option>`;
+  }).join('');
   return `<div class="modal-overlay" onclick="if(event.target===this) closeTopUpModal()">
     <div class="modal-box">
       <h3>為 ${escapeHtml(client?client.name:'')} 儲值</h3>
@@ -2333,24 +2360,25 @@ function renderTopUpModal(){
 async function confirmTopUp(){
   const client = clients.find(c=>c.id===topUpDraft.clientId);
   if(!client) return;
-  let creditAmount, expiryMonths = 0;
+  let creditAmount, expiryMonths = 0, discountPercent = 100;
   if(topUpDraft.customAmount && Number(topUpDraft.customAmount)>0){
     creditAmount = Number(topUpDraft.customAmount);
   }else{
     const tiers = loadStoredValueSettings().tiers;
     const tier = tiers.find(t=>t.id===topUpDraft.tierId);
     if(!tier){ showToast('請選擇儲值方案或輸入金額'); return; }
-    creditAmount = tier.creditAmount;
+    creditAmount = tier.payAmount;
     expiryMonths = tier.expiryMonths||0;
+    discountPercent = tier.discountPercent!=null ? tier.discountPercent : 100;
   }
   const date = todayStr();
-  const expiresAt = addStoredValueLot(client, creditAmount, expiryMonths, date);
+  const expiresAt = addStoredValueLot(client, creditAmount, discountPercent, expiryMonths, date);
   client.storedBalance = (client.storedBalance||0) + creditAmount;
   client.storedValueLog = client.storedValueLog||[];
   client.storedValueLog.push({id:uid('svlog'), date, type:'topup', amount: creditAmount, balanceAfter: client.storedBalance, expiresAt});
   await saveData();
   topUpDraft = null;
-  showToast(`已為 ${client.name} 儲值 NT$${creditAmount.toLocaleString()}${expiresAt?`（期限至 ${expiresAt}）`:''}`);
+  showToast(`已為 ${client.name} 儲值 NT$${creditAmount.toLocaleString()}${discountPercent<100?`（消費時打 ${discountPercent} 折）`:''}${expiresAt?`，期限至 ${expiresAt}`:''}`);
   render();
 }
 
@@ -2392,7 +2420,7 @@ async function confirmAdjustBalance(){
     if(delta<0){
       deductStoredValueLots(client, -delta);
     }else{
-      addStoredValueLot(client, delta, 0, todayStr());
+      addStoredValueLot(client, delta, 100, 0, todayStr());
     }
     client.storedBalance = newBalance;
     client.storedValueLog = client.storedValueLog||[];
@@ -2824,7 +2852,7 @@ function blankRecordDraft(clientId){
   return {
     clientId, id: null, date: '',
     time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
-    couponId:'', couponLabel:'', discountAmount:'', storedValueUsed:'',
+    couponId:'', couponLabel:'', discountAmount:'', storedValueUsed:'', storedValueFaceAmount:'',
     lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
     lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
@@ -2865,16 +2893,29 @@ function renderCouponPickerHtml(d){
     </div>
   </div>`;
 }
+function storedValueUsePreviewText(client, faceAmt){
+  if(!faceAmt) return `目前餘額 NT$ ${client.storedBalance.toLocaleString()}`;
+  const preview = computeStoredValueDeduction(client, faceAmt, false);
+  const remain = Math.max(0, client.storedBalance - preview.deducted);
+  if(preview.coveredFace < faceAmt){
+    return `餘額不足，最多可折抵 NT$ ${preview.coveredFace.toLocaleString()} 的消費（實際扣餘額 NT$ ${preview.deducted.toLocaleString()}），折抵後剩餘 NT$ ${remain.toLocaleString()}`;
+  }
+  return `實際會從儲值餘額扣 NT$ ${preview.deducted.toLocaleString()}，折抵後剩餘 NT$ ${remain.toLocaleString()}`;
+}
+function updateStoredValueUsePreview(){
+  const d = newRecordDraft;
+  const client = clients.find(c=>c.id===d.clientId);
+  const el = document.getElementById('sv-use-preview');
+  if(client && el) el.textContent = storedValueUsePreviewText(client, Number(d.storedValueUsed)||0);
+}
 function renderStoredValueUseHtml(d){
   if(!d.clientId) return '';
   const client = clients.find(c=>c.id===d.clientId);
   if(!client || !(client.storedBalance>0)) return '';
-  const used = Math.min(Number(d.storedValueUsed)||0, client.storedBalance);
-  const remain = Math.max(0, client.storedBalance - used);
   return `<div class="form-field" style="margin-bottom:12px;">
-    <label>使用儲值餘額折抵（目前餘額 NT$ ${client.storedBalance.toLocaleString()}）</label>
-    <input type="number" min="0" max="${client.storedBalance}" value="${escapeHtml(d.storedValueUsed||'')}" placeholder="這次折抵金額" oninput="newRecordDraft.storedValueUsed=this.value; document.getElementById('sv-use-preview').textContent='折抵後剩餘 NT' + '$ ' + Math.max(0, ${client.storedBalance} - (Number(this.value)||0)).toLocaleString();">
-    <div class="field-hint" id="sv-use-preview">折抵後剩餘 NT$ ${remain.toLocaleString()}</div>
+    <label>使用儲值支付本次消費（輸入要折抵的消費金額，目前餘額 NT$ ${client.storedBalance.toLocaleString()}）</label>
+    <input type="number" min="0" value="${escapeHtml(d.storedValueUsed||'')}" placeholder="這次消費想用儲值支付多少錢" oninput="newRecordDraft.storedValueUsed=this.value; updateStoredValueUsePreview();">
+    <div class="field-hint" id="sv-use-preview">${storedValueUsePreviewText(client, Number(d.storedValueUsed)||0)}</div>
   </div>`;
 }
 function setCouponSelection(couponId){
@@ -2916,7 +2957,7 @@ function renderRecordCard(r){
       <div class="record-detail-grid">
         ${serviceLabelOf(r)?`<div class="record-detail-item"><label>服務項目</label><span>${escapeHtml(serviceLabelOf(r))}</span></div>`:''}
         ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
-        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}${r.storedValueUsed?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用儲值餘額折抵 NT$ ${escapeHtml(String(r.storedValueUsed))}</span>`:''}</span></div>`:''}
+        ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}${r.storedValueUsed?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">${r.storedValueFaceAmount&&Number(r.storedValueFaceAmount)!==Number(r.storedValueUsed)?`使用儲值支付 NT$ ${escapeHtml(String(r.storedValueFaceAmount))} 消費，實際扣除餘額 NT$ ${escapeHtml(String(r.storedValueUsed))}`:`已使用儲值餘額折抵 NT$ ${escapeHtml(String(r.storedValueUsed))}`}</span>`:''}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
@@ -2998,7 +3039,7 @@ function startEditRecord(clientId, recordId){
     date: r.date,
     time: r.time||'', duration: r.duration||90, service: r.service||'', serviceOther: r.serviceOther||'', status: r.status||'completed',
     amount: r.amount||'', deposit: r.deposit||'',
-    couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'', storedValueUsed: r.storedValueUsed||'',
+    couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'', storedValueUsed: r.storedValueUsed||'', storedValueFaceAmount: r.storedValueFaceAmount||'',
     lenLL: r.lenLL||'', lenLM: r.lenLM||'', lenLR: r.lenLR||'',
     lenRL: r.lenRL||'', lenRM: r.lenRM||'', lenRR: r.lenRR||'',
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
@@ -3290,7 +3331,7 @@ async function saveNewRecord(){
     date: d.date,
     time: d.time||'', duration: d.duration||'', service: d.service||'', serviceOther: d.serviceOther||'',
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
-    couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'', storedValueUsed: d.storedValueUsed||'',
+    couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'', storedValueUsed: d.storedValueUsed||'', storedValueFaceAmount: d.storedValueFaceAmount||'',
     lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
     lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
@@ -3324,13 +3365,20 @@ async function saveNewRecord(){
       const net = Math.max(0, Number(payload.amount) - (Number(payload.discountAmount)||0));
       client.points = (client.points||0) + Math.floor(net/rate);
     }
-    const useAmount = Math.min(Number(payload.storedValueUsed)||0, client.storedBalance||0);
-    if(useAmount>0){
-      deductStoredValueLots(client, useAmount);
-      client.storedBalance = (client.storedBalance||0) - useAmount;
-      client.storedValueLog = client.storedValueLog||[];
-      client.storedValueLog.push({id:uid('svlog'), date: todayStr(), type:'use', amount: useAmount, balanceAfter: client.storedBalance});
-      payload.storedValueUsed = useAmount;
+    const faceAmt = Math.max(0, Number(payload.storedValueUsed)||0);
+    if(faceAmt>0 && (client.storedBalance||0)>0){
+      const result = computeStoredValueDeduction(client, faceAmt, true);
+      if(result.deducted>0){
+        client.storedBalance = Math.max(0, (client.storedBalance||0) - result.deducted);
+        client.storedValueLog = client.storedValueLog||[];
+        client.storedValueLog.push({id:uid('svlog'), date: todayStr(), type:'use', amount: result.deducted, balanceAfter: client.storedBalance, faceAmount: result.coveredFace});
+        payload.storedValueUsed = result.deducted;
+        payload.storedValueFaceAmount = result.coveredFace;
+      }else{
+        payload.storedValueUsed = '';
+      }
+    }else{
+      payload.storedValueUsed = '';
     }
   }
   newRecordDraft = null;
@@ -3796,7 +3844,7 @@ function renderStoredValueTab(){
     </div>
     <label class="toggle-switch"><input type="checkbox" ${sv.enabled!==false?'checked':''} onchange="membershipDraft.storedValue.enabled=this.checked; render();"><span class="toggle-slider"></span></label>
   </div>
-  <p class="field-hint" style="margin-bottom:16px;">設定「客人付多少錢」＋「打幾折」，系統會自動算出客人實際可獲得的儲值餘額。儲值餘額可在服務結帳時折抵金額。</p>
+  <p class="field-hint" style="margin-bottom:16px;">設定「客人付多少錢」＋「消費時打幾折」。客人的儲值餘額＝實付金額（不會被灌水）；之後每次消費使用儲值支付時，系統會依方案折扣自動算出實際從餘額扣除的金額，例如儲值 NT$15,000、消費打 85 折，客人消費 NT$1,000 的服務時，餘額只會扣 NT$850。</p>
   <div class="points-redemptions-grid">${tiersHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
     <button class="btn-ghost btn" onclick="addStoredValueTier()">＋ 新增儲值方案</button>
@@ -3804,8 +3852,11 @@ function renderStoredValueTab(){
   </div>`;
 }
 function storedValueTierResultText(t){
-  const base = `客人可獲得餘額：NT$ ${tierCreditAmount(t).toLocaleString()}`;
-  return t.expiryMonths>0 ? `${base}，需在 ${t.expiryMonths} 個月內用完` : base;
+  const pct = t.discountPercent!=null ? t.discountPercent : 100;
+  let text = `客人儲值餘額：NT$ ${Number(t.payAmount||0).toLocaleString()}（實付金額）`;
+  if(pct<100) text += `，消費時打 ${pct} 折折抵，等於可消費約 NT$ ${tierCreditAmount(t).toLocaleString()} 的服務`;
+  if(t.expiryMonths>0) text += `，需在 ${t.expiryMonths} 個月內用完`;
+  return text;
 }
 function updateStoredValueTier(i, key, val){
   const t = membershipDraft.storedValue.tiers[i];
