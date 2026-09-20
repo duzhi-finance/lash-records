@@ -942,8 +942,14 @@ async function saveData(){
 function uid(prefix){
   return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 }
+function toLocalDateStr(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 function todayStr(){
-  return new Date().toISOString().slice(0,10);
+  return toLocalDateStr(new Date());
 }
 function fmtDate(d){
   if(!d) return '—';
@@ -1413,14 +1419,14 @@ function selectCalendarDate(dateStr){
 function shiftCalendarWeek(days){
   const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
   d.setDate(d.getDate()+days);
-  calendarSelectedDate = d.toISOString().slice(0,10);
+  calendarSelectedDate = toLocalDateStr(d);
   newRecordDraft = null;
   render();
 }
 function shiftCalendarDay(days){
   const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
   d.setDate(d.getDate()+days);
-  calendarSelectedDate = d.toISOString().slice(0,10);
+  calendarSelectedDate = toLocalDateStr(d);
   newRecordDraft = null;
   render();
 }
@@ -1437,7 +1443,7 @@ function shiftCalendarMonth(months){
   const d = new Date((calendarSelectedDate||todayStr())+'T00:00:00');
   d.setDate(1);
   d.setMonth(d.getMonth()+months);
-  calendarSelectedDate = d.toISOString().slice(0,10);
+  calendarSelectedDate = toLocalDateStr(d);
   newRecordDraft = null;
   render();
 }
@@ -1449,7 +1455,7 @@ function getWeekDates(dateStr){
   for(let i=0;i<7;i++){
     const x = new Date(sunday);
     x.setDate(sunday.getDate()+i);
-    arr.push(x.toISOString().slice(0,10));
+    arr.push(toLocalDateStr(x));
   }
   return arr;
 }
@@ -1559,7 +1565,7 @@ function renderMonthGrid(dateStr, selectedDate){
   for(let i=0;i<42;i++){
     const x = new Date(gridStart);
     x.setDate(gridStart.getDate()+i);
-    const xStr = x.toISOString().slice(0,10);
+    const xStr = toLocalDateStr(x);
     const inMonth = x.getMonth()===month;
     const appts = inMonth ? collectAppointmentsForDate(xStr) : [];
     const isToday = xStr===today;
@@ -1581,7 +1587,7 @@ function getMiniDateRange(dateStr){
   for(let i=-1;i<=1;i++){
     const x = new Date(d);
     x.setDate(d.getDate()+i);
-    arr.push(x.toISOString().slice(0,10));
+    arr.push(toLocalDateStr(x));
   }
   return arr;
 }
@@ -3619,7 +3625,7 @@ function defaultStoredValueSettings(){
 function addMonthsToDate(dateStr, months){
   const d = new Date(dateStr+'T00:00:00');
   d.setMonth(d.getMonth()+Number(months||0));
-  return d.toISOString().slice(0,10);
+  return toLocalDateStr(d);
 }
 function loadStoredValueSettings(){
   try{ const raw = localStorage.getItem(STORED_VALUE_STORAGE_KEY); return raw ? Object.assign(defaultStoredValueSettings(), JSON.parse(raw)) : defaultStoredValueSettings(); }
@@ -3923,7 +3929,7 @@ function copyBirthdayMessage(){
   const b = membershipDraft.birthday;
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + (Number(b.expiryDays)||30));
-  const msg = substituteVars(b.content, {'[客戶姓名]':'小美'}) + `（使用期限至 ${expiry.toISOString().slice(0,10)}）`;
+  const msg = substituteVars(b.content, {'[客戶姓名]':'小美'}) + `（使用期限至 ${toLocalDateStr(expiry)}）`;
   copyAndOpenLine(msg);
 }
 
