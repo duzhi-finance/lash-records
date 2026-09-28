@@ -2864,6 +2864,7 @@ function blankRecordDraft(clientId){
     lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
     beforePhoto:null, afterPhoto:null,
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
+    padType:'', eyeShapeNote:'',
   };
 }
 function recordDraftFromLast(clientId, last){
@@ -2880,6 +2881,7 @@ function recordDraftFromLast(clientId, last){
     beforePhoto:null, afterPhoto:null,
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
+    padType: last.padType||'', eyeShapeNote: last.eyeShapeNote||'',
   };
 }
 
@@ -2942,13 +2944,14 @@ function eyeArcSvg(side){
 
 function renderRecordCard(r){
   const expanded = expandedRecordId===r.id;
+  const isLashMgmt = r.service==='睫毛管理';
   const totalCount = (Number(r.countLeft)||0) + (Number(r.countRight)||0);
   const hasSegL = r.lenLL||r.lenLM||r.lenLR;
   const hasSegR = r.lenRL||r.lenRM||r.lenRR;
   let body = '';
   if(expanded){
     body = `<div class="record-body">
-      <div class="eye-diagrams">
+      ${isLashMgmt?'':`<div class="eye-diagrams">
         <div class="eye-diagram-block">
           <div class="eye-label">左眼</div>
           <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
@@ -2959,12 +2962,16 @@ function renderRecordCard(r){
           <div class="eye-svg-wrap">${eyeArcSvg('R')}</div>
           ${hasSegR?`<div class="seg-display"><span>${escapeHtml(r.lenRL||'—')}</span><span>${escapeHtml(r.lenRM||'—')}</span><span>${escapeHtml(r.lenRR||'—')}</span></div>`:''}
         </div>
-      </div>
+      </div>`}
       <div class="record-detail-grid">
         ${serviceLabelOf(r)?`<div class="record-detail-item"><label>服務項目</label><span>${escapeHtml(serviceLabelOf(r))}</span></div>`:''}
         ${r.time?`<div class="record-detail-item"><label>時間</label><span>${escapeHtml(r.time)}</span></div>`:''}
         ${r.amount?`<div class="record-detail-item"><label>金額</label><span>NT$ ${escapeHtml(String(r.amount))}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">已使用優惠券「${escapeHtml(r.couponLabel||'')}」折抵 NT$ ${escapeHtml(String(r.discountAmount))}</span>`:''}${r.storedValueUsed?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">${r.storedValueFaceAmount&&Number(r.storedValueFaceAmount)!==Number(r.storedValueUsed)?`使用儲值支付 NT$ ${escapeHtml(String(r.storedValueFaceAmount))} 消費，實際扣除餘額 NT$ ${escapeHtml(String(r.storedValueUsed))}`:`已使用儲值餘額折抵 NT$ ${escapeHtml(String(r.storedValueUsed))}`}</span>`:''}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>訂金</label><span>NT$ ${escapeHtml(String(r.deposit))}</span></div>`:''}
+        ${isLashMgmt?`
+        <div class="record-detail-item"><label>墊片款式</label><span>${escapeHtml(r.padType||'—')}</span></div>
+        <div class="record-detail-item"><label>眼型</label><span>${escapeHtml(r.eyeShapeNote||'—')}</span></div>
+        <div class="record-detail-item"><label>第幾次操作</label><span>第 ${lashManagementVisitNumber(r.clientId, r.id)} 次</span></div>`:`
         <div class="record-detail-item"><label>款式</label><span>${escapeHtml(r.style||'—')}</span></div>
         <div class="record-detail-item"><label>長度</label><span>${escapeHtml(r.length||'—')}</span></div>
         <div class="record-detail-item"><label>翹度</label><span>${escapeHtml(r.curl||'—')}</span></div>
@@ -2976,7 +2983,7 @@ function renderRecordCard(r){
         <div class="record-detail-item"><label>下睫毛翹度</label><span>${escapeHtml(r.lowerCurl||'—')}</span></div>
         <div class="record-detail-item"><label>下睫毛根數</label><span>${escapeHtml(r.lowerCount||'—')}</span></div>
         <div class="record-detail-item"><label>下睫毛備註</label><span>${escapeHtml(r.lowerNote||'—')}</span></div>`:''}
-        ${r.glueBrand?`<div class="record-detail-item"><label>使用膠水</label><span>${escapeHtml(r.glueBrand==='其他'?(r.glueBrandOther||'其他'):r.glueBrand)}</span></div>`:''}
+        ${r.glueBrand?`<div class="record-detail-item"><label>使用膠水</label><span>${escapeHtml(r.glueBrand==='其他'?(r.glueBrandOther||'其他'):r.glueBrand)}</span></div>`:''}`}
       </div>
       ${(r.beforePhoto&&r.beforePhoto.value)||(r.afterPhoto&&r.afterPhoto.value)?`<div class="photo-compare-grid" style="margin-top:12px;">
         ${r.beforePhoto&&r.beforePhoto.value?`<div class="photo-slot"><div class="photo-slot-label">📷 術前 Before</div><div class="photo-preview-wrap"><img class="photo-preview" src="${escapeHtml(r.beforePhoto.value)}" alt="術前" onclick="openLightbox('${escapeHtml(r.beforePhoto.value).replace(/'/g,"&#39;")}')"></div></div>`:''}
@@ -2984,7 +2991,7 @@ function renderRecordCard(r){
       </div>`:''}
       ${r.designNotes?`<div class="record-notes"><strong>眼型設計：</strong>${escapeHtml(r.designNotes)}</div>`:''}
       ${r.adjustmentNotes?`<div class="record-notes"><strong>本次調整：</strong>${escapeHtml(r.adjustmentNotes)}</div>`:''}
-      ${r.notes?`<div class="record-notes"><strong>備註：</strong>${escapeHtml(r.notes)}</div>`:''}
+      ${r.notes?`<div class="record-notes"><strong>${isLashMgmt?'注意事項':'備註'}：</strong>${escapeHtml(r.notes)}</div>`:''}
       ${r.consentAgreed?`<div class="consent-summary">
         <div class="consent-summary-label">✓ 同意書與問卷已完成（${escapeHtml(r.consentAgreedAt||'')}）</div>
         ${r.signatureDataUrl?`<img class="consent-signature" src="${r.signatureDataUrl}" alt="客人簽名">`:''}
@@ -2996,15 +3003,18 @@ function renderRecordCard(r){
       </div>
     </div>`;
   }
+  const summaryHtml = isLashMgmt
+    ? `${escapeHtml(serviceLabelOf(r)||'')}${r.padType?` · 墊片 ${escapeHtml(r.padType)}`:''}${r.eyeShapeNote?` · ${escapeHtml(r.eyeShapeNote)}`:''}`
+    : `${escapeHtml(serviceLabelOf(r)?serviceLabelOf(r)+' · ':(r.style?r.style+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}${(r.lowerLength||r.lowerCurl)?`<span class="record-summary-lower">・下睫毛 ${escapeHtml(r.lowerLength||'')} ${escapeHtml(r.lowerCurl||'')}</span>`:''}`;
   return `<div class="record-card">
     <div class="record-top" onclick="toggleRecord('${r.id}')">
       <div>
         <div class="record-date">${r.date}${r.time?' · '+escapeHtml(r.time):''}</div>
-        <div class="record-summary">${escapeHtml(serviceLabelOf(r)?serviceLabelOf(r)+' · ':(r.style?r.style+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}${(r.lowerLength||r.lowerCurl)?`<span class="record-summary-lower">・下睫毛 ${escapeHtml(r.lowerLength||'')} ${escapeHtml(r.lowerCurl||'')}</span>`:''}</div>
+        <div class="record-summary">${summaryHtml}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
         ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(APPT_STATUS_LABELS[r.status]||r.status)}</button>`:''}
-        ${r.technique?`<span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>`:''}
+        ${(!isLashMgmt&&r.technique)?`<span class="record-tech">${escapeHtml(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique)}</span>`:''}
       </div>
     </div>
     ${body}
@@ -3014,6 +3024,14 @@ function findLatestRecord(clientId, excludeId){
   const client = clients.find(c=>c.id===clientId);
   const recs = (client.serviceRecords||[]).filter(r=>r.id!==excludeId).slice().sort((a,b)=> b.date.localeCompare(a.date));
   return recs[0] || null;
+}
+function lashManagementVisitNumber(clientId, recordId){
+  const client = clients.find(c=>c.id===clientId);
+  if(!client) return 1;
+  const recs = (client.serviceRecords||[]).filter(r=>r.service==='睫毛管理')
+    .slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
+  const idx = recs.findIndex(r=>r.id===recordId);
+  return idx>=0 ? idx+1 : recs.length+1;
 }
 function summarizeRecord(r){
   if(!r) return '';
@@ -3055,6 +3073,7 @@ function startEditRecord(clientId, recordId){
     beforePhoto: r.beforePhoto||null, afterPhoto: r.afterPhoto||null,
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
     designNotes: r.designNotes||'', adjustmentNotes: r.adjustmentNotes||'', notes: r.notes||'',
+    padType: r.padType||'', eyeShapeNote: r.eyeShapeNote||'',
   };
   expandedRecordId = null;
   render();
@@ -3118,6 +3137,9 @@ function renderNewRecordPanel(){
       <datalist id="client-name-list">${clients.map(c=>`<option value="${escapeHtml(c.name)}">`).join('')}</datalist>
     </div>` : '';
   const apptStatus = d.status || 'confirmed';
+  const isLashMgmt = d.service==='睫毛管理';
+  const visitNumberHtml = isLashMgmt && d.clientId ? `<div class="form-field"><label>第幾次操作</label>
+        <input type="text" value="第 ${lashManagementVisitNumber(d.clientId, d.id)} 次" disabled></div>` : '';
 
   return `<div class="new-record-panel" id="new-record-panel">
     <div class="new-record-title">${d.id?'編輯服務紀錄':(d.clientId?'新增服務紀錄':'新增預約')}</div>
@@ -3151,6 +3173,15 @@ function renderNewRecordPanel(){
       </div>
       ${d.service==='其他'?`<input type="text" style="margin-top:8px;" placeholder="請輸入服務項目名稱" value="${escapeHtml(d.serviceOther||'')}" oninput="newRecordDraft.serviceOther=this.value">`:''}
     </div>
+    ${isLashMgmt?`<div class="form-row" style="margin-bottom:12px;">
+      <div class="form-field"><label>墊片款式</label>
+        <input type="text" value="${escapeHtml(d.padType||'')}" placeholder="例如：M 號、圓翹墊片" oninput="newRecordDraft.padType=this.value">
+      </div>
+      <div class="form-field"><label>眼型</label>
+        <input type="text" value="${escapeHtml(d.eyeShapeNote||'')}" placeholder="例如：下垂眼、標準眼" oninput="newRecordDraft.eyeShapeNote=this.value">
+      </div>
+    </div>
+    ${visitNumberHtml}`:''}
     <div class="form-field" style="margin-bottom:12px;">
       <label>預約狀態</label>
       <div class="tri-toggle" data-field="apptStatus">
@@ -3168,6 +3199,7 @@ function renderNewRecordPanel(){
     <div class="field-hint" style="margin:-8px 0 12px;">訂金只在客人「未到」時才會用到：客人爽約但有先收訂金，這筆訂金會算進本月營收；正常完成服務的話不用填，「金額」會直接算進營收。</div>
     ${renderCouponPickerHtml(d)}
     ${renderStoredValueUseHtml(d)}
+    ${isLashMgmt?'':`
     <div class="form-field" style="margin-bottom:12px;">
       <label>款式</label>
       <div class="chip-select">
@@ -3273,7 +3305,7 @@ function renderNewRecordPanel(){
         <label>技術說明</label>
         <input type="text" value="${escapeHtml(d.techniqueOther)}" placeholder="請輸入技術名稱" oninput="newRecordDraft.techniqueOther=this.value">
       </div>
-    </div>
+    </div>`}
     <div class="form-field" style="margin-bottom:14px;">
       <label>照片對比（術前 / 術後，選填）</label>
       <div class="photo-compare-grid">
@@ -3282,8 +3314,8 @@ function renderNewRecordPanel(){
       </div>
     </div>
     <div class="form-field" style="margin-bottom:4px;">
-      <label>其他備註（選填）</label>
-      <textarea placeholder="例如：客人指定樣式、其他提醒…" oninput="newRecordDraft.notes=this.value">${escapeHtml(d.notes)}</textarea>
+      <label>${isLashMgmt?'注意事項（選填）':'其他備註（選填）'}</label>
+      <textarea placeholder="${isLashMgmt?'例如：對某款膠水過敏、眼皮較薄':'例如：客人指定樣式、其他提醒…'}" oninput="newRecordDraft.notes=this.value">${escapeHtml(d.notes)}</textarea>
     </div>
     <div id="new-record-error" style="color:var(--alert);font-size:12.5px;margin-bottom:6px;"></div>
     <div class="form-actions">
@@ -3347,6 +3379,7 @@ async function saveNewRecord(){
     beforePhoto: d.beforePhoto||null, afterPhoto: d.afterPhoto||null,
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
+    padType: d.padType||'', eyeShapeNote: d.eyeShapeNote||'',
   };
   if(d.consentAgreed){
     payload.consentAgreed = true;
