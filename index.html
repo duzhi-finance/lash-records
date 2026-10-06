@@ -90,10 +90,12 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
   display:flex;align-items:center;justify-content:center;padding:24px;
 }
 .access-gate-card{
+  position:relative;
   width:100%;max-width:360px;text-align:center;
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-card);
   padding:44px 32px;box-shadow:0 1px 2px rgba(43,41,38,0.04), 0 24px 60px rgba(43,41,38,0.1);
 }
+.access-gate-lang-toggle{position:absolute;top:16px;right:16px;}
 .access-gate-brand{font-family:var(--font-serif);font-size:24px;font-weight:700;letter-spacing:1px;color:var(--mocha-deep);margin-bottom:20px;}
 .access-gate-title{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--ink);letter-spacing:0.04em;margin-bottom:10px;}
 .access-gate-hint{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px;}
@@ -167,6 +169,11 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 
 /* ---------- Top bar action group ---------- */
 .topbar-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.lang-toggle-btn{
+  border:1px solid var(--mocha-deep);border-radius:999px;background:#fff;color:var(--mocha-deep);
+  font-size:12px;font-weight:700;letter-spacing:0.05em;padding:7px 14px;
+}
+.lang-toggle-btn:hover{background:var(--blush);}
 .icon-btn-group{display:flex;gap:8px;flex-wrap:wrap;padding-right:12px;border-right:1px solid var(--blush-line);}
 .icon-btn-group--footer{
   display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
@@ -922,12 +929,12 @@ input[type="time"]::-webkit-calendar-picker-indicator{
 <div id="access-gate" class="access-gate">
   <div class="access-gate-card">
     <div class="access-gate-brand">EYELASH</div>
-    <h1 class="access-gate-title">請輸入通行密碼</h1>
-    <p class="access-gate-hint">這是付費客戶專用工具。付款完成後，請透過 LINE 私訊索取密碼。</p>
+    <h1 class="access-gate-title" id="gate-title">請輸入通行密碼</h1>
+    <p class="access-gate-hint" id="gate-hint">這是付費客戶專用工具。付款完成後，請透過 LINE 私訊索取密碼。</p>
     <input type="password" id="gate-password-input" class="access-gate-input" placeholder="輸入密碼" autocomplete="off">
-    <button type="button" class="btn access-gate-btn" onclick="attemptUnlock()">進入</button>
+    <button type="button" class="btn access-gate-btn" id="gate-enter-btn" onclick="attemptUnlock()">進入</button>
     <p id="gate-error" class="access-gate-error"></p>
-    <a class="access-gate-line-link" href="https://line.me/R/ti/p/%40799vhtvj" target="_blank" rel="noopener">還沒有密碼？點此透過 LINE 索取 →</a>
+    <a class="access-gate-line-link" id="gate-line-link" href="https://line.me/R/ti/p/%40799vhtvj" target="_blank" rel="noopener">還沒有密碼？點此透過 LINE 索取 →</a>
   </div>
 </div>
 <div id="app">載入中…</div>
@@ -941,6 +948,69 @@ input[type="time"]::-webkit-calendar-picker-indicator{
  */
 const STORAGE_KEY = 'meiye-clients-data';
 let clients = [];
+
+/* ============ i18n (zh default, optional English/£ toggle) ============ */
+const LANG_STORAGE_KEY = 'meiye-lang';
+function loadLang(){
+  try{ return localStorage.getItem(LANG_STORAGE_KEY)==='en' ? 'en' : 'zh'; }catch(e){ return 'zh'; }
+}
+let currentLang = loadLang();
+function setLang(lang){
+  currentLang = lang==='en' ? 'en' : 'zh';
+  try{ localStorage.setItem(LANG_STORAGE_KEY, currentLang); }catch(e){}
+  render();
+}
+function toggleLang(){ setLang(currentLang==='en' ? 'zh' : 'en'); }
+/* t() looks the given Chinese text up in I18N_EN when in English mode.
+   Using the zh text itself as the key (instead of invented key names) keeps
+   every call site self-documenting and avoids a second key-naming pass. */
+const I18N_EN = {
+  // Topbar / list view
+  '獨立美睫師的客戶紀錄本':'Client Record Book for Independent Lash Artists',
+  '新增客戶':'Add Client',
+  '本月營收':'This Month\'s Revenue',
+  '搜尋姓名或電話…':'Search by name or phone…',
+  '共 {n} 位客戶':'{n} clients total',
+  '，符合搜尋 {n} 位':', {n} match your search',
+  '資料僅儲存在此裝置、此瀏覽器（localStorage）。':'Data is stored only on this device, in this browser (localStorage).',
+  '換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。':'Switching devices or browsers, or clearing browser data/cache, will permanently lose your records. Use "Export Backup" regularly, and always export before resetting your device or clearing data.',
+  '© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。':'© All rights reserved. For the purchaser\'s personal use only — resale, rental, or public distribution of the original file/link is prohibited.',
+  '關閉，不再顯示':'Close, don\'t show again',
+  '感謝購買，歡迎使用 EYELASH':'Thanks for your purchase — welcome to EYELASH',
+  '這個網頁就是你剛剛付款購買的客戶紀錄工具，資料只會儲存在「這台裝置、這個瀏覽器」裡。':'This page is the client record tool you just purchased. Data is stored only on "this device, this browser."',
+  '強烈建議現在就做這件事：':'Strongly recommended right now:',
+  '把這個網頁加入手機主畫面或瀏覽器書籤，之後才能隨時打開，不用擔心關掉分頁後找不到。':'Add this page to your phone\'s home screen or bookmark it, so you can always find it again after closing the tab.',
+  'iPhone／Safari：點畫面下方的分享圖示 → 選「加入主畫面」':'iPhone/Safari: tap the Share icon at the bottom → "Add to Home Screen"',
+  'Android／Chrome：點右上角選單「⋮」→ 選「加到主畫面」':'Android/Chrome: tap the "⋮" menu top-right → "Add to Home screen"',
+  '我知道了，不再顯示':'Got it, don\'t show again',
+  '還沒有客戶紀錄':'No clients yet',
+  '新增第一位客戶，開始取代紙本記事卡。':'Add your first client to start replacing paper record cards.',
+  '找不到符合「{term}」的客戶。':'No clients match "{term}".',
+  '累積 {n} 次':'{n} visits',
+  '・上次：{date}':' · Last: {date}',
+  '留意 {n}':'{n} flags',
+  '快速新增服務紀錄':'Quick-add service record',
+  // Access gate
+  '請輸入通行密碼':'Enter Access Password',
+  '這是付費客戶專用工具。付款完成後，請透過 LINE 私訊索取密碼。':'This tool is for paying customers only. After payment, message us on LINE for the password.',
+  '輸入密碼':'Enter password',
+  '進入':'Enter',
+  '還沒有密碼？點此透過 LINE 索取 →':'No password yet? Message us on LINE →',
+  '請輸入密碼':'Please enter a password',
+  '密碼不正確，請確認後再輸入一次':'Incorrect password, please check and try again',
+  // Appointment reminder banner
+  '今天有 <strong>{n}</strong> 筆預約':'<strong>{n}</strong> appointment(s) today',
+  '明天有 <strong>{n}</strong> 筆預約':'<strong>{n}</strong> appointment(s) tomorrow',
+  '，點此查看行事曆 →':' — tap to view calendar →',
+  '關閉，今天不再顯示':'Close, don\'t show again today',
+};
+function t(zh, vars){
+  let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
+  if(vars){ Object.keys(vars).forEach(k=>{ s = s.split('{'+k+'}').join(vars[k]); }); }
+  return s;
+}
+function curSym(){ return currentLang==='en' ? '£' : 'NT$'; }
+function money(amount){ return curSym()+' '+Number(amount||0).toLocaleString(); }
 
 async function loadData(){
   try{
@@ -1259,24 +1329,24 @@ function renderClientListItems(highlightId){
   const filtered = filteredClientList();
   if(clients.length===0){
     const welcomeHtml = isWelcomeDismissed() ? '' : `<div class="welcome-first-run">
-      <button type="button" class="welcome-first-run-close" onclick="dismissWelcome()" aria-label="關閉，不再顯示">✕</button>
-      <div class="welcome-first-run-title">感謝購買，歡迎使用 EYELASH</div>
-      <p>這個網頁就是你剛剛付款購買的客戶紀錄工具，資料只會儲存在「這台裝置、這個瀏覽器」裡。</p>
-      <p><strong>強烈建議現在就做這件事：</strong>把這個網頁加入手機主畫面或瀏覽器書籤，之後才能隨時打開，不用擔心關掉分頁後找不到。</p>
+      <button type="button" class="welcome-first-run-close" onclick="dismissWelcome()" aria-label="${t('關閉，不再顯示')}">✕</button>
+      <div class="welcome-first-run-title">${t('感謝購買，歡迎使用 EYELASH')}</div>
+      <p>${t('這個網頁就是你剛剛付款購買的客戶紀錄工具，資料只會儲存在「這台裝置、這個瀏覽器」裡。')}</p>
+      <p><strong>${t('強烈建議現在就做這件事：')}</strong>${t('把這個網頁加入手機主畫面或瀏覽器書籤，之後才能隨時打開，不用擔心關掉分頁後找不到。')}</p>
       <ul class="welcome-first-run-steps">
-        <li>iPhone／Safari：點畫面下方的分享圖示 → 選「加入主畫面」</li>
-        <li>Android／Chrome：點右上角選單「⋮」→ 選「加到主畫面」</li>
+        <li>${t('iPhone／Safari：點畫面下方的分享圖示 → 選「加入主畫面」')}</li>
+        <li>${t('Android／Chrome：點右上角選單「⋮」→ 選「加到主畫面」')}</li>
       </ul>
-      <button type="button" class="btn-ghost btn btn-sm" style="margin-top:6px;" onclick="dismissWelcome()">我知道了，不再顯示</button>
+      <button type="button" class="btn-ghost btn btn-sm" style="margin-top:6px;" onclick="dismissWelcome()">${t('我知道了，不再顯示')}</button>
     </div>`;
     return `${welcomeHtml}
     <div class="empty-state">
-      <h3>還沒有客戶紀錄</h3>
-      <p>新增第一位客戶，開始取代紙本記事卡。</p>
+      <h3>${t('還沒有客戶紀錄')}</h3>
+      <p>${t('新增第一位客戶，開始取代紙本記事卡。')}</p>
     </div>`;
   }
   if(filtered.length===0){
-    return `<div class="empty-state"><p>找不到符合「${escapeHtml(searchTerm)}」的客戶。</p></div>`;
+    return `<div class="empty-state"><p>${t('找不到符合「{term}」的客戶。',{term:escapeHtml(searchTerm)})}</p></div>`;
   }
   return '<div class="client-list">' + filtered.map(c=>{
     const lastVisit = latestServiceDate(c) || c.status.lastLashDate || '';
@@ -1287,12 +1357,12 @@ function renderClientListItems(highlightId){
         ${avatarHtml(c, 38)}
         <div class="client-main">
           <div class="client-name">${escapeHtml(c.name)}</div>
-          <div class="client-meta">${c.phone?escapeHtml(c.phone)+' · ':''}累積 ${visitCount} 次${lastVisit?' · 上次：'+escapeHtml(lastVisit):''}</div>
+          <div class="client-meta">${c.phone?escapeHtml(c.phone)+' · ':''}${t('累積 {n} 次',{n:visitCount})}${lastVisit?t('・上次：{date}',{date:escapeHtml(lastVisit)}):''}</div>
         </div>
       </div>
       <div class="client-side">
-        ${tagCount>0?`<span class="tag-count">留意 ${tagCount}</span>`:''}
-        <button class="quick-add-btn" title="快速新增服務紀錄" onclick="event.stopPropagation(); quickAddRecord('${c.id}')">＋</button>
+        ${tagCount>0?`<span class="tag-count">${t('留意 {n}',{n:tagCount})}</span>`:''}
+        <button class="quick-add-btn" title="${t('快速新增服務紀錄')}" onclick="event.stopPropagation(); quickAddRecord('${c.id}')">＋</button>
       </div>
     </div>`;
   }).join('') + '</div>';
@@ -1303,7 +1373,7 @@ function renderListView(){
   const cardsHtml = renderClientListItems(null);
 
   const countLine = clients.length>0
-    ? `<div style="font-size:12.5px;color:var(--ink-faint);margin-bottom:12px;">共 ${clients.length} 位客戶${term && filtered.length!==clients.length ? `，符合搜尋 ${filtered.length} 位` : ''}</div>`
+    ? `<div style="font-size:12.5px;color:var(--ink-faint);margin-bottom:12px;">${t('共 {n} 位客戶',{n:clients.length})}${term && filtered.length!==clients.length ? t('，符合搜尋 {n} 位',{n:filtered.length}) : ''}</div>`
     : '';
 
   return `
@@ -1311,22 +1381,23 @@ function renderListView(){
       <div class="brand">
         <div class="brand-row">
           <h1 class="wordmark">EYELASH</h1>
-          <span class="sub">獨立美睫師的客戶紀錄本</span>
+          <span class="sub">${t('獨立美睫師的客戶紀錄本')}</span>
         </div>
         <div class="brand-en">FOR INDEPENDENT LASH ARTISTS</div>
       </div>
       <div class="topbar-actions">
-        <button class="btn" onclick="openAddClientModal()">＋ 新增客戶</button>
+        <button class="lang-toggle-btn" onclick="toggleLang()" title="${currentLang==='en'?'切換成中文':'Switch to English'}">${currentLang==='en'?'中文':'EN'}</button>
+        <button class="btn" onclick="openAddClientModal()">＋ ${t('新增客戶')}</button>
         <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
       </div>
     </div>
     ${renderApptReminderBanner()}
     <div class="revenue-card">
-      <span class="revenue-label">本月營收</span>
-      <span class="revenue-amount">NT$ ${computeMonthlyRevenue().toLocaleString()}</span>
+      <span class="revenue-label">${t('本月營收')}</span>
+      <span class="revenue-amount">${money(computeMonthlyRevenue())}</span>
     </div>
     <div class="search-row">
-      <input class="search-input" placeholder="搜尋姓名或電話…" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
+      <input class="search-input" placeholder="${t('搜尋姓名或電話…')}" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
     </div>
     ${countLine}
     ${cardsHtml}
@@ -1358,8 +1429,8 @@ function renderListView(){
         </button>
       </div>
       <div class="list-footer-en">EYELASH — CLIENT RECORD SYSTEM</div>
-      <p class="list-footer-notice"><strong>資料僅儲存在此裝置、此瀏覽器（localStorage）。</strong>換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。</p>
-      <div class="list-footer-copyright">© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。</div>
+      <p class="list-footer-notice"><strong>${t('資料僅儲存在此裝置、此瀏覽器（localStorage）。')}</strong>${t('換一台裝置、換一個瀏覽器，或清除瀏覽器資料／快取，都會讓紀錄遺失且無法復原。建議定期使用「匯出備份」保存檔案，重灌設備或清除資料前務必先匯出。')}</p>
+      <div class="list-footer-copyright">${t('© 版權所有，本工具僅供購買者個人使用，禁止轉售、出租或公開散布原始檔案／連結。')}</div>
     </div>
   `;
 }
@@ -1514,11 +1585,12 @@ function renderApptReminderBanner(){
   try{ dismissed = localStorage.getItem(dismissKey)==='1'; }catch(e){}
   if(dismissed) return '';
   const parts = [];
-  if(todayAppts.length) parts.push(`今天有 <strong>${todayAppts.length}</strong> 筆預約`);
-  if(tomorrowAppts.length) parts.push(`明天有 <strong>${tomorrowAppts.length}</strong> 筆預約`);
+  if(todayAppts.length) parts.push(t('今天有 <strong>{n}</strong> 筆預約',{n:todayAppts.length}));
+  if(tomorrowAppts.length) parts.push(t('明天有 <strong>{n}</strong> 筆預約',{n:tomorrowAppts.length}));
+  const sep = currentLang==='en' ? ', ' : '，';
   return `<div class="appt-reminder-banner">
-    <div class="appt-reminder-text" onclick="openCalendar()">📅 ${parts.join('，')}，點此查看行事曆 →</div>
-    <button type="button" class="appt-reminder-close" onclick="dismissApptReminder('${dismissKey}')" aria-label="關閉，今天不再顯示">✕</button>
+    <div class="appt-reminder-text" onclick="openCalendar()">📅 ${parts.join(sep)}${t('，點此查看行事曆 →')}</div>
+    <button type="button" class="appt-reminder-close" onclick="dismissApptReminder('${dismissKey}')" aria-label="${t('關閉，今天不再顯示')}">✕</button>
   </div>`;
 }
 function dismissApptReminder(key){
@@ -4039,7 +4111,7 @@ async function attemptUnlock(){
   const input = document.getElementById('gate-password-input');
   const errEl = document.getElementById('gate-error');
   const val = (input.value||'').trim();
-  if(!val){ errEl.textContent = '請輸入密碼'; return; }
+  if(!val){ errEl.textContent = t('請輸入密碼'); return; }
   const hash = await sha256Hex(val);
   if(hash===ACCESS_HASH){
     localStorage.setItem(ACCESS_STORAGE_KEY, '1');
@@ -4047,7 +4119,7 @@ async function attemptUnlock(){
     if(gate) gate.remove();
     startApp();
   }else{
-    errEl.textContent = '密碼不正確，請確認後再輸入一次';
+    errEl.textContent = t('密碼不正確，請確認後再輸入一次');
     input.select();
   }
 }
@@ -4061,7 +4133,39 @@ async function startApp(){
 }
 
 /* ============ Init ============ */
+function applyGateLang(){
+  const titleEl = document.getElementById('gate-title');
+  const hintEl = document.getElementById('gate-hint');
+  const inputEl = document.getElementById('gate-password-input');
+  const btnEl = document.getElementById('gate-enter-btn');
+  const linkEl = document.getElementById('gate-line-link');
+  const toggleEl = document.getElementById('gate-lang-toggle');
+  if(titleEl) titleEl.textContent = t('請輸入通行密碼');
+  if(hintEl) hintEl.textContent = t('這是付費客戶專用工具。付款完成後，請透過 LINE 私訊索取密碼。');
+  if(inputEl) inputEl.placeholder = t('輸入密碼');
+  if(btnEl) btnEl.textContent = t('進入');
+  if(linkEl) linkEl.textContent = t('還沒有密碼？點此透過 LINE 索取 →');
+  if(toggleEl) toggleEl.textContent = currentLang==='en' ? '中文' : 'EN';
+}
+function toggleGateLang(){
+  toggleLangOnly();
+  applyGateLang();
+}
+function toggleLangOnly(){
+  currentLang = currentLang==='en' ? 'zh' : 'en';
+  try{ localStorage.setItem(LANG_STORAGE_KEY, currentLang); }catch(e){}
+}
 (function initGate(){
+  const gateCard = document.querySelector('.access-gate-card');
+  if(gateCard && !document.getElementById('gate-lang-toggle')){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'gate-lang-toggle';
+    btn.className = 'lang-toggle-btn access-gate-lang-toggle';
+    btn.onclick = toggleGateLang;
+    gateCard.insertBefore(btn, gateCard.firstChild);
+  }
+  applyGateLang();
   const gateInput = document.getElementById('gate-password-input');
   if(gateInput){
     gateInput.addEventListener('keydown', e=>{ if(e.key==='Enter') attemptUnlock(); });
