@@ -1296,6 +1296,61 @@ const I18N_EN = {
   '服務紀錄':'Service Records',
   '尚無服務紀錄。':'No service records yet.',
   '確定要刪除這筆服務紀錄嗎？':'Delete this service record?',
+  '會員制度':'Membership Tiers',
+  '點數規則':'Points Rules',
+  '活動管理／優惠券':'Campaigns / Coupons',
+  '儲值方案':'Stored Value Plans',
+  '生日禮':'Birthday Gift',
+  '會員與行銷':'Membership & Marketing',
+  '設定會員等級、點數與優惠活動，讓熟客感受到被重視。等級與點數會依照客戶的「累積消費總額」自動判定，優惠券可在服務結帳時套用折抵金額。':'Set up membership tiers, points, and campaigns so regulars feel valued. Tiers and points are determined automatically from a client\'s total spend; coupons can be applied to discount a service at checkout.',
+  '等級':'Tier',
+  '升級門檻':'Upgrade Threshold',
+  '專屬福利':'Exclusive Perks',
+  '例如：生日禮加碼、優先預約':'e.g. Extra birthday gift, priority booking',
+  '刪除此等級':'Delete this tier',
+  '會員有效期限':'Membership Validity',
+  '個月':'months',
+  '新增等級':'Add Tier',
+  '儲存設定':'Save Settings',
+  '兌換方案名稱':'Redemption Plan Name',
+  '所需點數':'Points Required',
+  '刪除此方案':'Delete this plan',
+  '尚未新增兌換方案。':'No redemption plans added yet.',
+  '每消費':'For every',
+  '得 1 點':'spent, earn 1 point',
+  '新增兌換方案':'Add Redemption Plan',
+  '活動期間':'Campaign Period',
+  '例如：2025/01/01–2025/01/31':'e.g. 2025/01/01–2025/01/31',
+  '適用對象':'Target Audience',
+  '例如：新客／全體客人':'e.g. New clients / All clients',
+  '活動內容':'Campaign Details',
+  '啟用優惠碼':'Enable Coupon Code',
+  '優惠碼':'Coupon Code',
+  '尚未建立任何活動。點下方「＋ 新增活動」開始建立你的第一個折價活動或優惠券。':'No campaigns yet. Tap "+ Add Campaign" below to create your first discount campaign or coupon.',
+  '新增活動':'Add Campaign',
+  '儲存後，這些活動會出現在「新增服務紀錄」表單中，可在客人結帳時選擇套用，折抵金額會顯示在該筆消費紀錄上。':'Once saved, these campaigns will appear in the "New Service Record" form so you can apply them at checkout — the discount will show on that record.',
+  '儲值門檻（客人實付 {sym}）':'Top-up Threshold (Client Pays {sym})',
+  '折扣（打幾折，例如 90 代表九折）':'Discount (e.g. 90 = 10% off)',
+  '使用期限（幾個月內用完，0＝無期限）':'Expiry (months to use, 0 = no expiry)',
+  '啟用儲值功能':'Enable Stored Value',
+  '關閉後，客戶頁面不會顯示儲值餘額與儲值按鈕；已累積的餘額與紀錄不會被刪除。':'When off, the client page hides the stored-value balance and top-up button; accumulated balances and logs are kept, not deleted.',
+  '設定「客人付多少錢」＋「消費時打幾折」。客人的儲值餘額＝實付金額（不會被灌水）；之後每次消費使用儲值支付時，系統會依方案折扣自動算出實際從餘額扣除的金額，例如儲值 {sym}15,000、消費打 85 折，客人消費 {sym}1,000 的服務時，餘額只會扣 {sym}850。':'Set how much the client pays and what discount applies when spending. The client\'s balance equals the amount actually paid (never inflated); each time stored value is used, the system automatically works out the discounted amount to deduct. For example, with a {sym}15,000 top-up at a 15% discount, a {sym}1,000 service only deducts {sym}850 from the balance.',
+  '尚未新增儲值方案。':'No stored-value plans added yet.',
+  '新增儲值方案':'Add Stored-Value Plan',
+  '客人儲值餘額：{sym} {amt}（實付金額）':'Client balance: {sym} {amt} (amount paid)',
+  '，消費時打 {pct} 折折抵，等於可消費約 {sym} {amt} 的服務':', discounted at {pct}% when spent — equivalent to about {sym} {amt} of services',
+  '，需在 {n} 個月內用完':', must be used within {n} months',
+  '提前發送天數':'Days in Advance',
+  '天':'days',
+  '使用期限':'Expiry',
+  '適用服務':'Applicable Services',
+  '生日禮祝福文案':'Birthday Message Template',
+  '一鍵複製生日禮簡訊':'Copy Birthday Message',
+  '已儲存會員制度設定':'Membership tiers saved',
+  '已儲存點數規則設定':'Points rules saved',
+  '已儲存活動與優惠券設定':'Campaigns & coupons saved',
+  '已儲存儲值方案設定':'Stored-value plans saved',
+  '已儲存生日禮設定':'Birthday gift settings saved',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -4131,13 +4186,13 @@ function switchMembershipTab(tab){
 }
 function renderMembershipView(){
   const tabs = [
-    {key:'tiers', label:'會員制度'},
-    {key:'points', label:'點數規則'},
-    {key:'campaigns', label:'活動管理／優惠券'},
-    {key:'storedValue', label:'儲值方案'},
-    {key:'birthday', label:'生日禮'},
+    {key:'tiers', label:t('會員制度')},
+    {key:'points', label:t('點數規則')},
+    {key:'campaigns', label:t('活動管理／優惠券')},
+    {key:'storedValue', label:t('儲值方案')},
+    {key:'birthday', label:t('生日禮')},
   ];
-  const tabBtns = tabs.map(t=>`<button class="settings-tab-btn ${membershipTab===t.key?'active':''}" onclick="switchMembershipTab('${t.key}')">${t.label}</button>`).join('');
+  const tabBtns = tabs.map(tb=>`<button class="settings-tab-btn ${membershipTab===tb.key?'active':''}" onclick="switchMembershipTab('${tb.key}')">${tb.label}</button>`).join('');
   let body = '';
   if(membershipTab==='tiers') body = renderTiersTab();
   else if(membershipTab==='points') body = renderPointsTab();
@@ -4146,11 +4201,11 @@ function renderMembershipView(){
   else body = renderBirthdayTab();
   return `
     <div class="back-row">
-      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+      <button class="btn-text" onclick="backToList()">← ${t('返回客戶列表')}</button>
     </div>
     <div class="client-card-hero">
-      <div class="client-card-top"><h1>會員與行銷</h1></div>
-      <p class="field-hint" style="margin-top:2px;">設定會員等級、點數與優惠活動，讓熟客感受到被重視。等級與點數會依照客戶的「累積消費總額」自動判定，優惠券可在服務結帳時套用折抵金額。</p>
+      <div class="client-card-top"><h1>${t('會員與行銷')}</h1></div>
+      <p class="field-hint" style="margin-top:2px;">${t('設定會員等級、點數與優惠活動，讓熟客感受到被重視。等級與點數會依照客戶的「累積消費總額」自動判定，優惠券可在服務結帳時套用折抵金額。')}</p>
     </div>
     <div class="settings-tabs">${tabBtns}</div>
     ${body}
@@ -4161,32 +4216,32 @@ function renderMembershipView(){
 const TIER_BADGE_CLASSES = ['member-tier-silver','member-tier-gold','member-tier-black'];
 function renderTiersTab(){
   const m = membershipDraft.membership;
-  const tiersHtml = m.tiers.map((t,i)=>`
+  const tiersHtml = m.tiers.map((tr,i)=>`
     <div class="tier-card tier-card--row">
       <div class="tier-col tier-col-badge">
-        <span class="member-tier-badge ${TIER_BADGE_CLASSES[i%TIER_BADGE_CLASSES.length]}">${escapeHtml(t.label||'等級')}</span>
-        <input class="tier-name-input" value="${escapeHtml(t.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value; this.closest('.tier-card').querySelector('.member-tier-badge').textContent=this.value;">
+        <span class="member-tier-badge ${TIER_BADGE_CLASSES[i%TIER_BADGE_CLASSES.length]}">${escapeHtml(tr.label||t('等級'))}</span>
+        <input class="tier-name-input" value="${escapeHtml(tr.label)}" oninput="membershipDraft.membership.tiers[${i}].label=this.value; this.closest('.tier-card').querySelector('.member-tier-badge').textContent=this.value;">
       </div>
       <div class="tier-col tier-col-threshold">
-        <label>升級門檻</label>
-        <div class="tier-threshold-input">NT$ <input type="number" min="0" value="${escapeHtml(t.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
+        <label>${t('升級門檻')}</label>
+        <div class="tier-threshold-input">${curSym()} <input type="number" min="0" value="${escapeHtml(tr.threshold)}" oninput="membershipDraft.membership.tiers[${i}].threshold=Number(this.value)||0"></div>
       </div>
       <div class="tier-col tier-col-perks">
-        <label>專屬福利</label>
-        <input value="${escapeHtml(t.perks||'')}" placeholder="例如：生日禮加碼、優先預約" oninput="membershipDraft.membership.tiers[${i}].perks=this.value">
+        <label>${t('專屬福利')}</label>
+        <input value="${escapeHtml(tr.perks||'')}" placeholder="${t('例如：生日禮加碼、優先預約')}" oninput="membershipDraft.membership.tiers[${i}].perks=this.value">
       </div>
-      <button class="tier-remove-btn" onclick="removeTier(${i})" title="刪除此等級" aria-label="刪除此等級">✕</button>
+      <button class="tier-remove-btn" onclick="removeTier(${i})" title="${t('刪除此等級')}" aria-label="${t('刪除此等級')}">✕</button>
     </div>`).join('');
   return `<div class="settings-block">
     <div class="settings-row">
-      <div><div class="settings-row-label">會員有效期限</div></div>
-      <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(m.validityMonths)}" oninput="membershipDraft.membership.validityMonths=Number(this.value)||12"> 個月</div>
+      <div><div class="settings-row-label">${t('會員有效期限')}</div></div>
+      <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(m.validityMonths)}" oninput="membershipDraft.membership.validityMonths=Number(this.value)||12"> ${t('個月')}</div>
     </div>
   </div>
   <div id="tiers-list">${tiersHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
-    <button class="btn-ghost btn" onclick="addTier()">＋ 新增等級</button>
-    <button class="btn" onclick="saveTiersTab()">儲存設定</button>
+    <button class="btn-ghost btn" onclick="addTier()">＋ ${t('新增等級')}</button>
+    <button class="btn" onclick="saveTiersTab()">${t('儲存設定')}</button>
   </div>`;
 }
 function addTier(){
@@ -4199,7 +4254,7 @@ function removeTier(i){
 }
 function saveTiersTab(){
   saveMembershipSettings(membershipDraft.membership);
-  showToast('已儲存會員制度設定');
+  showToast(t('已儲存會員制度設定'));
 }
 
 /* -- Tab B: points -- */
@@ -4207,21 +4262,21 @@ function renderPointsTab(){
   const p = membershipDraft.points;
   const redemptionsHtml = p.redemptions.map((r,i)=>`
     <div class="points-card points-card--grid">
-      <div class="form-field"><label>兌換方案名稱</label><input value="${escapeHtml(r.label)}" oninput="membershipDraft.points.redemptions[${i}].label=this.value"></div>
-      <div class="form-field"><label>所需點數</label><input type="number" min="0" value="${escapeHtml(r.pointsCost)}" oninput="membershipDraft.points.redemptions[${i}].pointsCost=Number(this.value)||0"></div>
-      <button class="tier-remove-btn points-card-remove" onclick="removeRedemption(${i})" title="刪除此方案" aria-label="刪除此方案">✕</button>
-    </div>`).join('') || `<p class="field-hint">尚未新增兌換方案。</p>`;
+      <div class="form-field"><label>${t('兌換方案名稱')}</label><input value="${escapeHtml(r.label)}" oninput="membershipDraft.points.redemptions[${i}].label=this.value"></div>
+      <div class="form-field"><label>${t('所需點數')}</label><input type="number" min="0" value="${escapeHtml(r.pointsCost)}" oninput="membershipDraft.points.redemptions[${i}].pointsCost=Number(this.value)||0"></div>
+      <button class="tier-remove-btn points-card-remove" onclick="removeRedemption(${i})" title="${t('刪除此方案')}" aria-label="${t('刪除此方案')}">✕</button>
+    </div>`).join('') || `<p class="field-hint">${t('尚未新增兌換方案。')}</p>`;
   return `
   <div class="points-rate-row">
-    <span>每消費</span>
-    <span class="points-rate-currency">NT$</span>
+    <span>${t('每消費')}</span>
+    <span class="points-rate-currency">${curSym()}</span>
     <input type="number" min="1" value="${escapeHtml(p.rate)}" oninput="membershipDraft.points.rate=Number(this.value)||100">
-    <span>得 1 點</span>
+    <span>${t('得 1 點')}</span>
   </div>
   <div class="points-redemptions-grid">${redemptionsHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
-    <button class="btn-ghost btn" onclick="addRedemption()">＋ 新增兌換方案</button>
-    <button class="btn" onclick="savePointsTab()">儲存設定</button>
+    <button class="btn-ghost btn" onclick="addRedemption()">＋ ${t('新增兌換方案')}</button>
+    <button class="btn" onclick="savePointsTab()">${t('儲存設定')}</button>
   </div>`;
 }
 function addRedemption(){
@@ -4234,7 +4289,7 @@ function removeRedemption(i){
 }
 function savePointsTab(){
   savePointsSettingsObj(membershipDraft.points);
-  showToast('已儲存點數規則設定');
+  showToast(t('已儲存點數規則設定'));
 }
 
 /* -- Tab C: campaigns / coupons -- */
@@ -4244,25 +4299,25 @@ function renderCampaignsTab(){
     <div class="coupon-card">
       <div class="coupon-card-top">
         <input class="coupon-card-name" style="border:none;background:transparent;flex:1;" value="${escapeHtml(c.name)}" oninput="membershipDraft.campaigns[${i}].name=this.value">
-        <button class="btn-danger-text" onclick="removeCampaign(${i})">刪除</button>
+        <button class="btn-danger-text" onclick="removeCampaign(${i})">${t('刪除')}</button>
       </div>
       <div class="form-row">
-        <div class="form-field"><label>活動期間</label><input value="${escapeHtml(c.period||'')}" placeholder="例如：2025/01/01–2025/01/31" oninput="membershipDraft.campaigns[${i}].period=this.value"></div>
-        <div class="form-field"><label>適用對象</label><input value="${escapeHtml(c.audience||'')}" placeholder="例如：新客／全體客人" oninput="membershipDraft.campaigns[${i}].audience=this.value"></div>
+        <div class="form-field"><label>${t('活動期間')}</label><input value="${escapeHtml(c.period||'')}" placeholder="${t('例如：2025/01/01–2025/01/31')}" oninput="membershipDraft.campaigns[${i}].period=this.value"></div>
+        <div class="form-field"><label>${t('適用對象')}</label><input value="${escapeHtml(c.audience||'')}" placeholder="${t('例如：新客／全體客人')}" oninput="membershipDraft.campaigns[${i}].audience=this.value"></div>
       </div>
-      <div class="form-field"><label>活動內容</label><textarea rows="2" oninput="membershipDraft.campaigns[${i}].content=this.value">${escapeHtml(c.content||'')}</textarea></div>
+      <div class="form-field"><label>${t('活動內容')}</label><textarea rows="2" oninput="membershipDraft.campaigns[${i}].content=this.value">${escapeHtml(c.content||'')}</textarea></div>
       <div class="settings-row">
-        <div class="settings-row-label">啟用優惠碼</div>
+        <div class="settings-row-label">${t('啟用優惠碼')}</div>
         <label class="toggle-switch"><input type="checkbox" ${c.codeEnabled?'checked':''} onchange="membershipDraft.campaigns[${i}].codeEnabled=this.checked; render();"><span class="toggle-slider"></span></label>
       </div>
-      ${c.codeEnabled?`<div class="form-field"><label>優惠碼</label><input value="${escapeHtml(c.code||'')}" oninput="membershipDraft.campaigns[${i}].code=this.value"></div>`:''}
-    </div>`).join('') || `<p class="field-hint">尚未建立任何活動。點下方「＋ 新增活動」開始建立你的第一個折價活動或優惠券。</p>`;
+      ${c.codeEnabled?`<div class="form-field"><label>${t('優惠碼')}</label><input value="${escapeHtml(c.code||'')}" oninput="membershipDraft.campaigns[${i}].code=this.value"></div>`:''}
+    </div>`).join('') || `<p class="field-hint">${t('尚未建立任何活動。點下方「＋ 新增活動」開始建立你的第一個折價活動或優惠券。')}</p>`;
   return `${html}
   <div class="form-actions" style="justify-content:space-between;">
-    <button class="btn-ghost btn" onclick="addCampaign()">＋ 新增活動</button>
-    <button class="btn" onclick="saveCampaignsTab()">儲存設定</button>
+    <button class="btn-ghost btn" onclick="addCampaign()">＋ ${t('新增活動')}</button>
+    <button class="btn" onclick="saveCampaignsTab()">${t('儲存設定')}</button>
   </div>
-  <p class="field-hint" style="margin-top:8px;">儲存後，這些活動會出現在「新增服務紀錄」表單中，可在客人結帳時選擇套用，折抵金額會顯示在該筆消費紀錄上。</p>`;
+  <p class="field-hint" style="margin-top:8px;">${t('儲存後，這些活動會出現在「新增服務紀錄」表單中，可在客人結帳時選擇套用，折抵金額會顯示在該筆消費紀錄上。')}</p>`;
 }
 function addCampaign(){
   membershipDraft.campaigns.push({id:uid('camp'), name:'新活動', period:'', content:'', audience:'', codeEnabled:false, code:''});
@@ -4274,7 +4329,7 @@ function removeCampaign(i){
 }
 function saveCampaignsTab(){
   saveCampaignsArr(membershipDraft.campaigns);
-  showToast('已儲存活動與優惠券設定');
+  showToast(t('已儲存活動與優惠券設定'));
 }
 
 /* -- Tab D: birthday gift -- */
@@ -4286,36 +4341,36 @@ function tierCreditAmount(t){
 }
 function renderStoredValueTab(){
   const sv = membershipDraft.storedValue;
-  const tiersHtml = sv.tiers.map((t,i)=>{
-    const pct = t.discountPercent!=null ? t.discountPercent : 100;
+  const tiersHtml = sv.tiers.map((tr,i)=>{
+    const pct = tr.discountPercent!=null ? tr.discountPercent : 100;
     return `<div class="points-card points-card--grid">
-      <div class="form-field"><label>儲值門檻（客人實付 NT$）</label><input type="number" min="0" value="${escapeHtml(t.payAmount)}" oninput="updateStoredValueTier(${i}, 'payAmount', this.value)"></div>
-      <div class="form-field"><label>折扣（打幾折，例如 90 代表九折）</label><input type="number" min="1" max="100" value="${escapeHtml(pct)}" oninput="updateStoredValueTier(${i}, 'discountPercent', this.value)"></div>
-      <div class="form-field"><label>使用期限（幾個月內用完，0＝無期限）</label><input type="number" min="0" value="${escapeHtml(t.expiryMonths||0)}" oninput="updateStoredValueTier(${i}, 'expiryMonths', this.value)"></div>
-      <div class="field-hint" style="grid-column:1/-1;" id="sv-tier-result-${i}">${storedValueTierResultText(t)}</div>
-      <button class="tier-remove-btn points-card-remove" onclick="removeStoredValueTier(${i})" title="刪除此方案" aria-label="刪除此方案">✕</button>
+      <div class="form-field"><label>${t('儲值門檻（客人實付 {sym}）',{sym:curSym()})}</label><input type="number" min="0" value="${escapeHtml(tr.payAmount)}" oninput="updateStoredValueTier(${i}, 'payAmount', this.value)"></div>
+      <div class="form-field"><label>${t('折扣（打幾折，例如 90 代表九折）')}</label><input type="number" min="1" max="100" value="${escapeHtml(pct)}" oninput="updateStoredValueTier(${i}, 'discountPercent', this.value)"></div>
+      <div class="form-field"><label>${t('使用期限（幾個月內用完，0＝無期限）')}</label><input type="number" min="0" value="${escapeHtml(tr.expiryMonths||0)}" oninput="updateStoredValueTier(${i}, 'expiryMonths', this.value)"></div>
+      <div class="field-hint" style="grid-column:1/-1;" id="sv-tier-result-${i}">${storedValueTierResultText(tr)}</div>
+      <button class="tier-remove-btn points-card-remove" onclick="removeStoredValueTier(${i})" title="${t('刪除此方案')}" aria-label="${t('刪除此方案')}">✕</button>
     </div>`;
-  }).join('') || `<p class="field-hint">尚未新增儲值方案。</p>`;
+  }).join('') || `<p class="field-hint">${t('尚未新增儲值方案。')}</p>`;
   return `
   <div class="settings-row" style="margin-bottom:16px;">
     <div>
-      <div class="settings-row-label">啟用儲值功能</div>
-      <div class="settings-row-hint">關閉後，客戶頁面不會顯示儲值餘額與儲值按鈕；已累積的餘額與紀錄不會被刪除。</div>
+      <div class="settings-row-label">${t('啟用儲值功能')}</div>
+      <div class="settings-row-hint">${t('關閉後，客戶頁面不會顯示儲值餘額與儲值按鈕；已累積的餘額與紀錄不會被刪除。')}</div>
     </div>
     <label class="toggle-switch"><input type="checkbox" ${sv.enabled!==false?'checked':''} onchange="membershipDraft.storedValue.enabled=this.checked; render();"><span class="toggle-slider"></span></label>
   </div>
-  <p class="field-hint" style="margin-bottom:16px;">設定「客人付多少錢」＋「消費時打幾折」。客人的儲值餘額＝實付金額（不會被灌水）；之後每次消費使用儲值支付時，系統會依方案折扣自動算出實際從餘額扣除的金額，例如儲值 NT$15,000、消費打 85 折，客人消費 NT$1,000 的服務時，餘額只會扣 NT$850。</p>
+  <p class="field-hint" style="margin-bottom:16px;">${t('設定「客人付多少錢」＋「消費時打幾折」。客人的儲值餘額＝實付金額（不會被灌水）；之後每次消費使用儲值支付時，系統會依方案折扣自動算出實際從餘額扣除的金額，例如儲值 {sym}15,000、消費打 85 折，客人消費 {sym}1,000 的服務時，餘額只會扣 {sym}850。',{sym:curSym()})}</p>
   <div class="points-redemptions-grid">${tiersHtml}</div>
   <div class="form-actions" style="justify-content:space-between;">
-    <button class="btn-ghost btn" onclick="addStoredValueTier()">＋ 新增儲值方案</button>
-    <button class="btn" onclick="saveStoredValueTab()">儲存設定</button>
+    <button class="btn-ghost btn" onclick="addStoredValueTier()">＋ ${t('新增儲值方案')}</button>
+    <button class="btn" onclick="saveStoredValueTab()">${t('儲存設定')}</button>
   </div>`;
 }
-function storedValueTierResultText(t){
-  const pct = t.discountPercent!=null ? t.discountPercent : 100;
-  let text = `客人儲值餘額：NT$ ${Number(t.payAmount||0).toLocaleString()}（實付金額）`;
-  if(pct<100) text += `，消費時打 ${pct} 折折抵，等於可消費約 NT$ ${tierCreditAmount(t).toLocaleString()} 的服務`;
-  if(t.expiryMonths>0) text += `，需在 ${t.expiryMonths} 個月內用完`;
+function storedValueTierResultText(tr){
+  const pct = tr.discountPercent!=null ? tr.discountPercent : 100;
+  let text = t('客人儲值餘額：{sym} {amt}（實付金額）',{sym:curSym(), amt:Number(tr.payAmount||0).toLocaleString()});
+  if(pct<100) text += t('，消費時打 {pct} 折折抵，等於可消費約 {sym} {amt} 的服務',{pct:pct, sym:curSym(), amt:tierCreditAmount(tr).toLocaleString()});
+  if(tr.expiryMonths>0) text += t('，需在 {n} 個月內用完',{n:tr.expiryMonths});
   return text;
 }
 function updateStoredValueTier(i, key, val){
@@ -4335,38 +4390,38 @@ function removeStoredValueTier(i){
 }
 function saveStoredValueTab(){
   saveStoredValueSettingsObj(membershipDraft.storedValue);
-  showToast('已儲存儲值方案設定');
+  showToast(t('已儲存儲值方案設定'));
 }
 
 function renderBirthdayTab(){
   const b = membershipDraft.birthday;
   const chips = SERVICE_ITEMS.map(s=>{
     const active = (b.eligibleServices||[]).includes(s);
-    return `<button type="button" class="chip ${active?'active':''}" onclick="toggleBirthdayService('${s}')">${escapeHtml(s)}</button>`;
+    return `<button type="button" class="chip ${active?'active':''}" onclick="toggleBirthdayService('${s}')">${escapeHtml(t(s))}</button>`;
   }).join('');
   return `<div class="birthday-grid">
     <div class="settings-block birthday-settings-col">
       <div class="settings-row">
-        <div><div class="settings-row-label">提前發送天數</div></div>
-        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(b.leadDays)}" oninput="membershipDraft.birthday.leadDays=Number(this.value)||0"> 天</div>
+        <div><div class="settings-row-label">${t('提前發送天數')}</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(b.leadDays)}" oninput="membershipDraft.birthday.leadDays=Number(this.value)||0"> ${t('天')}</div>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">使用期限</div></div>
-        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(b.expiryDays)}" oninput="membershipDraft.birthday.expiryDays=Number(this.value)||30"> 天</div>
+        <div><div class="settings-row-label">${t('使用期限')}</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(b.expiryDays)}" oninput="membershipDraft.birthday.expiryDays=Number(this.value)||30"> ${t('天')}</div>
       </div>
       <div class="settings-row" style="border-bottom:none;flex-direction:column;align-items:flex-start;gap:10px;">
-        <div class="settings-row-label">適用服務</div>
+        <div class="settings-row-label">${t('適用服務')}</div>
         <div class="chip-select">${chips}</div>
       </div>
     </div>
     <div class="birthday-message-card">
-      <div class="birthday-message-card-title">生日禮祝福文案</div>
+      <div class="birthday-message-card-title">${t('生日禮祝福文案')}</div>
       <textarea rows="6" oninput="membershipDraft.birthday.content=this.value">${escapeHtml(b.content)}</textarea>
-      <button class="btn-ghost btn" style="width:100%;margin-top:14px;" onclick="copyBirthdayMessage()">📋 一鍵複製生日禮簡訊</button>
+      <button class="btn-ghost btn" style="width:100%;margin-top:14px;" onclick="copyBirthdayMessage()">📋 ${t('一鍵複製生日禮簡訊')}</button>
     </div>
   </div>
   <div class="form-actions">
-    <button class="btn" onclick="saveBirthdayTab()">儲存設定</button>
+    <button class="btn" onclick="saveBirthdayTab()">${t('儲存設定')}</button>
   </div>`;
 }
 function toggleBirthdayService(s){
@@ -4377,7 +4432,7 @@ function toggleBirthdayService(s){
 }
 function saveBirthdayTab(){
   saveBirthdaySettingsObj(membershipDraft.birthday);
-  showToast('已儲存生日禮設定');
+  showToast(t('已儲存生日禮設定'));
 }
 function copyBirthdayMessage(){
   const b = membershipDraft.birthday;
