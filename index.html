@@ -1351,6 +1351,49 @@ const I18N_EN = {
   '已儲存活動與優惠券設定':'Campaigns & coupons saved',
   '已儲存儲值方案設定':'Stored-value plans saved',
   '已儲存生日禮設定':'Birthday gift settings saved',
+  '發送時間':'Send Time',
+  '複製範本內容（測試用，套入範例資料）':'Copy Template Content (test — fills in sample data)',
+  '[客戶姓名]':'[Client Name]',
+  '[日期]':'[Date]',
+  '[時間]':'[Time]',
+  '[服務項目]':'[Service]',
+  '[服務時長]':'[Duration]',
+  '[工作室地址]':'[Studio Address]',
+  '[時段]':'[Notice Period]',
+  '[評價連結]':'[Review Link]',
+  '預約成功通知':'Booking Confirmed',
+  '預約前一天提醒':'Reminder (Day Before)',
+  '完成後感謝與評價邀請':'Thank You & Review Request',
+  '取消自動釋出時段通知':'Cancellation Notice',
+  '自動通知設定':'Automated Notifications',
+  '此工具是純前端網頁、沒有後端伺服器，尚無法直接串接 LINE 官方帳號 API 自動發送訊息。「開啟」代表你想在對應時機使用這則範本：把下面的變數標籤加進文字中，之後在對應情境（例如完成服務後）按下複製按鈕，系統會自動代入客戶資料，一鍵複製並開啟 LINE，貼上即可手動發送，省去自己重新打字的時間。':'This tool is a front-end-only web app with no backend server, so it can\'t yet connect directly to the LINE Official Account API to send messages automatically. "On" means you plan to use this template at the matching moment: insert the variable tags below into the text, then — at the right moment (e.g. after finishing a service) — tap the copy button. The system fills in the client\'s details, copies the message, and opens LINE so you can paste and send it manually, saving you the retyping.',
+  '評價連結（選填，會取代範本中的 [評價連結]）':'Review Link (optional, replaces [Review Link] in templates)',
+  '例如：Google 評論連結':'e.g. Google review link',
+  '工作室地址（選填，會取代範本中的 [工作室地址]）':'Studio Address (optional, replaces [Studio Address] in templates)',
+  '例如：台北市○○區○○路000號':'e.g. 123 Main St, City',
+  '已儲存通知範本設定':'Notification templates saved',
+  '已複製訊息內容，正在開啟 LINE':'Message copied, opening LINE',
+  '複製失敗，請手動複製訊息文字':'Copy failed — please copy the message text manually',
+  '尚未新增公休／不可預約時段。':'No closed days or blocked time slots added yet.',
+  '預約規則':'Booking Rules',
+  '設定你的預約規則後，可以一鍵複製成一段文字傳給客人，讓大家清楚知道預約與取消的規範。':'Once you\'ve set your booking rules, copy them as a message to send to clients so everyone understands your booking and cancellation policy.',
+  '最早可提前預約天數':'Max Days in Advance',
+  '新預約需要人工確認':'New Bookings Need Manual Confirmation',
+  '開放客人自行取消':'Allow Clients to Self-Cancel',
+  '需提前':'Requires at least',
+  '小時':'hours',
+  '爽約幾次後暫停預約資格':'Suspend Booking After N No-Shows',
+  '次':'times',
+  '需要收訂金':'Deposit Required',
+  '每日新客人數上限（選填）':'Daily New Client Cap (optional)',
+  '不限':'No limit',
+  '位':'people',
+  '每日最多接單數（選填）':'Daily Booking Cap (optional)',
+  '公休／不可預約時段':'Closed Days / Blocked Time Slots',
+  '例如：每週一公休、12/25 公休':'e.g. Closed every Monday, Closed 12/25',
+  '新增時段':'Add Slot',
+  '一鍵複製完整預約須知':'Copy Full Booking Policy',
+  '已儲存預約規則設定':'Booking rules saved',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -2268,8 +2311,8 @@ function copyAndOpenLine(msg){
   const openLine = () => window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank', 'noopener');
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(msg).then(
-      () => { showToast('已複製訊息內容，正在開啟 LINE'); openLine(); },
-      () => { showToast('複製失敗，請手動複製訊息文字'); openLine(); }
+      () => { showToast(t('已複製訊息內容，正在開啟 LINE')); openLine(); },
+      () => { showToast(t('複製失敗，請手動複製訊息文字')); openLine(); }
     );
   }else{
     openLine();
@@ -3911,27 +3954,27 @@ function openNotifications(){
   view = 'notifications';
   render();
 }
-function renderNotificationTemplateCard(key, t){
+function renderNotificationTemplateCard(key, tpl){
   const timeFieldHtml = key==='reminder' ? `
     <div class="modal-field" style="max-width:160px;margin-bottom:12px;">
-      <label>發送時間</label>
-      <input type="time" id="notif-${key}-time" value="${escapeHtml(t.sendTime||'18:00')}">
+      <label>${t('發送時間')}</label>
+      <input type="time" id="notif-${key}-time" value="${escapeHtml(tpl.sendTime||'18:00')}">
     </div>` : '';
   return `<div class="panel notif-card">
     <div class="panel-title">
-      <h2>${escapeHtml(t.label)}</h2>
+      <h2>${escapeHtml(t(tpl.label))}</h2>
       <label class="toggle-switch">
-        <input type="checkbox" id="notif-${key}-enabled" ${t.enabled?'checked':''}>
+        <input type="checkbox" id="notif-${key}-enabled" ${tpl.enabled?'checked':''}>
         <span class="toggle-slider"></span>
       </label>
     </div>
     ${timeFieldHtml}
     <div class="var-tag-row">
-      ${NOTIF_VAR_TAGS.map(tag=>`<button type="button" class="var-tag" onclick="insertVarTag('notif-${key}-text','${tag}')">${tag}</button>`).join('')}
+      ${NOTIF_VAR_TAGS.map(tag=>`<button type="button" class="var-tag" onclick="insertVarTag('notif-${key}-text','${tag}')">${t(tag)}</button>`).join('')}
     </div>
-    <textarea id="notif-${key}-text" rows="${Math.max(3, (t.text||'').split('\n').length+1)}" style="width:100%;margin-top:8px;">${escapeHtml(t.text)}</textarea>
+    <textarea id="notif-${key}-text" rows="${Math.max(3, (tpl.text||'').split('\n').length+1)}" style="width:100%;margin-top:8px;">${escapeHtml(tpl.text)}</textarea>
     <div class="form-actions" style="margin-top:10px;">
-      <button type="button" class="btn-ghost btn btn-sm" onclick="previewCopyNotifTemplate('${key}')">📋 複製範本內容（測試用，套入範例資料）</button>
+      <button type="button" class="btn-ghost btn btn-sm" onclick="previewCopyNotifTemplate('${key}')">📋 ${t('複製範本內容（測試用，套入範例資料）')}</button>
     </div>
   </div>`;
 }
@@ -3940,25 +3983,25 @@ function renderNotificationsView(){
   const cardsHtml = Object.keys(s.templates).map(key=>renderNotificationTemplateCard(key, s.templates[key])).join('');
   return `
     <div class="back-row">
-      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+      <button class="btn-text" onclick="backToList()">← ${t('返回客戶列表')}</button>
     </div>
     <div class="client-card-hero">
-      <div class="client-card-top"><h1>自動通知設定</h1></div>
-      <p class="field-hint" style="margin-top:2px;">此工具是純前端網頁、沒有後端伺服器，尚無法直接串接 LINE 官方帳號 API 自動發送訊息。「開啟」代表你想在對應時機使用這則範本：把下面的變數標籤加進文字中，之後在對應情境（例如完成服務後）按下複製按鈕，系統會自動代入客戶資料，一鍵複製並開啟 LINE，貼上即可手動發送，省去自己重新打字的時間。</p>
+      <div class="client-card-top"><h1>${t('自動通知設定')}</h1></div>
+      <p class="field-hint" style="margin-top:2px;">${t('此工具是純前端網頁、沒有後端伺服器，尚無法直接串接 LINE 官方帳號 API 自動發送訊息。「開啟」代表你想在對應時機使用這則範本：把下面的變數標籤加進文字中，之後在對應情境（例如完成服務後）按下複製按鈕，系統會自動代入客戶資料，一鍵複製並開啟 LINE，貼上即可手動發送，省去自己重新打字的時間。')}</p>
     </div>
     <div class="form-row" style="margin-bottom:18px;">
       <div class="modal-field" style="margin-bottom:0;">
-        <label>評價連結（選填，會取代範本中的 [評價連結]）</label>
-        <input id="notif-review-link" value="${escapeHtml(s.reviewLink||'')}" placeholder="例如：Google 評論連結">
+        <label>${t('評價連結（選填，會取代範本中的 [評價連結]）')}</label>
+        <input id="notif-review-link" value="${escapeHtml(s.reviewLink||'')}" placeholder="${t('例如：Google 評論連結')}">
       </div>
       <div class="modal-field" style="margin-bottom:0;">
-        <label>工作室地址（選填，會取代範本中的 [工作室地址]）</label>
-        <input id="notif-studio-address" value="${escapeHtml(s.studioAddress||'')}" placeholder="例如：台北市○○區○○路000號">
+        <label>${t('工作室地址（選填，會取代範本中的 [工作室地址]）')}</label>
+        <input id="notif-studio-address" value="${escapeHtml(s.studioAddress||'')}" placeholder="${t('例如：台北市○○區○○路000號')}">
       </div>
     </div>
     <div class="notif-grid">${cardsHtml}</div>
     <div class="form-actions">
-      <button class="btn" onclick="saveNotificationSettingsFromForm()">儲存設定</button>
+      <button class="btn" onclick="saveNotificationSettingsFromForm()">${t('儲存設定')}</button>
     </div>
   `;
 }
@@ -3967,16 +4010,16 @@ function saveNotificationSettingsFromForm(){
   s.reviewLink = document.getElementById('notif-review-link').value.trim();
   s.studioAddress = document.getElementById('notif-studio-address').value.trim();
   Object.keys(s.templates).forEach(key=>{
-    const t = s.templates[key];
-    t.enabled = document.getElementById(`notif-${key}-enabled`).checked;
-    t.text = document.getElementById(`notif-${key}-text`).value;
+    const tpl = s.templates[key];
+    tpl.enabled = document.getElementById(`notif-${key}-enabled`).checked;
+    tpl.text = document.getElementById(`notif-${key}-text`).value;
     if(key==='reminder'){
       const timeEl = document.getElementById('notif-reminder-time');
-      if(timeEl) t.sendTime = timeEl.value || '18:00';
+      if(timeEl) tpl.sendTime = timeEl.value || '18:00';
     }
   });
   saveNotificationSettingsObj(s);
-  showToast('已儲存通知範本設定');
+  showToast(t('已儲存通知範本設定'));
 }
 function previewCopyNotifTemplate(key){
   const textEl = document.getElementById(`notif-${key}-text`);
@@ -4027,8 +4070,8 @@ function setBookingRuleVal(key, val){
 }
 function renderBlockedSlotsHtml(){
   const slots = bookingRulesDraft.blockedSlots||[];
-  if(!slots.length) return `<p class="field-hint">尚未新增公休／不可預約時段。</p>`;
-  return slots.map((s,i)=>`<span class="blocked-slot-pill">${escapeHtml(s)}<button onclick="removeBlockedSlot(${i})" aria-label="移除">✕</button></span>`).join('');
+  if(!slots.length) return `<p class="field-hint">${t('尚未新增公休／不可預約時段。')}</p>`;
+  return slots.map((s,i)=>`<span class="blocked-slot-pill">${escapeHtml(s)}<button onclick="removeBlockedSlot(${i})" aria-label="${t('移除')}">✕</button></span>`).join('');
 }
 function addBlockedSlot(){
   const input = document.getElementById('new-blocked-slot-input');
@@ -4059,62 +4102,62 @@ function renderBookingRulesView(){
   const r = bookingRulesDraft;
   return `
     <div class="back-row">
-      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+      <button class="btn-text" onclick="backToList()">← ${t('返回客戶列表')}</button>
     </div>
     <div class="client-card-hero">
-      <div class="client-card-top"><h1>預約規則</h1></div>
-      <p class="field-hint" style="margin-top:2px;">設定你的預約規則後，可以一鍵複製成一段文字傳給客人，讓大家清楚知道預約與取消的規範。</p>
+      <div class="client-card-top"><h1>${t('預約規則')}</h1></div>
+      <p class="field-hint" style="margin-top:2px;">${t('設定你的預約規則後，可以一鍵複製成一段文字傳給客人，讓大家清楚知道預約與取消的規範。')}</p>
     </div>
     <div class="settings-block settings-block--grid">
       <div class="settings-row">
-        <div><div class="settings-row-label">最早可提前預約天數</div></div>
-        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.maxAdvanceDays)}" oninput="setBookingRuleVal('maxAdvanceDays', this.value)"> 天</div>
+        <div><div class="settings-row-label">${t('最早可提前預約天數')}</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.maxAdvanceDays)}" oninput="setBookingRuleVal('maxAdvanceDays', this.value)"> ${t('天')}</div>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">新預約需要人工確認</div></div>
+        <div><div class="settings-row-label">${t('新預約需要人工確認')}</div></div>
         <label class="toggle-switch"><input type="checkbox" ${r.manualConfirmRequired?'checked':''} onchange="setBookingRuleVal('manualConfirmRequired', this.checked)"><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">開放客人自行取消</div>
-          ${r.selfCancelAllowed?`<div class="settings-row-hint">需提前 <input type="number" min="1" style="width:52px;padding:2px 6px;" value="${escapeHtml(r.selfCancelHours)}" oninput="setBookingRuleVal('selfCancelHours', this.value)"> 小時</div>`:''}
+          <div class="settings-row-label">${t('開放客人自行取消')}</div>
+          ${r.selfCancelAllowed?`<div class="settings-row-hint">${t('需提前')} <input type="number" min="1" style="width:52px;padding:2px 6px;" value="${escapeHtml(r.selfCancelHours)}" oninput="setBookingRuleVal('selfCancelHours', this.value)"> ${t('小時')}</div>`:''}
         </div>
         <label class="toggle-switch"><input type="checkbox" ${r.selfCancelAllowed?'checked':''} onchange="setBookingRuleVal('selfCancelAllowed', this.checked); render();"><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">爽約幾次後暫停預約資格</div></div>
-        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.noshowSuspendThreshold)}" oninput="setBookingRuleVal('noshowSuspendThreshold', this.value)"> 次</div>
+        <div><div class="settings-row-label">${t('爽約幾次後暫停預約資格')}</div></div>
+        <div class="settings-row-input"><input type="number" min="1" value="${escapeHtml(r.noshowSuspendThreshold)}" oninput="setBookingRuleVal('noshowSuspendThreshold', this.value)"> ${t('次')}</div>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">需要收訂金</div></div>
+        <div><div class="settings-row-label">${t('需要收訂金')}</div></div>
         <label class="toggle-switch"><input type="checkbox" ${r.depositRequired?'checked':''} onchange="setBookingRuleVal('depositRequired', this.checked)"><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">每日新客人數上限（選填）</div></div>
-        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyNewClientCap)}" placeholder="不限" oninput="setBookingRuleVal('dailyNewClientCap', this.value)"> 位</div>
+        <div><div class="settings-row-label">${t('每日新客人數上限（選填）')}</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyNewClientCap)}" placeholder="${t('不限')}" oninput="setBookingRuleVal('dailyNewClientCap', this.value)"> ${t('位')}</div>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">每日最多接單數（選填）</div></div>
-        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyBookingCap)}" placeholder="不限" oninput="setBookingRuleVal('dailyBookingCap', this.value)"> 位</div>
+        <div><div class="settings-row-label">${t('每日最多接單數（選填）')}</div></div>
+        <div class="settings-row-input"><input type="number" min="0" value="${escapeHtml(r.dailyBookingCap)}" placeholder="${t('不限')}" oninput="setBookingRuleVal('dailyBookingCap', this.value)"> ${t('位')}</div>
       </div>
     </div>
     <div class="settings-block">
-      <div class="settings-row-label" style="margin-bottom:10px;font-weight:600;">公休／不可預約時段</div>
+      <div class="settings-row-label" style="margin-bottom:10px;font-weight:600;">${t('公休／不可預約時段')}</div>
       <div id="blocked-slots-list">${renderBlockedSlotsHtml()}</div>
       <div class="tag-add-row" style="margin-top:10px;">
-        <input id="new-blocked-slot-input" placeholder="例如：每週一公休、12/25 公休" onkeydown="if(event.key==='Enter') addBlockedSlot()">
-        <button onclick="addBlockedSlot()">新增時段</button>
+        <input id="new-blocked-slot-input" placeholder="${t('例如：每週一公休、12/25 公休')}" onkeydown="if(event.key==='Enter') addBlockedSlot()">
+        <button onclick="addBlockedSlot()">${t('新增時段')}</button>
       </div>
     </div>
     <div class="form-actions" style="justify-content:space-between;">
-      <button class="btn-ghost btn" onclick="copyBookingPolicy()">📋 一鍵複製完整預約須知</button>
-      <button class="btn" onclick="saveBookingRules()">儲存設定</button>
+      <button class="btn-ghost btn" onclick="copyBookingPolicy()">📋 ${t('一鍵複製完整預約須知')}</button>
+      <button class="btn" onclick="saveBookingRules()">${t('儲存設定')}</button>
     </div>
   `;
 }
 function saveBookingRules(){
   saveBookingRulesObj(bookingRulesDraft);
-  showToast('已儲存預約規則設定');
+  showToast(t('已儲存預約規則設定'));
 }
 function copyBookingPolicy(){
   copyAndOpenLine(buildBookingPolicyText(bookingRulesDraft));
