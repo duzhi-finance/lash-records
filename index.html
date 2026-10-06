@@ -1394,6 +1394,20 @@ const I18N_EN = {
   '新增時段':'Add Slot',
   '一鍵複製完整預約須知':'Copy Full Booking Policy',
   '已儲存預約規則設定':'Booking rules saved',
+  '服務紀錄（{n}）':'Service Records ({n})',
+  '刪除此客戶紀錄':'Delete This Client Record',
+  '請確認':'Please Confirm',
+  '確定':'OK',
+  '已匯出備份檔案，請妥善保存':'Backup file exported — please keep it safe',
+  '匯入失敗：檔案不是有效的備份格式':'Import failed: not a valid backup file',
+  '匯入失敗：找不到客戶資料':'Import failed: no client data found',
+  '確定要匯入這份備份檔案嗎？匯入後將會取代目前裝置上所有的客戶紀錄（目前共 {cur} 筆，備份檔內有 {imp} 筆），此操作無法復原。建議先匯出目前的資料備份。':'Import this backup file? This will replace all client records on this device (currently {cur} records; the backup contains {imp}). This cannot be undone — we recommend exporting your current data first.',
+  '已匯入 {n} 筆客戶紀錄':'Imported {n} client records',
+  '匯入失敗：無法讀取檔案':'Import failed: could not read the file',
+  '資料儲存失敗，請稍後再試一次（可能是瀏覽器儲存空間已滿）。':'Failed to save data — please try again shortly (the browser\'s storage may be full).',
+  '照片預覽':'Photo Preview',
+  '已更新紀錄':'Record updated',
+  '已新增紀錄':'Record added',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -1416,7 +1430,7 @@ async function saveData(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
   }catch(e){
     console.error('儲存失敗', e);
-    showToast('資料儲存失敗，請稍後再試一次（可能是瀏覽器儲存空間已滿）。');
+    showToast(t('資料儲存失敗，請稍後再試一次（可能是瀏覽器儲存空間已滿）。'));
   }
 }
 
@@ -1483,7 +1497,7 @@ function exportBackup(){
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
-  showToast('已匯出備份檔案，請妥善保存');
+  showToast(t('已匯出備份檔案，請妥善保存'));
 }
 function triggerImport(){
   const input = document.getElementById('import-file-input');
@@ -1498,32 +1512,32 @@ function handleImportFile(evt){
     try{
       parsed = JSON.parse(e.target.result);
     }catch(err){
-      showToast('匯入失敗：檔案不是有效的備份格式');
+      showToast(t('匯入失敗：檔案不是有效的備份格式'));
       evt.target.value='';
       return;
     }
     const importedClients = Array.isArray(parsed) ? parsed
       : (parsed && Array.isArray(parsed.clients) ? parsed.clients : null);
     if(!importedClients){
-      showToast('匯入失敗：找不到客戶資料');
+      showToast(t('匯入失敗：找不到客戶資料'));
       evt.target.value='';
       return;
     }
     const currentCount = clients.length;
     askConfirm(
-      `確定要匯入這份備份檔案嗎？匯入後將會取代目前裝置上所有的客戶紀錄（目前共 ${currentCount} 筆，備份檔內有 ${importedClients.length} 筆），此操作無法復原。建議先匯出目前的資料備份。`,
+      t('確定要匯入這份備份檔案嗎？匯入後將會取代目前裝置上所有的客戶紀錄（目前共 {cur} 筆，備份檔內有 {imp} 筆），此操作無法復原。建議先匯出目前的資料備份。',{cur:currentCount, imp:importedClients.length}),
       async ()=>{
         clients = importedClients;
         await saveData();
         view='list'; activeClientId=null;
         render();
-        showToast(`已匯入 ${clients.length} 筆客戶紀錄`);
+        showToast(t('已匯入 {n} 筆客戶紀錄',{n:clients.length}));
       }
     );
     evt.target.value='';
   };
   reader.onerror = function(){
-    showToast('匯入失敗：無法讀取檔案');
+    showToast(t('匯入失敗：無法讀取檔案'));
     evt.target.value='';
   };
   reader.readAsText(file);
@@ -1846,10 +1860,10 @@ function attachSearchInputBehaviors(){
 function renderDashboardSidebar(highlightId){
   return `<div class="dashboard-sidebar">
     <div class="dashboard-sidebar-head">
-      <button class="btn btn-sm" onclick="openAddClientModal()">＋ 新增客戶</button>
+      <button class="btn btn-sm" onclick="openAddClientModal()">＋ ${t('新增客戶')}</button>
     </div>
     <div class="search-row">
-      <input class="search-input" placeholder="搜尋姓名或電話…" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
+      <input class="search-input" placeholder="${t('搜尋姓名或電話…')}" value="${escapeHtml(searchTerm)}" oninput="onSearchInput(this.value)">
     </div>
     ${renderClientListItems(highlightId)}
   </div>`;
@@ -2456,8 +2470,8 @@ function closeLightbox(){
 }
 function renderLightboxModal(){
   return `<div class="modal-overlay lightbox-overlay" onclick="if(event.target===this) closeLightbox()">
-    <img class="lightbox-img" src="${lightboxImageUrl}" alt="照片預覽">
-    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="關閉">✕</button>
+    <img class="lightbox-img" src="${lightboxImageUrl}" alt="${t('照片預覽')}">
+    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="${t('關閉')}">✕</button>
   </div>`;
 }
 function renderPhotoSlotHtml(d, slot, label){
@@ -2627,11 +2641,11 @@ function renderConfirmModal(){
   const msg = pendingConfirm.message;
   return `<div class="modal-overlay" onclick="if(event.target===this) cancelConfirm()">
     <div class="modal-box">
-      <h3>請確認</h3>
+      <h3>${t('請確認')}</h3>
       <p style="color:var(--ink-soft);font-size:14px;margin:-6px 0 4px;">${escapeHtml(msg)}</p>
       <div class="modal-actions">
-        <button class="btn-ghost btn" onclick="cancelConfirm()">取消</button>
-        <button class="btn" onclick="confirmYes()">確定</button>
+        <button class="btn-ghost btn" onclick="cancelConfirm()">${t('取消')}</button>
+        <button class="btn" onclick="confirmYes()">${t('確定')}</button>
       </div>
     </div>
   </div>`;
@@ -2661,22 +2675,22 @@ function showToast(msg){
 function renderDetailView(client){
   return `
     <div class="back-row">
-      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+      <button class="btn-text" onclick="backToList()">← ${t('返回客戶列表')}</button>
     </div>
     ${renderClientCard(client)}
 
     ${renderContraindicationBanner(client)}
 
     <div class="detail-tabs">
-      <button class="detail-tab-btn ${detailTab==='status'?'active':''}" onclick="switchDetailTab('status')">客人狀況</button>
-      <button class="detail-tab-btn ${detailTab==='records'?'active':''}" onclick="switchDetailTab('records')">服務紀錄（${(client.serviceRecords||[]).length}）</button>
+      <button class="detail-tab-btn ${detailTab==='status'?'active':''}" onclick="switchDetailTab('status')">${t('客人狀況')}</button>
+      <button class="detail-tab-btn ${detailTab==='records'?'active':''}" onclick="switchDetailTab('records')">${t('服務紀錄（{n}）',{n:(client.serviceRecords||[]).length})}</button>
     </div>
     ${detailTab==='status'
       ? `<div class="panel" id="status-panel">${renderStatusPanel(client)}</div>`
       : `<div>${renderServiceSection(client)}</div>`}
 
     <div class="footer-links">
-      <button class="btn-danger-text" onclick="deleteClient('${client.id}')">刪除此客戶紀錄</button>
+      <button class="btn-danger-text" onclick="deleteClient('${client.id}')">${t('刪除此客戶紀錄')}</button>
     </div>
   `;
 }
@@ -3941,7 +3955,7 @@ async function saveNewRecord(){
   }
   newRecordDraft = null;
   await saveData();
-  showToast(d.id ? '已更新紀錄' : '已新增紀錄');
+  showToast(d.id ? t('已更新紀錄') : t('已新增紀錄'));
   render();
 }
 
