@@ -1897,13 +1897,13 @@ function computeMonthlyRevenue(){
 /* ---- Add/edit client modal ---- */
 const CLIENT_SOURCES = ['IG','朋友介紹','Google','舊客介紹','其他'];
 function openAddClientModal(){
-  editClientDraft = {id:null, name:'', phone:'', email:'', igLine:'', birthday:'', firstVisitDate: '', source:'', sourceOther:'', notes:'', avatarDataUrl:''};
+  editClientDraft = {id:null, name:'', phone:'', igHandle:'', lineId:'', email:'', igLine:'', birthday:'', firstVisitDate: '', source:'', sourceOther:'', notes:'', avatarDataUrl:''};
   showAddClientModal = true;
   render();
 }
 function openEditClientModal(client){
   editClientDraft = {
-    id:client.id, name:client.name, phone:client.phone||'', email: client.email||'',
+    id:client.id, name:client.name, phone:client.phone||'', igHandle:client.igHandle||'', lineId:client.lineId||'', email: client.email||'',
     igLine: client.igLine||'', birthday: client.birthday||'',
     firstVisitDate: client.firstVisitDate||'', source: client.source||'', sourceOther: client.sourceOther||'',
     notes: client.notes||'', avatarDataUrl: client.avatarDataUrl||'',
@@ -2052,6 +2052,18 @@ function renderClientModal(){
         <input id="modal-name" value="${escapeHtml(d.name)}" placeholder="客戶姓名或暱稱">
       </div>
       <div class="modal-field">
+        <label>電話（選填）</label>
+        <input id="modal-phone" value="${escapeHtml(d.phone||'')}" placeholder="0912-xxx-xxx">
+      </div>
+      <div class="modal-field">
+        <label>IG（選填）</label>
+        <input id="modal-ig" value="${escapeHtml(d.igHandle||'')}" placeholder="@xxxxx">
+      </div>
+      <div class="modal-field">
+        <label>LINE／賴（選填）</label>
+        <input id="modal-line" value="${escapeHtml(d.lineId||'')}" placeholder="LINE ID">
+      </div>
+      <div class="modal-field">
         <label>Email（選填）</label>
         <input id="modal-email" type="email" value="${escapeHtml(d.email||'')}" placeholder="name@example.com">
       </div>
@@ -2096,6 +2108,9 @@ function renderClientModal(){
 }
 async function saveClientModal(){
   const name = document.getElementById('modal-name').value.trim();
+  const phone = document.getElementById('modal-phone').value.trim();
+  const igHandle = document.getElementById('modal-ig').value.trim();
+  const lineId = document.getElementById('modal-line').value.trim();
   const email = document.getElementById('modal-email').value.trim();
   const birthday = document.getElementById('modal-birthday').value;
   const firstVisitDate = document.getElementById('modal-first-visit').value;
@@ -2107,13 +2122,13 @@ async function saveClientModal(){
   if(!name){ if(errEl) errEl.textContent='請輸入姓名'; return; }
   if(editClientDraft.id){
     const c = clients.find(x=>x.id===editClientDraft.id);
-    c.name = name; c.email = email; c.birthday = birthday;
+    c.name = name; c.phone = phone; c.igHandle = igHandle; c.lineId = lineId; c.email = email; c.birthday = birthday;
     c.firstVisitDate = firstVisitDate; c.source = source; c.sourceOther = sourceOther;
     c.notes = notes; c.avatarDataUrl = avatarDataUrl;
   }else{
     clients.push({
       id: uid('client'),
-      name, phone:'', email, igLine:'', birthday, firstVisitDate, source, sourceOther,
+      name, phone, igHandle, lineId, email, igLine:'', birthday, firstVisitDate, source, sourceOther,
       notes, avatarDataUrl,
       createdAt: todayStr(),
       status: blankStatus(),
@@ -2205,7 +2220,9 @@ function renderClientCard(client){
   const rows = [];
   if(client.phone) rows.push(`<span class="card-info-item">📞 ${escapeHtml(client.phone)}</span>`);
   if(client.email) rows.push(`<span class="card-info-item">✉️ ${escapeHtml(client.email)}</span>`);
-  if(client.igLine) rows.push(`<span class="card-info-item">💬 ${escapeHtml(client.igLine)}</span>`);
+  if(client.igHandle) rows.push(`<span class="card-info-item">📷 IG：${escapeHtml(client.igHandle)}</span>`);
+  if(client.lineId) rows.push(`<span class="card-info-item">💬 LINE：${escapeHtml(client.lineId)}</span>`);
+  if(!client.igHandle && !client.lineId && client.igLine) rows.push(`<span class="card-info-item">💬 ${escapeHtml(client.igLine)}</span>`);
   if(client.birthday) rows.push(`<span class="card-info-item">生日：${escapeHtml(client.birthday)}</span>`);
   if(client.firstVisitDate) rows.push(`<span class="card-info-item">首次到店：${escapeHtml(client.firstVisitDate)}</span>`);
   if(sourceLabel(client)) rows.push(`<span class="card-info-item">來源：${escapeHtml(sourceLabel(client))}</span>`);
@@ -3393,7 +3410,7 @@ async function saveNewRecord(){
     }else{
       clientId = uid('client');
       clients.push({
-        id: clientId, name, phone:'', email:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
+        id: clientId, name, phone:'', igHandle:'', lineId:'', email:'', igLine:'', birthday: d.clientBirthday||'', firstVisitDate: d.date, source:'', sourceOther:'',
         notes:'', avatarDataUrl:'',
         createdAt: todayStr(), status: blankStatus(), statusUpdatedAt: null,
         contraindications: [], tags: [], points: 0, storedBalance: 0, storedValueLog: [], storedValueLots: [], serviceRecords: [],
