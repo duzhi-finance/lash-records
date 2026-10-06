@@ -2052,19 +2052,19 @@ function renderClientModal(){
         <input id="modal-name" value="${escapeHtml(d.name)}" placeholder="客戶姓名或暱稱">
       </div>
       <div class="modal-field">
-        <label>Email</label>
+        <label>Email（選填）</label>
         <input id="modal-email" type="email" value="${escapeHtml(d.email||'')}" placeholder="name@example.com">
       </div>
       <div class="form-row" style="margin-bottom:14px;">
         <div class="modal-field" style="margin-bottom:0;">
-          <label>生日</label>
+          <label>生日（選填）</label>
           <div class="date-field-wrap">
             <input id="modal-birthday" type="date" class="${d.birthday?'':'date-empty'}" value="${escapeHtml(d.birthday)}" oninput="this.classList.toggle('date-empty', !this.value)">
             ${dateFieldIcon('date')}
           </div>
         </div>
         <div class="modal-field" style="margin-bottom:0;">
-          <label>來源</label>
+          <label>來源（選填）</label>
           <select id="modal-source" onchange="onModalSourceChange(this.value)">
             <option value="">請選擇</option>
             ${CLIENT_SOURCES.map(s=>`<option value="${s}" ${d.source===s?'selected':''}>${s}</option>`).join('')}
@@ -2083,7 +2083,7 @@ function renderClientModal(){
         </div>
       </div>
       <div class="modal-field">
-        <label>客製化備註</label>
+        <label>客製化備註（選填）</label>
         <textarea id="modal-notes" placeholder="例如：喜好茶飲、偏好安靜／聊天、對某成分過敏…">${escapeHtml(d.notes||'')}</textarea>
       </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
