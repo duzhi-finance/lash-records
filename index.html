@@ -1187,6 +1187,20 @@ const I18N_EN = {
   '編輯服務紀錄':'Edit Service Record',
   '新增服務紀錄':'New Service Record',
   '新增預約':'New Appointment',
+  '日':'Day',
+  '週':'Week',
+  '月':'Month',
+  '這天還沒有預約。':'No appointments on this day yet.',
+  '上個月':'Prev Month',
+  '今天':'Today',
+  '下個月':'Next Month',
+  '前一天':'Prev Day',
+  '後一天':'Next Day',
+  '上一週':'Prev Week',
+  '下一週':'Next Week',
+  '行事曆':'Calendar',
+  '返回客戶列表':'Back to Client List',
+  '刪除':'Delete',
   '同意書與問卷已完成（{v}）':'Consent & questionnaire completed ({v})',
   '傳送保養指南給客戶':'Send Aftercare Guide to Client',
   '日期':'Date',
@@ -1831,10 +1845,16 @@ function getWeekDates(dateStr){
   }
   return arr;
 }
+const WEEKDAY_LABELS_ZH = ['日','一','二','三','四','五','六'];
+const WEEKDAY_LABELS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function weekdayLabel(idx){
+  return currentLang==='en' ? WEEKDAY_LABELS_EN[idx] : WEEKDAY_LABELS_ZH[idx];
+}
 function fmtDateLabel(dateStr){
   const d = new Date(dateStr+'T00:00:00');
-  const weekdayLabels = ['日','一','二','三','四','五','六'];
-  return `${dateStr}（週${weekdayLabels[d.getDay()]}）`;
+  return currentLang==='en'
+    ? `${dateStr} (${weekdayLabel(d.getDay())})`
+    : `${dateStr}（週${weekdayLabel(d.getDay())}）`;
 }
 function collectAppointmentsForDate(dateStr){
   const results = [];
@@ -1901,7 +1921,6 @@ function isMobileViewport(){
 }
 function renderWeekGrid(weekDates, selectedDate){
   const gridHeight = (CAL_END_HOUR-CAL_START_HOUR)*CAL_HOUR_PX;
-  const weekdayLabels = ['日','一','二','三','四','五','六'];
   const mobile = weekDates.length <= 3;
   const gutterWidth = mobile ? 44 : 52;
   const gridStyle = mobile
@@ -1926,7 +1945,7 @@ function renderWeekGrid(weekDates, selectedDate){
       return `<div class="appt-block status-${status}" style="top:${top}px;height:${height}px;" onclick="startEditRecord('${r.clientId}','${r.id}')" title="${escapeHtml(r.clientName)} ${escapeHtml(r.time)}">
         <span class="appt-time">${escapeHtml(r.time)}</span>
         <span class="appt-name">${escapeHtml(r.clientName)}</span>
-        ${serviceLabel?`<span class="appt-service">${escapeHtml(serviceLabel)}</span>`:''}
+        ${serviceLabel?`<span class="appt-service">${escapeHtml(t(serviceLabel))}</span>`:''}
       </div>`;
     }).join('');
     const hourLines = [];
@@ -1935,7 +1954,7 @@ function renderWeekGrid(weekDates, selectedDate){
     }
     return `<div>
       <div class="day-col-header ${isToday?'is-today':''} ${isSelected?'is-selected':''}" onclick="selectCalendarDate('${dateStr}')">
-        <span class="dow">週${weekdayLabels[d.getDay()]}</span>
+        <span class="dow">${currentLang==='en'?weekdayLabel(d.getDay()):'週'+weekdayLabel(d.getDay())}</span>
         <span class="daynum">${d.getDate()}</span>
       </div>
       <div class="day-col-body" style="height:${gridHeight}px;">
@@ -1954,7 +1973,6 @@ function renderWeekGrid(weekDates, selectedDate){
   </div></div>`;
 }
 function renderMonthGrid(dateStr, selectedDate){
-  const weekdayLabels = ['日','一','二','三','四','五','六'];
   const d = new Date(dateStr+'T00:00:00');
   const year = d.getFullYear(), month = d.getMonth();
   const firstOfMonth = new Date(year, month, 1);
@@ -1977,7 +1995,7 @@ function renderMonthGrid(dateStr, selectedDate){
       ${appts.length ? `<span class="month-cell-dots">${dotsHtml}${moreHtml}</span>` : ''}
     </div>`);
   }
-  const headerHtml = weekdayLabels.map(w=>`<div class="month-grid-dow">${w}</div>`).join('');
+  const headerHtml = WEEKDAY_LABELS_ZH.map((w,i)=>`<div class="month-grid-dow">${weekdayLabel(i)}</div>`).join('');
   return `<div class="month-grid-header">${headerHtml}</div>
   <div class="month-grid">${cells.join('')}</div>`;
 }
@@ -1993,56 +2011,59 @@ function getMiniDateRange(dateStr){
 }
 function fmtMonthLabel(dateStr){
   const d = new Date(dateStr+'T00:00:00');
-  return `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
+  return currentLang==='en'
+    ? `${MONTH_NAMES_EN[d.getMonth()]} ${d.getFullYear()}`
+    : `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
 }
+const MONTH_NAMES_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function renderCalendarView(){
   const selected = calendarSelectedDate || todayStr();
   const mobile = isMobileViewport();
   const dayAppts = collectAppointmentsForDate(selected);
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
-  const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment()">＋ 新增預約</button>`;
+  const addBtn = newRecordDraft ? '' : `<button class="btn btn-sm" onclick="startNewAppointment()">＋ ${t('新增預約')}</button>`;
   const agendaHtml = dayAppts.length
     ? `<div class="agenda-list">${dayAppts.map(r=>renderAgendaRow(r)).join('')}</div>`
-    : `<div class="empty-state" style="padding:30px 10px;"><p>這天還沒有預約。</p></div>`;
+    : `<div class="empty-state" style="padding:30px 10px;"><p>${t('這天還沒有預約。')}</p></div>`;
 
   const modeToggleHtml = `<div class="calendar-mode-toggle">
-    <button class="calendar-mode-btn ${calendarViewMode==='week'?'active':''}" onclick="switchCalendarViewMode('week')">${mobile?'日':'週'}</button>
-    <button class="calendar-mode-btn ${calendarViewMode==='month'?'active':''}" onclick="switchCalendarViewMode('month')">月</button>
+    <button class="calendar-mode-btn ${calendarViewMode==='week'?'active':''}" onclick="switchCalendarViewMode('week')">${mobile?t('日'):t('週')}</button>
+    <button class="calendar-mode-btn ${calendarViewMode==='month'?'active':''}" onclick="switchCalendarViewMode('month')">${t('月')}</button>
   </div>`;
 
   let gridHtml, navHtml;
   if(calendarViewMode==='month'){
     gridHtml = renderMonthGrid(selected, selected);
     navHtml = `
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(-1)">‹ 上個月</button>
-      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(1)">下個月 ›</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(-1)">‹ ${t('上個月')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">${t('今天')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarMonth(1)">${t('下個月')} ›</button>
     `;
   }else{
     const weekDates = mobile ? getMiniDateRange(selected) : getWeekDates(selected);
     gridHtml = renderWeekGrid(weekDates, selected);
     navHtml = mobile ? `
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(-1)">‹ 前一天</button>
-      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(1)">後一天 ›</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(-1)">‹ ${t('前一天')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">${t('今天')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarDay(1)">${t('後一天')} ›</button>
     ` : `
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ 上一週</button>
-      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">今天</button>
-      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">下一週 ›</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(-7)">‹ ${t('上一週')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="jumpToToday()">${t('今天')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="shiftCalendarWeek(7)">${t('下一週')} ›</button>
     `;
   }
-  const headerLabel = calendarViewMode==='month' ? fmtMonthLabel(selected) : '行事曆';
+  const headerLabel = calendarViewMode==='month' ? fmtMonthLabel(selected) : t('行事曆');
 
   return `
     <div class="back-row">
-      <button class="btn-text" onclick="backToList()">← 返回客戶列表</button>
+      <button class="btn-text" onclick="backToList()">← ${t('返回客戶列表')}</button>
     </div>
     <div class="calendar-header"><h1>${headerLabel}</h1>${modeToggleHtml}</div>
     <div class="status-legend">
-      <span class="legend-item"><span class="legend-dot status-confirmed"></span>已確認</span>
-      <span class="legend-item"><span class="legend-dot status-completed"></span>已完成</span>
-      <span class="legend-item"><span class="legend-dot status-cancelled"></span>已取消</span>
-      <span class="legend-item"><span class="legend-dot status-noshow"></span>未到</span>
+      <span class="legend-item"><span class="legend-dot status-confirmed"></span>${t(APPT_STATUS_LABELS.confirmed)}</span>
+      <span class="legend-item"><span class="legend-dot status-completed"></span>${t(APPT_STATUS_LABELS.completed)}</span>
+      <span class="legend-item"><span class="legend-dot status-cancelled"></span>${t(APPT_STATUS_LABELS.cancelled)}</span>
+      <span class="legend-item"><span class="legend-dot status-noshow"></span>${t(APPT_STATUS_LABELS.noshow)}</span>
     </div>
     ${gridHtml}
     <div class="week-nav">${navHtml}</div>
@@ -2055,19 +2076,19 @@ function renderCalendarView(){
 }
 function renderAgendaRow(r){
   const status = r.status||'confirmed';
-  const statusLabel = APPT_STATUS_LABELS[status] || status;
+  const statusLabel = t(APPT_STATUS_LABELS[status] || status);
   const serviceLabel = serviceLabelOf(r) || r.style || '';
   return `<div class="agenda-row">
     <div class="agenda-time">${escapeHtml(r.time||'--:--')}</div>
     <div class="agenda-main">
       <div class="agenda-client" onclick="openClientFromCalendar('${r.clientId}')">${escapeHtml(r.clientName||'')}</div>
-      ${serviceLabel?`<div class="agenda-service">${escapeHtml(serviceLabel)}</div>`:''}
+      ${serviceLabel?`<div class="agenda-service">${escapeHtml(t(serviceLabel))}</div>`:''}
     </div>
-    <div class="agenda-amount">${r.amount?('NT$ '+escapeHtml(String(r.amount))):''}</div>
+    <div class="agenda-amount">${r.amount?escapeHtml(money(r.amount)):''}</div>
     <button class="status-pill status-${status}" onclick="cycleAppointmentStatus('${r.clientId}','${r.id}')">${statusLabel}</button>
     <div class="agenda-actions">
-      <button class="btn-ghost btn btn-sm" onclick="startEditRecord('${r.clientId}','${r.id}')">編輯</button>
-      <button class="btn-danger-text" onclick="deleteRecord('${r.clientId}','${r.id}')">刪除</button>
+      <button class="btn-ghost btn btn-sm" onclick="startEditRecord('${r.clientId}','${r.id}')">${t('編輯')}</button>
+      <button class="btn-danger-text" onclick="deleteRecord('${r.clientId}','${r.id}')">${t('刪除')}</button>
     </div>
   </div>`;
 }
