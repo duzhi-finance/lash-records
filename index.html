@@ -675,7 +675,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{
   max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);
   overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
-.modal-box h3{font-size:18px;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.modal-box h3{font-size:18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.modal-close-btn{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:#fff;border:1px solid var(--blush-line);color:var(--ink-faint);font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close-btn:hover{border-color:var(--mocha);color:var(--mocha-deep);}
 .modal-field{margin-bottom:14px;}
 .modal-field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
 .modal-field input, .modal-field select{
@@ -1133,6 +1139,7 @@ const CONSENT_ITEMS = [
   '接受睫毛脫落速度因個人體質、生活習慣、保養方式不同而不同',
   '了解卸除睫毛須由專業美睫師處理，自行卸除可能傷害真睫毛',
   '本工作室會拍攝美睫作品作為作品集及社群平台分享；如不希望公開，請提前告知，我們會尊重您的意願。',
+  '若需拍攝美睫作品，同意美睫師發佈至公開社群平台（Facebook、Instagram、Threads）。',
 ];
 
 function blankStatus(){
@@ -2029,7 +2036,7 @@ function renderClientModal(){
   const isEdit = !!d.id;
   return `<div class="modal-overlay" onclick="if(event.target===this) closeClientModal()">
     <div class="modal-box">
-      <h3>${isEdit?'編輯客戶資料':'建立客戶檔案'}</h3>
+      <h3>${isEdit?'編輯客戶資料':'建立客戶檔案'}<button type="button" class="modal-close-btn" onclick="closeClientModal()" aria-label="關閉">✕</button></h3>
       <div class="modal-avatar-row">
         ${avatarHtml(d, 64)}
         <div class="modal-avatar-actions">
@@ -2045,27 +2052,19 @@ function renderClientModal(){
         <input id="modal-name" value="${escapeHtml(d.name)}" placeholder="客戶姓名或暱稱">
       </div>
       <div class="modal-field">
-        <label>電話（選填）</label>
-        <input id="modal-phone" value="${escapeHtml(d.phone)}" placeholder="0912-xxx-xxx">
-      </div>
-      <div class="modal-field">
-        <label>Email（選填）</label>
+        <label>Email</label>
         <input id="modal-email" type="email" value="${escapeHtml(d.email||'')}" placeholder="name@example.com">
-      </div>
-      <div class="modal-field">
-        <label>IG／LINE（選填）</label>
-        <input id="modal-igline" value="${escapeHtml(d.igLine)}">
       </div>
       <div class="form-row" style="margin-bottom:14px;">
         <div class="modal-field" style="margin-bottom:0;">
-          <label>生日（選填）</label>
+          <label>生日</label>
           <div class="date-field-wrap">
             <input id="modal-birthday" type="date" class="${d.birthday?'':'date-empty'}" value="${escapeHtml(d.birthday)}" oninput="this.classList.toggle('date-empty', !this.value)">
             ${dateFieldIcon('date')}
           </div>
         </div>
         <div class="modal-field" style="margin-bottom:0;">
-          <label>來源（選填）</label>
+          <label>來源</label>
           <select id="modal-source" onchange="onModalSourceChange(this.value)">
             <option value="">請選擇</option>
             ${CLIENT_SOURCES.map(s=>`<option value="${s}" ${d.source===s?'selected':''}>${s}</option>`).join('')}
@@ -2084,7 +2083,7 @@ function renderClientModal(){
         </div>
       </div>
       <div class="modal-field">
-        <label>客製化備註（選填）</label>
+        <label>客製化備註</label>
         <textarea id="modal-notes" placeholder="例如：喜好茶飲、偏好安靜／聊天、對某成分過敏…">${escapeHtml(d.notes||'')}</textarea>
       </div>
       <div id="modal-error" style="color:var(--alert);font-size:12.5px;margin:-6px 0 4px;"></div>
@@ -2097,9 +2096,7 @@ function renderClientModal(){
 }
 async function saveClientModal(){
   const name = document.getElementById('modal-name').value.trim();
-  const phone = document.getElementById('modal-phone').value.trim();
   const email = document.getElementById('modal-email').value.trim();
-  const igLine = document.getElementById('modal-igline').value.trim();
   const birthday = document.getElementById('modal-birthday').value;
   const firstVisitDate = document.getElementById('modal-first-visit').value;
   const source = document.getElementById('modal-source').value;
@@ -2110,13 +2107,13 @@ async function saveClientModal(){
   if(!name){ if(errEl) errEl.textContent='請輸入姓名'; return; }
   if(editClientDraft.id){
     const c = clients.find(x=>x.id===editClientDraft.id);
-    c.name = name; c.phone = phone; c.email = email; c.igLine = igLine; c.birthday = birthday;
+    c.name = name; c.email = email; c.birthday = birthday;
     c.firstVisitDate = firstVisitDate; c.source = source; c.sourceOther = sourceOther;
     c.notes = notes; c.avatarDataUrl = avatarDataUrl;
   }else{
     clients.push({
       id: uid('client'),
-      name, phone, email, igLine, birthday, firstVisitDate, source, sourceOther,
+      name, phone:'', email, igLine:'', birthday, firstVisitDate, source, sourceOther,
       notes, avatarDataUrl,
       createdAt: todayStr(),
       status: blankStatus(),
