@@ -432,6 +432,7 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 .status-field label{
   display:block;font-size:12.5px;color:var(--ink);margin-bottom:9px;font-weight:600;letter-spacing:0.03em;
 }
+.field-optional-hint{color:var(--ink-faint);font-weight:400;}
 .tri-toggle{display:inline-flex;border:1px solid var(--blush-line);border-radius:var(--radius-pill);overflow:hidden;}
 .tri-toggle button{
   background:#fff;border:none;padding:6px 16px;font-size:11.5px;color:var(--ink-soft);
@@ -1170,7 +1171,7 @@ const I18N_EN = {
   'C．客人簽名':'C. Client Signature',
   '完成，開始新增服務紀錄':'Done, Start New Record',
   '請先勾選以上全部同意事項，再繼續下一步。':'Please check all consent items above before continuing.',
-  '問卷全部項目都需要填寫，尚未完成：「{label}」。':'All questionnaire items are required — not yet completed: "{label}".',
+  '以下為必填項目，尚未完成：「{label}」。':'This is required and not yet completed: "{label}".',
   '請點選「點此簽名」，讓客人完成簽名後再繼續。':'Please tap "Tap to sign" and have the client sign before continuing.',
   // Service record form
   '移除照片':'Remove Photo',
@@ -1405,6 +1406,7 @@ const I18N_EN = {
   '照片預覽':'Photo Preview',
   '已更新紀錄':'Record updated',
   '已新增紀錄':'Record added',
+  '（選填）':'(optional)',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -1604,6 +1606,12 @@ const QUESTIONNAIRE_FIELD_KEYS = ['isFirstTime','keratin3Months','keratinFrequen
   'allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort','wearsContacts','wearsGlasses',
   'rubsEyesOften','eyeSurgeryHistory','sleepPosition','isPregnant','oilyEyelids','lashCareHabit',
   'makeupHabit','falseLashHabit','eyeMakeupRemover','faceMakeupRemover','faceWashHabit'];
+/* Of the questionnaire fields above, only these carry real health/safety relevance
+   (allergy, eye surgery, pregnancy, contacts, eye discomfort) and stay mandatory before
+   a client can complete the consent flow; the rest are personalization/lifestyle info
+   and can be skipped. */
+const QUESTIONNAIRE_REQUIRED_KEYS = ['allergyHistory','eyeRednessItchyDry','recentEyeDiscomfort',
+  'eyeSurgeryHistory','isPregnant','wearsContacts'];
 const CONSENT_ITEMS = [
   '同意最終成果因個人睫毛生長、健康程度、濃密度和眼型而有所不同，服務完成後無法要求退費',
   '若有眼疾、過敏、動過眼部手術或紋繡服務會主動告知，若因個人體質產生不適現象店家可免責',
@@ -3049,7 +3057,8 @@ function deleteClient(clientId){
 }
 
 /* ---- Status panel ---- */
-function renderStatusFieldHtml(f){
+function renderStatusFieldHtml(f, isQuestionnaire){
+  const showOptionalHint = isQuestionnaire && !QUESTIONNAIRE_REQUIRED_KEYS.includes(f.key);
   let control;
   if(f.tri){
     const val = statusDraft[f.key]||'unknown';
@@ -3074,7 +3083,7 @@ function renderStatusFieldHtml(f){
   }
   const note = f.note ? `<textarea class="status-note" placeholder="${t('補充說明（選填）')}" oninput="setStatusVal('${f.key}_note', this.value)">${escapeHtml(statusDraft[f.key+'_note']||'')}</textarea>` : '';
   return `<div class="status-field">
-    <label>${t(f.label)}</label>
+    <label>${t(f.label)}${showOptionalHint?` <span class="field-optional-hint">${t('（選填）')}</span>`:''}</label>
     ${control}
     ${note}
   </div>`;
@@ -3090,13 +3099,13 @@ function toggleStatusChip(key, option){
   statusDraft[key] = current;
   render();
 }
-function renderStatusFieldsGrouped(allowedKeys){
+function renderStatusFieldsGrouped(allowedKeys, isQuestionnaire){
   return STATUS_FIELD_GROUPS.map(g=>{
     const keys = allowedKeys ? g.keys.filter(k=>allowedKeys.includes(k)) : g.keys;
     if(!keys.length) return '';
     const fieldsHtml = keys.map(k=>{
       const f = STATUS_FIELDS.find(x=>x.key===k);
-      return f ? renderStatusFieldHtml(f) : '';
+      return f ? renderStatusFieldHtml(f, isQuestionnaire) : '';
     }).join('');
     return `<div class="status-group">
       <div class="status-group-title">${t(g.title)}</div>
@@ -3240,7 +3249,7 @@ function renderConsentView(){
       <span>${i+1}. ${escapeHtml(t(text))}</span>
     </label>`;
   }).join('');
-  const questionnaireHtml = renderStatusFieldsGrouped(QUESTIONNAIRE_FIELD_KEYS);
+  const questionnaireHtml = renderStatusFieldsGrouped(QUESTIONNAIRE_FIELD_KEYS, true);
   const hasSignature = !!consentDraft.signatureDataUrl;
   const signatureHtml = `<div class="signature-preview">
     ${hasSignature
@@ -3300,7 +3309,7 @@ async function submitConsentAndContinue(){
     document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
-  const unansweredKey = QUESTIONNAIRE_FIELD_KEYS.find(key=>{
+  const unansweredKey = QUESTIONNAIRE_REQUIRED_KEYS.find(key=>{
     const f = STATUS_FIELDS.find(x=>x.key===key);
     if(!f) return false;
     const val = statusDraft[key];
@@ -3308,7 +3317,7 @@ async function submitConsentAndContinue(){
   });
   if(unansweredKey){
     const f = STATUS_FIELDS.find(x=>x.key===unansweredKey);
-    consentError = t('問卷全部項目都需要填寫，尚未完成：「{label}」。',{label:t(f.label)});
+    consentError = t('以下為必填項目，尚未完成：「{label}」。',{label:t(f.label)});
     render();
     document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
