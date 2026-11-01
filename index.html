@@ -1407,6 +1407,8 @@ const I18N_EN = {
   '已更新紀錄':'Record updated',
   '已新增紀錄':'Record added',
   '（選填）':'(optional)',
+  '補登歷史紀錄':'Backfill Past Record',
+  '用於補登客人過去已完成的舊紀錄，不會出現同意書與問卷流程':'Use this to backfill a client\'s past record from before you used this tool — skips the consent and questionnaire flow',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -3379,9 +3381,10 @@ function shareAftercareToLine(clientId){
 function renderServiceSection(client){
   const recs = (client.serviceRecords||[]).slice().sort((a,b)=> b.date.localeCompare(a.date));
   const newPanel = newRecordDraft ? renderNewRecordPanel() : '';
-  const addBtns = newRecordDraft ? '' : `<div style="display:flex;gap:8px;">
+  const addBtns = newRecordDraft ? '' : `<div style="display:flex;gap:8px;flex-wrap:wrap;">
       ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="startConsentFlow('${client.id}', {copyFromLast:true})" title="${t('一鍵帶入上一筆紀錄的所有設定，開啟後只需要修改有變動的地方')}">${t('沿用上次設定')}</button>`:''}
       <button class="btn btn-sm" onclick="startConsentFlow('${client.id}')">＋ ${t('新增服務紀錄')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="startBackfillRecord('${client.id}')" title="${t('用於補登客人過去已完成的舊紀錄，不會出現同意書與問卷流程')}">＋ ${t('補登歷史紀錄')}</button>
     </div>`;
 
   const historyHtml = recs.length ? `<div class="service-history">${recs.map(r=>renderRecordCard(r)).join('')}</div>`
@@ -3617,6 +3620,16 @@ function deleteRecord(clientId, recordId){
 }
 
 /* ---- New / edit record form ---- */
+/* Backfill a client's pre-existing/past record without the per-visit consent flow —
+   for entering history that happened before the artist started using this tool, where
+   there's no live client in front of you to sign a fresh consent form. */
+function startBackfillRecord(clientId){
+  newRecordDraft = blankRecordDraft(clientId);
+  expandedRecordId = null;
+  render();
+  const panel = document.getElementById('new-record-panel');
+  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
 function startEditRecord(clientId, recordId){
   const client = clients.find(c=>c.id===clientId);
   const r = client.serviceRecords.find(x=>x.id===recordId);
