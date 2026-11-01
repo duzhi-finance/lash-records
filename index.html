@@ -561,10 +561,10 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 }
 .lightbox-close:hover{background:rgba(255,255,255,0.28);}
 
-/* Eye segment diagram: a lash-line arc with 3 marker lines (left/mid/right, mid longest)
-   for recording extension length per segment */
+/* Eye segment diagram: a lash-line arc with 4 marker lines dividing it into 5 zones
+   (inner corner to outer corner) for recording extension length per zone */
 .eye-diagrams{display:flex;gap:16px;margin-bottom:6px;flex-wrap:wrap;}
-.eye-diagram-block{flex:1;min-width:150px;}
+.eye-diagram-block{flex:1;min-width:230px;}
 .eye-diagram-block .eye-label{font-size:11.5px;color:var(--ink-soft);margin-bottom:5px;text-align:center;}
 .eye-svg-wrap{
   background:#fff;border:1px solid var(--blush-line);border-radius:var(--radius-ui);
@@ -573,10 +573,10 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 .eye-svg-wrap svg{width:100%;height:auto;display:block;}
 .eye-arc{stroke:var(--mocha);stroke-width:2.5;stroke-linecap:round;}
 .eye-seg-line{stroke:var(--mocha-deep);stroke-width:2.5;stroke-linecap:round;}
-.seg-inputs{display:flex;gap:6px;margin-top:6px;}
+.seg-inputs{display:flex;gap:4px;margin-top:6px;}
 .seg-inputs input{
-  width:100%;padding:6px 4px;text-align:center;border:1px solid var(--blush-line);
-  border-radius:var(--radius-ui);font-size:12.5px;background:#fff;color:var(--ink);
+  width:100%;padding:6px 2px;text-align:center;border:1px solid var(--blush-line);
+  border-radius:var(--radius-ui);font-size:11px;background:#fff;color:var(--ink);
 }
 .seg-display{display:flex;justify-content:space-around;margin-top:6px;font-size:12px;color:var(--ink-soft);}
 .field-hint{font-size:11.5px;color:var(--ink-faint);line-height:1.5;margin-top:5px;}
@@ -1227,7 +1227,7 @@ const I18N_EN = {
   '新增自訂款式':'Add custom style',
   '眼睛示意圖（由左至右依序填入各段嫁接長度）':'Eye Diagram (fill in each segment\'s length, left to right)',
   '左眼':'Left Eye', '右眼':'Right Eye',
-  '左段':'Left', '中段':'Middle', '右段':'Right',
+  '眼頭':'Inner', '內段':'Inner-mid', '中段':'Middle', '外段':'Outer-mid', '眼尾':'Outer',
   '眼型設計說明（選填）':'Design Notes (optional)',
   '例如：中間加長，眼尾稍微收短':'e.g. lengthen the middle, shorten the outer corner slightly',
   '本次調整（選填，依上次回饋）':'This Visit\'s Adjustment (optional, based on last feedback)',
@@ -3398,7 +3398,7 @@ function blankRecordDraft(clientId){
     clientId, id: null, date: '',
     time:'', duration:90, service:'', serviceOther:'', status:'completed', amount:'', deposit:'',
     couponId:'', couponLabel:'', discountAmount:'', storedValueUsed:'', storedValueFaceAmount:'',
-    lenLL:'', lenLM:'', lenLR:'', lenRL:'', lenRM:'', lenRR:'',
+    lenL1:'', lenL2:'', lenL3:'', lenL4:'', lenL5:'', lenR1:'', lenR2:'', lenR3:'', lenR4:'', lenR5:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
     lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
     beforePhoto:null, afterPhoto:null,
@@ -3411,8 +3411,7 @@ function recordDraftFromLast(clientId, last){
   return {
     clientId, id: null, date: '',
     time:'', duration: last.duration||90, service: last.service||'', serviceOther: last.serviceOther||'', status:'completed', amount:'', deposit:'',
-    lenLL: last.lenLL||'', lenLM: last.lenLM||'', lenLR: last.lenLR||'',
-    lenRL: last.lenRL||'', lenRM: last.lenRM||'', lenRR: last.lenRR||'',
+    ...migrateLashSegments(last),
     style: last.style||'', length: last.length||'', curl: last.curl||'', thickness: last.thickness||'',
     countLeft: last.countLeft||'', countRight: last.countRight||'',
     lowerLength: last.lowerLength||'', lowerCurl: last.lowerCurl||'', lowerCount: last.lowerCount||'', lowerNote: last.lowerNote||'',
@@ -3475,18 +3474,43 @@ function eyeArcSvg(side){
   const flipStyle = side==='R' ? ' style="transform:scaleX(-1);transform-origin:100px 60px;"' : '';
   return `<svg viewBox="0 0 200 120"><g${flipStyle}>
     <path class="eye-arc" d="M20,85 Q100,25 180,85" fill="none"></path>
-    <line class="eye-seg-line" x1="50" y1="67" x2="50" y2="42"></line>
-    <line class="eye-seg-line" x1="100" y1="55" x2="100" y2="15"></line>
-    <line class="eye-seg-line" x1="150" y1="67" x2="150" y2="42"></line>
+    <line class="eye-seg-line" x1="52" y1="66" x2="52" y2="40"></line>
+    <line class="eye-seg-line" x1="84" y1="56" x2="84" y2="21"></line>
+    <line class="eye-seg-line" x1="116" y1="56" x2="116" y2="21"></line>
+    <line class="eye-seg-line" x1="148" y1="66" x2="148" y2="40"></line>
   </g></svg>`;
+}
+/* 5 length zones per eye, left-to-right as drawn on screen: inner corner → outer corner.
+   Older records only stored 3 zones (outer/middle/inner segment); this maps those into the
+   new 5-slot layout (positions 1/3/5) so past records still display correctly. */
+const LASH_SEG_COUNT = 5;
+const LASH_SEG_LABELS = ['眼頭','內段','中段','外段','眼尾'];
+function migrateLashSegments(src){
+  src = src || {};
+  const hasNew = ['L','R'].some(eye=>{
+    for(let i=1;i<=LASH_SEG_COUNT;i++){ if(src['len'+eye+i]) return true; }
+    return false;
+  });
+  const hasLegacy = src.lenLL||src.lenLM||src.lenLR||src.lenRL||src.lenRM||src.lenRR;
+  const out = {};
+  if(hasNew || !hasLegacy){
+    ['L','R'].forEach(eye=>{
+      for(let i=1;i<=LASH_SEG_COUNT;i++){ out['len'+eye+i] = src['len'+eye+i]||''; }
+    });
+  }else{
+    out.lenL1 = src.lenLL||''; out.lenL2=''; out.lenL3 = src.lenLM||''; out.lenL4=''; out.lenL5 = src.lenLR||'';
+    out.lenR1 = src.lenRL||''; out.lenR2=''; out.lenR3 = src.lenRM||''; out.lenR4=''; out.lenR5 = src.lenRR||'';
+  }
+  return out;
 }
 
 function renderRecordCard(r){
   const expanded = expandedRecordId===r.id;
   const isLashMgmt = r.service==='睫毛管理';
   const totalCount = (Number(r.countLeft)||0) + (Number(r.countRight)||0);
-  const hasSegL = r.lenLL||r.lenLM||r.lenLR;
-  const hasSegR = r.lenRL||r.lenRM||r.lenRR;
+  const segs = migrateLashSegments(r);
+  const hasSegL = LASH_SEG_LABELS.some((_,i)=>segs['lenL'+(i+1)]);
+  const hasSegR = LASH_SEG_LABELS.some((_,i)=>segs['lenR'+(i+1)]);
   let body = '';
   if(expanded){
     body = `<div class="record-body">
@@ -3494,12 +3518,12 @@ function renderRecordCard(r){
         <div class="eye-diagram-block">
           <div class="eye-label">${t('左眼')}</div>
           <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
-          ${hasSegL?`<div class="seg-display"><span>${escapeHtml(r.lenLL||'—')}</span><span>${escapeHtml(r.lenLM||'—')}</span><span>${escapeHtml(r.lenLR||'—')}</span></div>`:''}
+          ${hasSegL?`<div class="seg-display">${LASH_SEG_LABELS.map((_,i)=>`<span>${escapeHtml(segs['lenL'+(i+1)]||'—')}</span>`).join('')}</div>`:''}
         </div>
         <div class="eye-diagram-block">
           <div class="eye-label">${t('右眼')}</div>
           <div class="eye-svg-wrap">${eyeArcSvg('R')}</div>
-          ${hasSegR?`<div class="seg-display"><span>${escapeHtml(r.lenRL||'—')}</span><span>${escapeHtml(r.lenRM||'—')}</span><span>${escapeHtml(r.lenRR||'—')}</span></div>`:''}
+          ${hasSegR?`<div class="seg-display">${LASH_SEG_LABELS.map((_,i)=>`<span>${escapeHtml(segs['lenR'+(i+1)]||'—')}</span>`).join('')}</div>`:''}
         </div>
       </div>`}
       <div class="record-detail-grid">
@@ -3603,8 +3627,7 @@ function startEditRecord(clientId, recordId){
     time: r.time||'', duration: r.duration||90, service: r.service||'', serviceOther: r.serviceOther||'', status: r.status||'completed',
     amount: r.amount||'', deposit: r.deposit||'',
     couponId: r.couponId||'', couponLabel: r.couponLabel||'', discountAmount: r.discountAmount||'', storedValueUsed: r.storedValueUsed||'', storedValueFaceAmount: r.storedValueFaceAmount||'',
-    lenLL: r.lenLL||'', lenLM: r.lenLM||'', lenLR: r.lenLR||'',
-    lenRL: r.lenRL||'', lenRM: r.lenRM||'', lenRR: r.lenRR||'',
+    ...migrateLashSegments(r),
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
     countLeft: r.countLeft||'', countRight: r.countRight||'',
     lowerLength: r.lowerLength||'', lowerCurl: r.lowerCurl||'', lowerCount: r.lowerCount||'', lowerNote: r.lowerNote||'',
@@ -3756,18 +3779,14 @@ function renderNewRecordPanel(){
           <div class="eye-label">${t('左眼')}</div>
           <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
           <div class="seg-inputs">
-            <input type="text" placeholder="${t('左段')}" value="${escapeHtml(d.lenLL||'')}" oninput="newRecordDraft.lenLL=this.value">
-            <input type="text" placeholder="${t('中段')}" value="${escapeHtml(d.lenLM||'')}" oninput="newRecordDraft.lenLM=this.value">
-            <input type="text" placeholder="${t('右段')}" value="${escapeHtml(d.lenLR||'')}" oninput="newRecordDraft.lenLR=this.value">
+            ${LASH_SEG_LABELS.map((lbl,i)=>`<input type="text" placeholder="${t(lbl)}" value="${escapeHtml(d['lenL'+(i+1)]||'')}" oninput="newRecordDraft.lenL${i+1}=this.value">`).join('')}
           </div>
         </div>
         <div class="eye-diagram-block">
           <div class="eye-label">${t('右眼')}</div>
           <div class="eye-svg-wrap">${eyeArcSvg('R')}</div>
           <div class="seg-inputs">
-            <input type="text" placeholder="${t('左段')}" value="${escapeHtml(d.lenRL||'')}" oninput="newRecordDraft.lenRL=this.value">
-            <input type="text" placeholder="${t('中段')}" value="${escapeHtml(d.lenRM||'')}" oninput="newRecordDraft.lenRM=this.value">
-            <input type="text" placeholder="${t('右段')}" value="${escapeHtml(d.lenRR||'')}" oninput="newRecordDraft.lenRR=this.value">
+            ${LASH_SEG_LABELS.map((lbl,i)=>`<input type="text" placeholder="${t(lbl)}" value="${escapeHtml(d['lenR'+(i+1)]||'')}" oninput="newRecordDraft.lenR${i+1}=this.value">`).join('')}
           </div>
         </div>
       </div>
@@ -3909,8 +3928,7 @@ async function saveNewRecord(){
     time: d.time||'', duration: d.duration||'', service: d.service||'', serviceOther: d.serviceOther||'',
     status: d.status||'confirmed', amount: d.amount||'', deposit: d.deposit||'',
     couponId: d.couponId||'', couponLabel: d.couponLabel||'', discountAmount: d.discountAmount||'', storedValueUsed: d.storedValueUsed||'', storedValueFaceAmount: d.storedValueFaceAmount||'',
-    lenLL: d.lenLL||'', lenLM: d.lenLM||'', lenLR: d.lenLR||'',
-    lenRL: d.lenRL||'', lenRM: d.lenRM||'', lenRR: d.lenRR||'',
+    ...migrateLashSegments(d),
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
     countLeft: d.countLeft||'', countRight: d.countRight||'',
     lowerLength: d.lowerLength||'', lowerCurl: d.lowerCurl||'', lowerCount: d.lowerCount||'', lowerNote: d.lowerNote||'',
