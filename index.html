@@ -1248,6 +1248,10 @@ const I18N_EN = {
   '總根數':'Total count',
   '下睫毛款式備註':'Lower Lash Style Notes',
   '例如：僅眼尾3根，自然款':'e.g. 3 lashes at outer corner only, natural style',
+  '使用睫毛品牌（選填）':'Lash Brand (optional)',
+  '松風':'Shofu',
+  '新增自訂品牌':'Add custom brand',
+  '睫毛品牌':'Lash Brand',
   '當次使用膠水品牌/型號':'Glue Brand/Model Used',
   '黑霸':'Heibar', '極速黑膠':'Speed Black Glue', '低敏黑膠':'Low-Sensitivity Black Glue',
   '膠水品牌說明':'Glue Brand Details',
@@ -1661,6 +1665,29 @@ async function saveCustomStyles(){
 }
 function allStyleOptions(){
   return DEFAULT_STYLE_OPTIONS.concat(customStyleOptions);
+}
+
+/* ---- Custom lash brand presets (persisted separately from client data) ---- */
+const DEFAULT_LASH_BRAND_OPTIONS = ['misseyedor','松風'];
+const LASH_BRAND_STORAGE_KEY = 'meiye-custom-lash-brands';
+let customLashBrandOptions = [];
+async function loadCustomLashBrands(){
+  try{
+    const raw = localStorage.getItem(LASH_BRAND_STORAGE_KEY);
+    customLashBrandOptions = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    customLashBrandOptions = [];
+  }
+}
+async function saveCustomLashBrands(){
+  try{
+    localStorage.setItem(LASH_BRAND_STORAGE_KEY, JSON.stringify(customLashBrandOptions));
+  }catch(e){
+    console.error('儲存睫毛品牌失敗', e);
+  }
+}
+function allLashBrandOptions(){
+  return DEFAULT_LASH_BRAND_OPTIONS.concat(customLashBrandOptions);
 }
 function serviceLabelOf(r){
   if(!r.service) return '';
@@ -2243,6 +2270,21 @@ async function addCustomStyle(){
     await saveCustomStyles();
   }
   newRecordDraft.style = val;
+  render();
+}
+function setLashBrandChipByIndex(i){
+  newRecordDraft.lashBrand = allLashBrandOptions()[i];
+  render();
+}
+async function addCustomLashBrand(){
+  const input = document.getElementById('new-lash-brand-input');
+  const val = input.value.trim();
+  if(!val) return;
+  if(!allLashBrandOptions().includes(val)){
+    customLashBrandOptions.push(val);
+    await saveCustomLashBrands();
+  }
+  newRecordDraft.lashBrand = val;
   render();
 }
 function latestServiceDate(client){
@@ -3403,7 +3445,7 @@ function blankRecordDraft(clientId){
     couponId:'', couponLabel:'', discountAmount:'', storedValueUsed:'', storedValueFaceAmount:'',
     lenL1:'', lenL2:'', lenL3:'', lenL4:'', lenL5:'', lenR1:'', lenR2:'', lenR3:'', lenR4:'', lenR5:'',
     style:'', length:'', curl:'', thickness:'', countLeft:'', countRight:'',
-    lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', glueBrand:'', glueBrandOther:'',
+    lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', lashBrand:'', glueBrand:'', glueBrandOther:'',
     beforePhoto:null, afterPhoto:null,
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
     padType:'', eyeShapeNote:'',
@@ -3418,7 +3460,7 @@ function recordDraftFromLast(clientId, last){
     style: last.style||'', length: last.length||'', curl: last.curl||'', thickness: last.thickness||'',
     countLeft: last.countLeft||'', countRight: last.countRight||'',
     lowerLength: last.lowerLength||'', lowerCurl: last.lowerCurl||'', lowerCount: last.lowerCount||'', lowerNote: last.lowerNote||'',
-    glueBrand: last.glueBrand||'', glueBrandOther: last.glueBrandOther||'',
+    lashBrand: last.lashBrand||'', glueBrand: last.glueBrand||'', glueBrandOther: last.glueBrandOther||'',
     beforePhoto:null, afterPhoto:null,
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
@@ -3549,6 +3591,7 @@ function renderRecordCard(r){
         <div class="record-detail-item"><label>${t('下睫毛翹度')}</label><span>${escapeHtml(r.lowerCurl||'—')}</span></div>
         <div class="record-detail-item"><label>${t('下睫毛根數')}</label><span>${escapeHtml(r.lowerCount||'—')}</span></div>
         <div class="record-detail-item"><label>${t('下睫毛備註')}</label><span>${escapeHtml(r.lowerNote||'—')}</span></div>`:''}
+        ${r.lashBrand?`<div class="record-detail-item"><label>${t('睫毛品牌')}</label><span>${escapeHtml(t(r.lashBrand))}</span></div>`:''}
         ${r.glueBrand?`<div class="record-detail-item"><label>${t('使用膠水')}</label><span>${escapeHtml(t(r.glueBrand==='其他'?(r.glueBrandOther||'其他'):r.glueBrand))}</span></div>`:''}`}
       </div>
       ${(r.beforePhoto&&r.beforePhoto.value)||(r.afterPhoto&&r.afterPhoto.value)?`<div class="photo-compare-grid" style="margin-top:12px;">
@@ -3644,7 +3687,7 @@ function startEditRecord(clientId, recordId){
     style: r.style||'', length: r.length||'', curl: r.curl||'', thickness: r.thickness||'',
     countLeft: r.countLeft||'', countRight: r.countRight||'',
     lowerLength: r.lowerLength||'', lowerCurl: r.lowerCurl||'', lowerCount: r.lowerCount||'', lowerNote: r.lowerNote||'',
-    glueBrand: r.glueBrand||'', glueBrandOther: r.glueBrandOther||'',
+    lashBrand: r.lashBrand||'', glueBrand: r.glueBrand||'', glueBrandOther: r.glueBrandOther||'',
     beforePhoto: r.beforePhoto||null, afterPhoto: r.afterPhoto||null,
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
     designNotes: r.designNotes||'', adjustmentNotes: r.adjustmentNotes||'', notes: r.notes||'',
@@ -3855,6 +3898,16 @@ function renderNewRecordPanel(){
         </div>
       </div>
     </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>${t('使用睫毛品牌（選填）')}</label>
+      <div class="chip-select">
+        ${allLashBrandOptions().map((b,i)=>`<button type="button" class="chip ${d.lashBrand===b?'active':''}" onclick="setLashBrandChipByIndex(${i})">${escapeHtml(t(b))}</button>`).join('')}
+      </div>
+      <div class="chip-add-row">
+        <input type="text" id="new-lash-brand-input" placeholder="${t('新增自訂品牌')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomLashBrand();}">
+        <button type="button" onclick="addCustomLashBrand()">＋</button>
+      </div>
+    </div>
     <div class="form-row" style="margin-bottom:12px;">
       <div class="form-field"><label>${t('當次使用膠水品牌/型號')}</label>
         <select onchange="onGlueBrandChange(this.value)">
@@ -3945,7 +3998,7 @@ async function saveNewRecord(){
     style: d.style||'', length: d.length||'', curl: d.curl||'', thickness: d.thickness||'',
     countLeft: d.countLeft||'', countRight: d.countRight||'',
     lowerLength: d.lowerLength||'', lowerCurl: d.lowerCurl||'', lowerCount: d.lowerCount||'', lowerNote: d.lowerNote||'',
-    glueBrand: d.glueBrand||'', glueBrandOther: d.glueBrandOther||'',
+    lashBrand: d.lashBrand||'', glueBrand: d.glueBrand||'', glueBrandOther: d.glueBrandOther||'',
     beforePhoto: d.beforePhoto||null, afterPhoto: d.afterPhoto||null,
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
@@ -4568,6 +4621,7 @@ async function attemptUnlock(){
 async function startApp(){
   await loadData();
   await loadCustomStyles();
+  await loadCustomLashBrands();
   let anyExpired = false;
   clients.forEach(c=>{ if(expireStoredValueLots(c)) anyExpired = true; });
   if(anyExpired) await saveData();
