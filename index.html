@@ -341,6 +341,11 @@ input::placeholder,textarea::placeholder{color:var(--input-placeholder);letter-s
 .member-tier-gold{background:linear-gradient(150deg,#F7E9BE,#D4AF37 45%,#F3E3B8 55%,#B8892E);color:#5C4413;}
 .member-tier-black{background:linear-gradient(150deg,#4A4A4A,#1A1A1A 45%,#3A3A3A 55%,#0A0A0A);color:#EAD9A0;box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);}
 .tier-badge-preview{margin-bottom:12px;}
+.social-consent-flag{
+  display:inline-flex;align-items:center;gap:4px;margin-left:9px;font-size:10.5px;font-weight:700;
+  padding:4px 10px;border-radius:var(--radius-pill);vertical-align:middle;letter-spacing:0.03em;
+  background:#FBEAEA;color:#A14C4C;
+}
 .client-notes-box{
   margin-top:12px;padding:10px 12px;background:#fff;border:1px solid var(--blush-line);
   border-radius:var(--radius-ui);font-size:12.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;
@@ -1170,7 +1175,7 @@ const I18N_EN = {
   'B．生活紀錄調查表':'B. Lifestyle Questionnaire',
   'C．客人簽名':'C. Client Signature',
   '完成，開始新增服務紀錄':'Done, Start New Record',
-  '請先勾選以上全部同意事項，再繼續下一步。':'Please check all consent items above before continuing.',
+  '請先勾選以上必填同意事項，再繼續下一步。':'Please check the required consent items above before continuing.',
   '以下為必填項目，尚未完成：「{label}」。':'This is required and not yet completed: "{label}".',
   '請點選「點此簽名」，讓客人完成簽名後再繼續。':'Please tap "Tap to sign" and have the client sign before continuing.',
   // Service record form
@@ -1413,6 +1418,8 @@ const I18N_EN = {
   '（選填）':'(optional)',
   '補登歷史紀錄':'Backfill Past Record',
   '用於補登客人過去已完成的舊紀錄，不會出現同意書與問卷流程':'Use this to backfill a client\'s past record from before you used this tool — skips the consent and questionnaire flow',
+  '不公開社群':'No Social Posting',
+  '此客人不同意作品公開發佈至社群平台':'This client has not agreed to have their photos posted on public social media',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -1627,6 +1634,12 @@ const CONSENT_ITEMS = [
   '本工作室會拍攝美睫作品作為作品集及社群平台分享；如不希望公開，請提前告知，我們會尊重您的意願。',
   '若需拍攝美睫作品，同意美睫師發佈至公開社群平台（Facebook、Instagram、Threads）。',
 ];
+/* Only the liability/waiver items are required to proceed. The last item (publishing
+   photos to public social media) is the client's call — declining it is a privacy
+   choice, not a reason to refuse service, so it stays checkable but optional. Its
+   answer is still saved onto the client (client.socialMediaConsent) so the artist
+   knows whether that client's photos may be posted. */
+const CONSENT_REQUIRED_COUNT = CONSENT_ITEMS.length - 1;
 
 function blankStatus(){
   const s = {};
@@ -2783,7 +2796,7 @@ function renderClientCard(client){
       <div class="client-card-identity">
         ${avatarHtml(client, 56)}
         <div>
-          <h1>${escapeHtml(client.name)}${memberTier?`<span class="member-tier-badge ${TIER_BADGE_CLASSES[memberTier.badgeIdx%TIER_BADGE_CLASSES.length]}">${escapeHtml(t(memberTier.label))}</span>`:''}</h1>
+          <h1>${escapeHtml(client.name)}${memberTier?`<span class="member-tier-badge ${TIER_BADGE_CLASSES[memberTier.badgeIdx%TIER_BADGE_CLASSES.length]}">${escapeHtml(t(memberTier.label))}</span>`:''}${client.socialMediaConsent===false?`<span class="social-consent-flag" title="${t('此客人不同意作品公開發佈至社群平台')}">🚫 ${t('不公開社群')}</span>`:''}</h1>
         </div>
       </div>
       <button class="btn-ghost btn btn-sm" onclick='openEditClientModal(${JSON.stringify(client).replace(/'/g,"&#39;")})'>${t('編輯客戶資料')}</button>
@@ -3288,9 +3301,10 @@ function renderConsentView(){
   const client = clients.find(c=>c.id===consentDraft.clientId);
   const consentHtml = CONSENT_ITEMS.map((text,i)=>{
     const checked = consentDraft.checks[i];
+    const isOptional = i >= CONSENT_REQUIRED_COUNT;
     return `<label class="consent-item">
       <input type="checkbox" ${checked?'checked':''} onchange="toggleConsentCheck(${i})">
-      <span>${i+1}. ${escapeHtml(t(text))}</span>
+      <span>${i+1}. ${escapeHtml(t(text))}${isOptional?` <span class="field-optional-hint">${t('（選填）')}</span>`:''}</span>
     </label>`;
   }).join('');
   const questionnaireHtml = renderStatusFieldsGrouped(QUESTIONNAIRE_FIELD_KEYS, true);
@@ -3347,8 +3361,8 @@ function renderConsentView(){
   `;
 }
 async function submitConsentAndContinue(){
-  if(!consentDraft.checks.every(Boolean)){
-    consentError = t('請先勾選以上全部同意事項，再繼續下一步。');
+  if(!consentDraft.checks.slice(0, CONSENT_REQUIRED_COUNT).every(Boolean)){
+    consentError = t('請先勾選以上必填同意事項，再繼續下一步。');
     render();
     document.getElementById('consent-error')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
@@ -3381,6 +3395,7 @@ async function submitConsentAndContinue(){
   const client = clients.find(c=>c.id===clientId);
   client.status = JSON.parse(JSON.stringify(statusDraft));
   client.statusUpdatedAt = consentAgreedAt;
+  client.socialMediaConsent = !!consentDraft.checks[CONSENT_REQUIRED_COUNT];
   await saveData();
 
   newRecordDraft = copyFromLast
