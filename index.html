@@ -1420,6 +1420,11 @@ const I18N_EN = {
   '用於補登客人過去已完成的舊紀錄，不會出現同意書與問卷流程':'Use this to backfill a client\'s past record from before you used this tool — skips the consent and questionnaire flow',
   '不公開社群':'No Social Posting',
   '此客人不同意作品公開發佈至社群平台':'This client has not agreed to have their photos posted on public social media',
+  '如果出現「資料儲存失敗」訊息，可以先試試這個':'If you see a ‘failed to save’ message, try this first',
+  '釋放儲存空間':'Free Up Space',
+  '正在壓縮照片與簽名，請稍候…':'Compressing photos and signatures, please wait…',
+  '已壓縮 {n} 張照片／簽名，成功釋放儲存空間':'Compressed {n} photo(s)/signature(s) — storage space freed up',
+  '目前沒有可壓縮的照片或簽名':'No photos or signatures need compressing right now',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -1440,10 +1445,60 @@ async function loadData(){
 async function saveData(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+    return true;
   }catch(e){
     console.error('儲存失敗', e);
     showToast(t('資料儲存失敗，請稍後再試一次（可能是瀏覽器儲存空間已滿）。'));
+    return false;
   }
+}
+/* Downscale+recompress a data: image URL on an offscreen canvas. Used both to keep
+   newly-captured signatures small from the start, and to shrink already-stored
+   signatures/photos when a user is hitting the localStorage quota. */
+function shrinkDataUrl(dataUrl, maxWidth, quality){
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.onload = function(){
+      const scale = Math.min(1, maxWidth/img.width);
+      const w = Math.max(1, Math.round(img.width*scale)), h = Math.max(1, Math.round(img.height*scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = function(){ resolve(dataUrl); };
+    img.src = dataUrl;
+  });
+}
+/* One-tap recovery for users already hitting "storage full": re-compress every stored
+   signature and service photo in place, then save. Since the rewritten data is strictly
+   smaller, this can succeed even when ordinary saves are currently failing. */
+async function compressStoredMedia(){
+  showToast(t('正在壓縮照片與簽名，請稍候…'));
+  let touched = 0;
+  for(const c of clients){
+    for(const r of (c.serviceRecords||[])){
+      if(r.signatureDataUrl && r.signatureDataUrl.length > 20000){
+        const smaller = await shrinkDataUrl(r.signatureDataUrl, 600, 0.82);
+        if(smaller && smaller.length < r.signatureDataUrl.length){ r.signatureDataUrl = smaller; touched++; }
+      }
+      for(const slot of ['beforePhoto','afterPhoto']){
+        const p = r[slot];
+        if(p && p.type==='data' && p.value && p.value.length > 40000){
+          const smaller = await shrinkDataUrl(p.value, 400, 0.6);
+          if(smaller && smaller.length < p.value.length){ p.value = smaller; touched++; }
+        }
+      }
+    }
+  }
+  const ok = await saveData();
+  if(ok){
+    showToast(touched>0 ? t('已壓縮 {n} 張照片／簽名，成功釋放儲存空間',{n:touched}) : t('目前沒有可壓縮的照片或簽名'));
+  }
+  render();
 }
 
 function uid(prefix){
@@ -1487,6 +1542,7 @@ const NAV_ICON_PATHS = {
   clipboardList: `<rect x='5' y='4' width='14' height='17' rx='2'/><path d='M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z'/><line x1='8.5' y1='11' x2='15.5' y2='11'/><line x1='8.5' y1='14.5' x2='15.5' y2='14.5'/><line x1='8.5' y1='18' x2='12.5' y2='18'/>`,
   gift: `<rect x='3.5' y='9.5' width='17' height='11' rx='1.5'/><path d='M3.5 9.5h17V13h-17Z'/><line x1='12' y1='9.5' x2='12' y2='20.5'/><path d='M12 9.5c-1.2 0-4-0.4-4-3a2.2 2.2 0 0 1 4-1.3'/><path d='M12 9.5c1.2 0 4-0.4 4-3a2.2 2.2 0 0 0-4-1.3'/>`,
   camera: `<path d='M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5Z'/><circle cx='12' cy='12.5' r='3.4'/>`,
+  storage: `<ellipse cx='12' cy='6' rx='7' ry='3'/><path d='M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6'/><path d='M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6'/>`,
 };
 function navIconSvg(name){
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAV_ICON_PATHS[name]||''}</svg>`;
@@ -1866,6 +1922,10 @@ function renderListView(){
         <button class="icon-btn" onclick="triggerImport()">
           <span class="icon-btn-glyph">${navIconSvg('upload')}</span>
           <span class="icon-btn-label"><span class="zh">匯入備份</span><span class="en">IMPORT</span></span>
+        </button>
+        <button class="icon-btn" onclick="compressStoredMedia()" title="${t('如果出現「資料儲存失敗」訊息，可以先試試這個')}">
+          <span class="icon-btn-glyph">${navIconSvg('storage')}</span>
+          <span class="icon-btn-label"><span class="zh">釋放儲存空間</span><span class="en">FREE UP SPACE</span></span>
         </button>
         <button class="icon-btn" onclick="openNotifications()">
           <span class="icon-btn-glyph">${navIconSvg('bell')}</span>
@@ -3292,7 +3352,8 @@ function attachConsentBehaviors(){
   function finishStroke(){
     if(!drawing) return;
     drawing = false;
-    consentDraft.signatureDataUrl = canvas.toDataURL('image/png');
+    const rawUrl = canvas.toDataURL('image/png');
+    shrinkDataUrl(rawUrl, 600, 0.82).then(compactUrl=>{ consentDraft.signatureDataUrl = compactUrl; });
   }
   canvas.addEventListener('pointerup', finishStroke);
   canvas.addEventListener('pointercancel', finishStroke);
