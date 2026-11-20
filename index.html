@@ -1425,6 +1425,18 @@ const I18N_EN = {
   '正在壓縮照片與簽名，請稍候…':'Compressing photos and signatures, please wait…',
   '已壓縮 {n} 張照片／簽名，成功釋放儲存空間':'Compressed {n} photo(s)/signature(s) — storage space freed up',
   '目前沒有可壓縮的照片或簽名':'No photos or signatures need compressing right now',
+  '商品購買':'Product Purchase',
+  '新增商品購買':'Add Product Purchase',
+  '商品名稱':'Product Name',
+  '新增自訂商品':'Add custom product',
+  '數量（選填）':'Quantity (optional)',
+  '數量':'Quantity',
+  '例如：1':'e.g. 1',
+  '・數量 {v}':' · Qty {v}',
+  '備註（選填）':'Notes (optional)',
+  '例如：客人指定款式、追加訂購':'e.g. client requested a specific brand, reorder',
+  '睫毛雨衣':'Lash Shower Shield',
+  '睫毛增長液':'Lash Growth Serum',
 };
 function t(zh, vars){
   let s = (currentLang==='en' && I18N_EN[zh]!=null) ? I18N_EN[zh] : zh;
@@ -1709,7 +1721,7 @@ function blankStatus(){
 
 
 const TECHNIQUES = ['單根','歐美','3D','4D','6D','Y Y','其他'];
-const SERVICE_ITEMS = ['全新嫁接','補睫','睫毛管理','卸睫','其他'];
+const SERVICE_ITEMS = ['全新嫁接','補睫','睫毛管理','卸睫','商品購買','其他'];
 const GLUE_BRANDS = ['黑霸','極速黑膠','低敏黑膠','其他'];
 const CONTRAINDICATION_PRESETS = ['眼睛敏感','過敏體質','隱形眼鏡配戴者','睫毛膠過敏','乾眼症','蟹足腫體質','懷孕／哺乳中'];
 
@@ -1757,6 +1769,34 @@ async function saveCustomLashBrands(){
 }
 function allLashBrandOptions(){
   return DEFAULT_LASH_BRAND_OPTIONS.concat(customLashBrandOptions);
+}
+
+/* ---- Custom product presets (persisted separately from client data) ---- */
+const DEFAULT_PRODUCT_OPTIONS = ['睫毛雨衣','睫毛增長液'];
+const PRODUCT_STORAGE_KEY = 'meiye-custom-products';
+let customProductOptions = [];
+async function loadCustomProducts(){
+  try{
+    const raw = localStorage.getItem(PRODUCT_STORAGE_KEY);
+    customProductOptions = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    customProductOptions = [];
+  }
+}
+async function saveCustomProducts(){
+  try{
+    localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(customProductOptions));
+  }catch(e){
+    console.error('儲存商品項目失敗', e);
+  }
+}
+function allProductOptions(){
+  return DEFAULT_PRODUCT_OPTIONS.concat(customProductOptions);
+}
+/* Records whose "service" is a retail product sale, not an appointment — excluded from
+   booking/visit/revisit stats and the calendar, but still counted in revenue and points. */
+function isProductRecord(r){
+  return r.service==='商品購買';
 }
 function serviceLabelOf(r){
   if(!r.service) return '';
@@ -1859,7 +1899,7 @@ function renderClientListItems(highlightId){
   return '<div class="client-list">' + filtered.map(c=>{
     const lastVisit = latestServiceDate(c) || c.status.lastLashDate || '';
     const tagCount = (c.contraindications||[]).length;
-    const visitCount = (c.serviceRecords||[]).length;
+    const visitCount = (c.serviceRecords||[]).filter(r=>!isProductRecord(r)).length;
     return `<div class="client-card ${c.id===highlightId?'active':''}" onclick="openClient('${c.id}')">
       <div class="client-main-wrap">
         ${avatarHtml(c, 38)}
@@ -2079,7 +2119,7 @@ function collectAppointmentsForDate(dateStr){
   const results = [];
   clients.forEach(c=>{
     (c.serviceRecords||[]).forEach(r=>{
-      if(r.date===dateStr){
+      if(r.date===dateStr && !isProductRecord(r)){
         results.push(Object.assign({}, r, {clientName:c.name, clientId:c.id}));
       }
     });
@@ -2360,13 +2400,28 @@ async function addCustomLashBrand(){
   newRecordDraft.lashBrand = val;
   render();
 }
+function setProductChipByIndex(i){
+  newRecordDraft.productName = allProductOptions()[i];
+  render();
+}
+async function addCustomProduct(){
+  const input = document.getElementById('new-product-input');
+  const val = input.value.trim();
+  if(!val) return;
+  if(!allProductOptions().includes(val)){
+    customProductOptions.push(val);
+    await saveCustomProducts();
+  }
+  newRecordDraft.productName = val;
+  render();
+}
 function latestServiceDate(client){
   const recs = client.serviceRecords||[];
   if(recs.length===0) return null;
   return recs.slice().sort((a,b)=> b.date.localeCompare(a.date))[0].date;
 }
 function computeRevisitStats(client){
-  const recs = (client.serviceRecords||[]).slice().sort((a,b)=> a.date.localeCompare(b.date));
+  const recs = (client.serviceRecords||[]).filter(r=>!isProductRecord(r)).slice().sort((a,b)=> a.date.localeCompare(b.date));
   if(recs.length < 2) return null;
   const dates = recs.map(r=> new Date(r.date+'T00:00:00'));
   let totalGapDays = 0;
@@ -2384,7 +2439,7 @@ function computeRevisitStats(client){
   };
 }
 function computeClientBookingStats(client){
-  const recs = client.serviceRecords||[];
+  const recs = (client.serviceRecords||[]).filter(r=>!isProductRecord(r));
   const firstDate = recs.length ? recs.slice().sort((a,b)=>a.date.localeCompare(b.date))[0].date : '';
   return {
     totalCount: recs.length,
@@ -2822,7 +2877,7 @@ function sourceLabel(client){
   return client.source==='其他' ? (client.sourceOther||'其他') : client.source;
 }
 function renderClientCard(client){
-  const visitCount = (client.serviceRecords||[]).length;
+  const visitCount = (client.serviceRecords||[]).filter(r=>!isProductRecord(r)).length;
   const rows = [];
   if(client.phone) rows.push(`<span class="card-info-item">📞 ${escapeHtml(client.phone)}</span>`);
   if(client.email) rows.push(`<span class="card-info-item">✉️ ${escapeHtml(client.email)}</span>`);
@@ -3503,6 +3558,7 @@ function renderServiceSection(client){
       ${recs.length?`<button class="btn-ghost btn btn-sm" onclick="startConsentFlow('${client.id}', {copyFromLast:true})" title="${t('一鍵帶入上一筆紀錄的所有設定，開啟後只需要修改有變動的地方')}">${t('沿用上次設定')}</button>`:''}
       <button class="btn btn-sm" onclick="startConsentFlow('${client.id}')">＋ ${t('新增服務紀錄')}</button>
       <button class="btn-ghost btn btn-sm" onclick="startBackfillRecord('${client.id}')" title="${t('用於補登客人過去已完成的舊紀錄，不會出現同意書與問卷流程')}">＋ ${t('補登歷史紀錄')}</button>
+      <button class="btn-ghost btn btn-sm" onclick="startAddProductPurchase('${client.id}')">＋ ${t('新增商品購買')}</button>
     </div>`;
 
   const historyHtml = recs.length ? `<div class="service-history">${recs.map(r=>renderRecordCard(r)).join('')}</div>`
@@ -3524,7 +3580,7 @@ function blankRecordDraft(clientId){
     lowerLength:'', lowerCurl:'', lowerCount:'', lowerNote:'', lashBrand:'', glueBrand:'', glueBrandOther:'',
     beforePhoto:null, afterPhoto:null,
     technique:'單根', techniqueOther:'', designNotes:'', adjustmentNotes:'', notes:'',
-    padType:'', eyeShapeNote:'',
+    padType:'', eyeShapeNote:'', productName:'', productQty:'',
   };
 }
 function recordDraftFromLast(clientId, last){
@@ -3541,6 +3597,7 @@ function recordDraftFromLast(clientId, last){
     technique: last.technique||'單根', techniqueOther: last.techniqueOther||'',
     designNotes: last.designNotes||'', adjustmentNotes: '', notes: last.notes||'',
     padType: last.padType||'', eyeShapeNote: last.eyeShapeNote||'',
+    productName: '', productQty: '',
   };
 }
 
@@ -3628,6 +3685,7 @@ function migrateLashSegments(src){
 function renderRecordCard(r){
   const expanded = expandedRecordId===r.id;
   const isLashMgmt = r.service==='睫毛管理';
+  const isProduct = r.service==='商品購買';
   const totalCount = (Number(r.countLeft)||0) + (Number(r.countRight)||0);
   const segs = migrateLashSegments(r);
   const hasSegL = LASH_SEG_LABELS.some((_,i)=>segs['lenL'+(i+1)]);
@@ -3635,7 +3693,7 @@ function renderRecordCard(r){
   let body = '';
   if(expanded){
     body = `<div class="record-body">
-      ${isLashMgmt?'':`<div class="eye-diagrams">
+      ${(isLashMgmt||isProduct)?'':`<div class="eye-diagrams">
         <div class="eye-diagram-block">
           <div class="eye-label">${t('左眼')}</div>
           <div class="eye-svg-wrap">${eyeArcSvg('L')}</div>
@@ -3652,7 +3710,9 @@ function renderRecordCard(r){
         ${r.time?`<div class="record-detail-item"><label>${t('時間')}</label><span>${escapeHtml(r.time)}</span></div>`:''}
         ${r.amount?`<div class="record-detail-item"><label>${t('金額')}</label><span>${money(r.amount)}${r.discountAmount?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">${t('已使用優惠券「{name}」折抵 {v}',{name:escapeHtml(r.couponLabel||''),v:money(r.discountAmount)})}</span>`:''}${r.storedValueUsed?`<br><span style="color:var(--mocha-deep);font-size:11.5px;">${r.storedValueFaceAmount&&Number(r.storedValueFaceAmount)!==Number(r.storedValueUsed)?t('使用儲值支付 {a} 消費，實際扣除餘額 {b}',{a:money(r.storedValueFaceAmount),b:money(r.storedValueUsed)}):t('已使用儲值餘額折抵 {v}',{v:money(r.storedValueUsed)})}</span>`:''}</span></div>`:''}
         ${r.deposit?`<div class="record-detail-item"><label>${t('訂金')}</label><span>${money(r.deposit)}</span></div>`:''}
-        ${isLashMgmt?`
+        ${isProduct?`
+        <div class="record-detail-item"><label>${t('商品名稱')}</label><span>${escapeHtml(t(r.productName||'—'))}</span></div>
+        ${r.productQty?`<div class="record-detail-item"><label>${t('數量')}</label><span>${escapeHtml(r.productQty)}</span></div>`:''}`:isLashMgmt?`
         <div class="record-detail-item"><label>${t('墊片款式')}</label><span>${escapeHtml(r.padType||'—')}</span></div>
         <div class="record-detail-item"><label>${t('眼型')}</label><span>${escapeHtml(r.eyeShapeNote||'—')}</span></div>
         <div class="record-detail-item"><label>${t('第幾次操作')}</label><span>${t('第 {n} 次',{n:lashManagementVisitNumber(r.clientId, r.id)})}</span></div>`:`
@@ -3688,7 +3748,9 @@ function renderRecordCard(r){
       </div>
     </div>`;
   }
-  const summaryHtml = isLashMgmt
+  const summaryHtml = isProduct
+    ? `${escapeHtml(t(r.productName||serviceLabelOf(r)||''))}${r.productQty?t('・數量 {v}',{v:escapeHtml(r.productQty)}):''}`
+    : isLashMgmt
     ? `${escapeHtml(t(serviceLabelOf(r)||''))}${r.padType?t('・墊片 {v}',{v:escapeHtml(r.padType)}):''}${r.eyeShapeNote?` · ${escapeHtml(r.eyeShapeNote)}`:''}`
     : `${escapeHtml(serviceLabelOf(r)?t(serviceLabelOf(r))+' · ':(r.style?t(r.style)+' · ':''))}${escapeHtml(r.length||'')} ${escapeHtml(r.curl||'')} ${escapeHtml(r.thickness||'')}${(r.lowerLength||r.lowerCurl)?`<span class="record-summary-lower">${t('・下睫毛 {a} {b}',{a:escapeHtml(r.lowerLength||''),b:escapeHtml(r.lowerCurl||'')})}</span>`:''}`;
   return `<div class="record-card">
@@ -3699,7 +3761,7 @@ function renderRecordCard(r){
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
         ${r.status?`<button class="status-pill status-${r.status}" onclick="event.stopPropagation(); cycleAppointmentStatus('${r.clientId}','${r.id}')">${escapeHtml(t(APPT_STATUS_LABELS[r.status]||r.status))}</button>`:''}
-        ${(!isLashMgmt&&r.technique)?`<span class="record-tech">${escapeHtml(t(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique))}</span>`:''}
+        ${(!isLashMgmt&&!isProduct&&r.technique)?`<span class="record-tech">${escapeHtml(t(r.technique==='其他'?(r.techniqueOther||'其他'):r.technique))}</span>`:''}
       </div>
     </div>
     ${body}
@@ -3720,6 +3782,9 @@ function lashManagementVisitNumber(clientId, recordId){
 }
 function summarizeRecord(r){
   if(!r) return '';
+  if(r.service==='商品購買'){
+    return `${t(r.productName||'')}${r.productQty?t('・數量 {v}',{v:r.productQty}):''}`;
+  }
   const techLabel = r.technique==='其他' ? (r.techniqueOther||'其他') : r.technique;
   const upper = [r.style, r.length, r.curl, r.thickness, techLabel].filter(Boolean).map(s=>t(s)).join(' · ');
   const lower = [r.lowerLength, r.lowerCurl].filter(Boolean).join('/');
@@ -3749,6 +3814,18 @@ function startBackfillRecord(clientId){
   const panel = document.getElementById('new-record-panel');
   if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
+/* Logging a retail product sale (lash shower cap, growth serum, etc.) is never a
+   consultation — skip the consent flow entirely, same as backfilling a past record. */
+function startAddProductPurchase(clientId){
+  newRecordDraft = blankRecordDraft(clientId);
+  newRecordDraft.service = '商品購買';
+  newRecordDraft.technique = '';
+  newRecordDraft.date = todayStr();
+  expandedRecordId = null;
+  render();
+  const panel = document.getElementById('new-record-panel');
+  if(panel) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
 function startEditRecord(clientId, recordId){
   const client = clients.find(c=>c.id===clientId);
   const r = client.serviceRecords.find(x=>x.id===recordId);
@@ -3768,6 +3845,7 @@ function startEditRecord(clientId, recordId){
     technique: r.technique||'單根', techniqueOther: r.techniqueOther||'',
     designNotes: r.designNotes||'', adjustmentNotes: r.adjustmentNotes||'', notes: r.notes||'',
     padType: r.padType||'', eyeShapeNote: r.eyeShapeNote||'',
+    productName: r.productName||'', productQty: r.productQty||'',
   };
   expandedRecordId = null;
   render();
@@ -3832,6 +3910,7 @@ function renderNewRecordPanel(){
     </div>` : '';
   const apptStatus = d.status || 'confirmed';
   const isLashMgmt = d.service==='睫毛管理';
+  const isProduct = d.service==='商品購買';
   const visitNumberHtml = isLashMgmt && d.clientId ? `<div class="form-field"><label>${t('第幾次操作')}</label>
         <input type="text" value="${t('第 {n} 次',{n:lashManagementVisitNumber(d.clientId, d.id)})}" disabled></div>` : '';
 
@@ -3893,7 +3972,23 @@ function renderNewRecordPanel(){
     <div class="field-hint" style="margin:-8px 0 12px;">${t('訂金只在客人「未到」時才會用到：客人爽約但有先收訂金，這筆訂金會算進本月營收；正常完成服務的話不用填，「金額」會直接算進營收。')}</div>
     ${renderCouponPickerHtml(d)}
     ${renderStoredValueUseHtml(d)}
-    ${isLashMgmt?'':`
+    ${isProduct?`
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>${t('商品名稱')}</label>
+      <div class="chip-select">
+        ${allProductOptions().map((p,i)=>`<button type="button" class="chip ${d.productName===p?'active':''}" onclick="setProductChipByIndex(${i})">${escapeHtml(t(p))}</button>`).join('')}
+      </div>
+      <div class="chip-add-row">
+        <input type="text" id="new-product-input" placeholder="${t('新增自訂商品')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomProduct();}">
+        <button type="button" onclick="addCustomProduct()">＋</button>
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;max-width:160px;">
+      <label>${t('數量（選填）')}</label>
+      <input type="number" min="1" value="${escapeHtml(d.productQty||'')}" placeholder="${t('例如：1')}" oninput="newRecordDraft.productQty=this.value">
+    </div>
+    `:''}
+    ${(isLashMgmt||isProduct)?'':`
     <div class="form-field" style="margin-bottom:12px;">
       <label>${t('款式')}</label>
       <div class="chip-select">
@@ -4006,16 +4101,17 @@ function renderNewRecordPanel(){
         <input type="text" value="${escapeHtml(d.techniqueOther)}" placeholder="${t('請輸入技術名稱')}" oninput="newRecordDraft.techniqueOther=this.value">
       </div>
     </div>`}
+    ${isProduct?'':`
     <div class="form-field" style="margin-bottom:14px;">
       <label>${t('照片對比（術前 / 術後，選填）')}</label>
       <div class="photo-compare-grid">
         ${renderPhotoSlotHtml(d, 'before', '📷 '+t('術前 Before'))}
         ${renderPhotoSlotHtml(d, 'after', '📷 '+t('術後 After'))}
       </div>
-    </div>
+    </div>`}
     <div class="form-field" style="margin-bottom:4px;">
-      <label>${isLashMgmt?t('注意事項（選填）'):t('其他備註（選填）')}</label>
-      <textarea placeholder="${isLashMgmt?t('例如：對某款膠水過敏、眼皮較薄'):t('例如：客人指定樣式、其他提醒…')}" oninput="newRecordDraft.notes=this.value">${escapeHtml(d.notes)}</textarea>
+      <label>${isProduct?t('備註（選填）'):(isLashMgmt?t('注意事項（選填）'):t('其他備註（選填）'))}</label>
+      <textarea placeholder="${isProduct?t('例如：客人指定款式、追加訂購'):(isLashMgmt?t('例如：對某款膠水過敏、眼皮較薄'):t('例如：客人指定樣式、其他提醒…'))}" oninput="newRecordDraft.notes=this.value">${escapeHtml(d.notes)}</textarea>
     </div>
     <div id="new-record-error" style="color:var(--alert);font-size:12.5px;margin-bottom:6px;"></div>
     <div class="form-actions">
@@ -4079,6 +4175,7 @@ async function saveNewRecord(){
     technique: d.technique||'', techniqueOther: d.techniqueOther||'',
     designNotes: d.designNotes||'', adjustmentNotes: d.adjustmentNotes||'', notes: d.notes||'',
     padType: d.padType||'', eyeShapeNote: d.eyeShapeNote||'',
+    productName: d.productName||'', productQty: d.productQty||'',
   };
   if(d.consentAgreed){
     payload.consentAgreed = true;
@@ -4698,6 +4795,7 @@ async function startApp(){
   await loadData();
   await loadCustomStyles();
   await loadCustomLashBrands();
+  await loadCustomProducts();
   let anyExpired = false;
   clients.forEach(c=>{ if(expireStoredValueLots(c)) anyExpired = true; });
   if(anyExpired) await saveData();
